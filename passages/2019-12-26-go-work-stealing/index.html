@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>（译）Go：Go 调度器的任务窃取（Work-Stealing） | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,golang,翻译," />
+  
+
+  
+  <meta name="description" content="ℹ️ 这篇文章基于 Go 1.13 环境。在 Go 中创建 gorotine 既方便又快捷，然而 go 在同一时间内最多在一个核上运行一个 gorotine，因此需要一种方法来存放其他的gorotine，从而确保处理器（processor）负载均衡。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2019-12-28",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-12-26
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    （译）Go：Go 调度器的任务窃取（Work-Stealing）
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="Goroutine-队列"><a href="#Goroutine-队列" class="headerlink" title="Goroutine 队列"></a>Goroutine 队列</h2><p>Go 使用两级队列来管理等待中的 goroutine，分别为本地队列和全局队列。每一个处理器都拥有本地队列，而全局队列是唯一的，且能被所有的处理器访问到：</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-1.png" alt="Global and local queues"></p>
+<p>每个本地队列都有最大容量，为 256。在容量满了之后，任意新到来的 goroutine 都会被放置到全局队列。下面的例子是，生产了上千个 goroutine 的程序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line">   var wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line">   for i :&#x3D; 0;i &lt; 2000 ;i++ &#123;</span><br><span class="line">      wg.Add(1)</span><br><span class="line">      go func() &#123;</span><br><span class="line">         a :&#x3D; 0</span><br><span class="line"></span><br><span class="line">         for i :&#x3D; 0; i &lt; 1e6; i++ &#123;</span><br><span class="line">            a +&#x3D; 1</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         wg.Done()</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面是拥有两个处理器的调度器追踪数据（traces）：</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-2.png" alt="Details of the local and global queues"></p>
+<p>追踪数据通过 <code>runqueue</code> 展示了全局队列中 goroutine 的数量，以及方括号中 <code>[3 256]</code> 的本地队列goroutine数量（分别为<code>P0</code>和<code>P1</code>）。当本地队列满了，积压了256个等待中的 goroutine后，下一个 goroutine 会被压栈到全局队列中，正如我们从 <code>runqueue</code> 看到的数量增长一样。</p>
+<p><em>Goroutine 仅在本地队列满载之后才会加入到全局队列；它也会在 Go 往调度器中批量注入时被加到全局队列，例如，网络轮询器（network poller） 或者在垃圾回收期间等待的 goroutine。</em></p>
+<p>下面是上一个例子的图示：</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-3.png" alt="Local queues have up to 256 goroutines"></p>
+<p>不过，我们还想知道，为什么本地队列 <code>P0</code> 在上一个列子中不为空。因为Go使用了其他策略确保每个处理器都有任务处理。</p>
+<h2 id="任务窃取"><a href="#任务窃取" class="headerlink" title="任务窃取"></a>任务窃取</h2><p>如果处理器没有任务可处理，它会按以下规则来执行，直到满足某一条规则：</p>
+<ul>
+<li>从本地队列获取任务</li>
+<li>从全局队列获取任务</li>
+<li>从网络轮询器获取任务</li>
+<li>从其它的处理器的本地队列窃取任务</li>
+</ul>
+<p>在我们前面的例子中，主函数在 <code>P1</code> 上运行并创建 goroutine。当第一批 gourinte 已经进入了 <code>P1</code> 的本地队列时，<code>P0</code> 正在寻找任务。然而，它的本地队列，全局队列，以及网络轮询器都是空的。最后的解决方法是从 <code>P1</code> 中窃取任务。</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-4.png" alt="Work-stealing by P0"></p>
+<p>下面是调度器在发生任务窃取前后的追踪数据：</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-8.png" alt="Work-stealing by P0"></p>
+<p>追踪数据展示了，处理器是如何从其它处理器中窃取任务的。它从（其他处理器的）本地队列中取走一半的 goroutine；在七个 goroutine 中，偷走了四个 —— 其中一个立马在 <code>P0</code> 执行，剩下的放到本地队列。现在处理器间工作处于负载良好的状态。这能通过执行 tracing 来确认：</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-5.png" alt="img"></p>
+<p>goroutine 被合理地分发，然后因为没有 I/O，goroutine 被链式执行而不需要切换。我们现在看一下，当出现例如涉及到文件操作等 I/O时，会发生什么。</p>
+<h2 id="I-O-与全局队列"><a href="#I-O-与全局队列" class="headerlink" title="I/O 与全局队列"></a>I/O 与全局队列</h2><p>一起看下涉及到文件操作的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line">   var wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line">   for i :&#x3D; 0;i &lt; 20 ;i++ &#123;</span><br><span class="line">      wg.Add(1)</span><br><span class="line">      go func() &#123;</span><br><span class="line">         a :&#x3D; 0</span><br><span class="line">         for i :&#x3D; 0; i &lt; 1e6; i++ &#123;</span><br><span class="line">            a +&#x3D; 1</span><br><span class="line">            if i &#x3D;&#x3D; 1e6&#x2F;2 &#123;</span><br><span class="line">               bytes, _ :&#x3D; ioutil.ReadFile(&#96;add.txt&#96;)</span><br><span class="line">               inc, _ :&#x3D; strconv.Atoi(string(bytes))</span><br><span class="line">               a +&#x3D; inc</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         wg.Done()</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>变量 <code>a</code> 随着时间以文件的字节数增加，下面是新的追踪数据：</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-6.png" alt="img"></p>
+<p>在这个例子中，我们能看到每一个 goroutine 不只被一个处理器处理。在系统调用的情况下，当调用完成后，Go 使用网络轮询器从全局队列中把 gouroutine 取回来。这里是 goroutine #35 的一个示意图：</p>
+<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-7.png" alt="I/O operations put the work back to the global queue"></p>
+<p>当一个处理器能从全局队列中获取任务，第一个可用的处理器（ <code>P</code>） 会执行这个 goroutine。这个行为解释了，为什么一个 goroutine 能在不同的处理器中运行，也展示了 go 是如何让空闲的处理器资源运行 goroutine，从而进行系统调用的优化。</p>
+<hr>
+<p>via: <a href="https://medium.com/a-journey-with-go/go-work-stealing-in-go-scheduler-d439231be64d" target="_blank" rel="noopener">https://medium.com/a-journey-with-go/go-work-stealing-in-go-scheduler-d439231be64d</a></p>
+<p>作者：<a href="https://medium.com/@blanchon.vincent" target="_blank" rel="noopener">Vincent Blanchon</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/校对者ID" target="_blank" rel="noopener">校对者ID</a></p>
+<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Goroutine-队列"><span class="toc-text">Goroutine 队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#任务窃取"><span class="toc-text">任务窃取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#I-O-与全局队列"><span class="toc-text">I&#x2F;O 与全局队列</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2019-12-26-go-work-stealing/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+     
+      <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

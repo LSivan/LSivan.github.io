@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>（译）Go：切片陷阱 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,golang,翻译," />
+  
+
+  
+  <meta name="description" content="梁兴威的“抽屉”">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2019-12-28",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-03-10
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    （译）Go：切片陷阱
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我最喜欢 Go 的一个特性就是，毫无惊喜。某些程度上可以说有点无聊的感觉。这是编程语言的一个优秀的品质。这样的话，在编码的时候就可以专注于手头上的问题，而不是<a href="https://twitter.com/chordbug/status/1092824183124488192?s=19" target="_blank" rel="noopener">语言做了你不希望它做的事情</a>。</p>
+<p>这篇文章有关 Go 的一个对新人来说最 “惊喜” 的特性 : slice。</p>
+<h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><p>如果你了解如何使用 Go slice, 请跳到下一节。</p>
+<p>你可以这样声明一个 slice:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a []<span class="keyword">int</span></span><br></pre></td></tr></table></figure>
+
+<p>带字面量的 slice:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>slice 是可变长度的集合。不像数组，slice 可以按需进行增长和切分。</p>
+<p>数组 :</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 全 0 数组，大小为 4</span></span><br><span class="line"><span class="keyword">var</span> a [<span class="number">4</span>]<span class="keyword">int</span></span><br><span class="line"><span class="comment">// 有字面量的全 0 数组，大小为 3</span></span><br><span class="line">b := [...]<span class="keyword">int</span>&#123;<span class="number">2</span>: <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 有字面量的全 0 数组，大小为 2</span></span><br><span class="line">c := [...]<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 以下都不合法，[4]int, [3]int 以及 [2]int 是不一样的类型</span></span><br><span class="line">a = b</span><br><span class="line">c = b</span><br></pre></td></tr></table></figure>
+
+<p>Slices:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 全 0 slice, 大小为 4</span></span><br><span class="line">a := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">4</span>)</span><br><span class="line"><span class="comment">// 有字面量的全 0 slice, 大小为 3</span></span><br><span class="line">b := []<span class="keyword">int</span>&#123;<span class="number">2</span>: <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 有字面量的全 0 slice, 大小为 2</span></span><br><span class="line">c := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 以下是允许的 :[]int 和 []int 是相同的类型</span></span><br><span class="line">a = b</span><br><span class="line">c = a</span><br></pre></td></tr></table></figure>
+
+<p>而且，slice 还可以进行子切分：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">b := a[<span class="number">1</span>:<span class="number">3</span>] <span class="comment">/* [1, 2]          */</span></span><br><span class="line">c := a[<span class="number">3</span>:]  <span class="comment">/* [3, 4]          */</span></span><br><span class="line">d := a[:<span class="number">2</span>]  <span class="comment">/* [0, 1]          */</span></span><br><span class="line">e := a[:]   <span class="comment">/* [0, 1, 2, 3, 4] */</span></span><br></pre></td></tr></table></figure>
+
+<p>以及增长：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">b := <span class="built_in">append</span>(a, a...) <span class="comment">/* [1, 2, 1, 2] */</span></span><br><span class="line">a = <span class="built_in">append</span>(a, <span class="number">3</span>, <span class="number">4</span>)  <span class="comment">/* [1, 2, 3, 4] */</span></span><br></pre></td></tr></table></figure>
+
+<p>这通常让 slice 成为所有应用场景首选的数据结构 ( 译者注：应该是对于所有适用数组和 slice 的场景而言，slice 胜于数组 )。</p>
+<h2 id="那么，有什么问题呢"><a href="#那么，有什么问题呢" class="headerlink" title="那么，有什么问题呢 ?"></a>那么，有什么问题呢 ?</h2><p>slice 不是其他东西，而是一个携带三份信息的 struct</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// 在 data 中使用到的空间大小</span></span><br><span class="line">	<span class="built_in">len</span>  <span class="keyword">int</span></span><br><span class="line">	<span class="comment">// data 的大小</span></span><br><span class="line">	<span class="built_in">cap</span>  <span class="keyword">int</span></span><br><span class="line">	<span class="comment">// 底层数组 data</span></span><br><span class="line">	data *[...]Type</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当从 slice 中拿到一个 slice，<code>cap</code>, <code>len</code> 和 <code>data</code> 都可能会变化，但<strong>底层数组既不会进行重新分配，也不会进行复制。</strong></p>
+<p>这个特性导致了一些怪异的行为。</p>
+<h2 id="迷之更新：第一部分"><a href="#迷之更新：第一部分" class="headerlink" title="迷之更新：第一部分"></a>迷之更新：第一部分</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">b := a[:<span class="number">1</span>]     <span class="comment">/* [1]     */</span></span><br><span class="line">b[<span class="number">0</span>] = <span class="number">42</span>      <span class="comment">/* [42]    */</span></span><br><span class="line">fmt.Println(a) <span class="comment">/* [42, 2] */</span></span><br></pre></td></tr></table></figure>
+
+<p>这类技巧基本在 Gophers 的意料之中，通常是因为语言的某些核心接口依赖于 slice 的底层数据通过引用传递的事实。 例如，io.Reader 具有与 io.Writer 相同的类型签名，对于新人来说可能相当令人惊讶：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Reader <span class="keyword">interface</span> &#123;</span><br><span class="line">	<span class="comment">// Read 把数据写到 p 中</span></span><br><span class="line">	Read(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> Writer <span class="keyword">interface</span> &#123;</span><br><span class="line">	<span class="comment">// Write 从 p 中读取数据</span></span><br><span class="line">	Write(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="迷之更新：第-2-部分"><a href="#迷之更新：第-2-部分" class="headerlink" title="迷之更新：第 2 部分"></a>迷之更新：第 2 部分</h2><p>这部分看起来更具迷惑性</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">b := a[:<span class="number">2</span>] <span class="comment">/* [1, 2] */</span></span><br><span class="line">c := a[<span class="number">2</span>:] <span class="comment">/* [3, 4] */</span></span><br><span class="line">b = <span class="built_in">append</span>(b, <span class="number">5</span>)</span><br><span class="line">fmt.Println(a) <span class="comment">/* [1 2 5 4] */</span></span><br><span class="line">fmt.Println(b) <span class="comment">/* [1 2 5]   */</span></span><br><span class="line">fmt.Println(c) <span class="comment">/* [5 4]     */</span></span><br></pre></td></tr></table></figure>
+
+<p>当数据被追加到 <code>b</code>，底层数组有足够的容量来保存多两个元素，所以 <code>append</code> 不会重新分配，这意味着，数据追加到 <code>b</code> 之后会改变 <code>c</code>。</p>
+<h2 id="迷之更新：第-3-部分"><a href="#迷之更新：第-3-部分" class="headerlink" title="迷之更新：第 3 部分"></a>迷之更新：第 3 部分</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">0</span>&#125;     <span class="comment">/* [0]          */</span></span><br><span class="line">a = <span class="built_in">append</span>(a, <span class="number">0</span>)  <span class="comment">/* [0, 0]       */</span></span><br><span class="line">b := a[:]         <span class="comment">/* [0, 0]       */</span></span><br><span class="line">a = <span class="built_in">append</span>(a, <span class="number">2</span>)  <span class="comment">/* [0, 0, 2]    */</span></span><br><span class="line">b = <span class="built_in">append</span>(b, <span class="number">1</span>)  <span class="comment">/* [0, 0, 1]    */</span></span><br><span class="line">fmt.Println(a[<span class="number">2</span>]) <span class="comment">/* 2 &lt;- 对的   */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 一样的代码，只是以一个稍大的 slice 开始</span></span><br><span class="line">c := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">0</span>&#125;  <span class="comment">/* [0, 0]       */</span></span><br><span class="line">c = <span class="built_in">append</span>(c, <span class="number">0</span>)  <span class="comment">/* [0, 0, 0]    */</span></span><br><span class="line">d := c[:]         <span class="comment">/* [0, 0, 0]    */</span></span><br><span class="line">c = <span class="built_in">append</span>(c, <span class="number">2</span>)  <span class="comment">/* [0, 0, 0, 2] */</span></span><br><span class="line">d = <span class="built_in">append</span>(d, <span class="number">1</span>)  <span class="comment">/* [0, 0, 0, 1] */</span></span><br><span class="line">fmt.Println(c[<span class="number">3</span>]) <span class="comment">/* 1 &lt;- ??      */</span></span><br></pre></td></tr></table></figure>
+
+<p>这个奇怪的行为的原因是，当 slice 变得比某个确切的阈值要大时，Go 停止线性增长并开始分配一个大小翻倍的 slice。<strong>这取决于 slice 类型的大小</strong>。</p>
+<p>分析更多的细节 :</p>
+<ul>
+<li>第一个在 <code>a</code> 上的 <code>append</code> 复制前一个 0 到一个 <code>cap==2</code> 的 slice, 然后在 <code>a[1]</code> 上填一个 <code>0</code></li>
+<li>从 <code>a</code> 拿到了一个 slice, <code>len(b) == cap(b) == 2</code></li>
+<li>第二个在 <code>a</code> 上的 <code>append</code> 复制前面的 0 到一个 <code>cap==4</code> 的 slice, 然后在 <code>a[2]</code> 上填上 <code>2</code></li>
+<li>在这里，<code>b</code> 依然还是 <code>cap == 2</code>, 所以在 <code>b</code> 上 <code>append</code>, 分配了一个新的底层数组</li>
+</ul>
+<p>同样的过程，以初始 <code>cap</code> 为 2 的 slice 开始，产生了不一样的结果，因为当我们拿到 slice <code>c</code> 时，它已经增长到 <code>cap == 4</code></p>
+<blockquote>
+<p>碎碎念：由于这种行为取决于底层类型的大小，因此 <code>[]struct{}{}</code> 将始终通过追加的元素的确切数量增长。</p>
+</blockquote>
+<h2 id="我该怎么解决这个问题呢？"><a href="#我该怎么解决这个问题呢？" class="headerlink" title="我该怎么解决这个问题呢？"></a>我该怎么解决这个问题呢？</h2><p>如果你传递一个从不追加的 slice, 那么这是安全的。只需要紧紧记住，每一个 ( 传递的 slice) 都共享相同内存区域的 “视图”。如果你调用的函数在返回后不保留对 slice 的引用，也同样适用。</p>
+<p>相反地，如果你打算传递可能要追加数据的 slice, 然后你也打算对原 slice 进行扩容，你可能会希望考虑限制你所分享的数据的容量。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="built_in">append</span>([]<span class="keyword">int</span>&#123;&#125;, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line"><span class="comment">// 如果 `potentialSliceGrower` 保持着对 `a` 的引用，下方这种调用可能是危险的</span></span><br><span class="line">potentialSliceGrower(a)</span><br><span class="line"><span class="comment">// 这个是安全的，取一个确定大小的 slice( 进行传递 )</span></span><br><span class="line"><span class="comment">// 追加则会引起复制</span></span><br><span class="line">potentialSliceGrower(a[:<span class="number">4</span>:<span class="number">4</span>])</span><br></pre></td></tr></table></figure>
+
+<p>这种不常使用的 <code>3-index</code> 语法，从 <code>a</code> 中拿到了一个从下标 <code>0</code> 开始，到下标 <code>4</code> 结束，<code>cap=4</code> 的 slice。</p>
+<p>请在<strong>真正有需要的时候</strong>再使用它，但在需要的时候别忘记这个方法。</p>
+<h2 id="想要了解更多？"><a href="#想要了解更多？" class="headerlink" title="想要了解更多？"></a>想要了解更多？</h2><p>这儿有一个关于 slice 内部机制的 Go 的官方<a href="https://blog.golang.org/go-slices-usage-and-internals" target="_blank" rel="noopener">博客</a>, 在文末还有<a href="https://blog.golang.org/go-slices-usage-and-internals#TOC_6" target="_blank" rel="noopener">其他陷阱</a>。</p>
+<hr>
+<p>via: <a href="https://blogtitle.github.io/go-slices-gotchas/" target="_blank" rel="noopener">https://blogtitle.github.io/go-slices-gotchas/</a></p>
+<p>作者：<a href="https://blogtitle.github.io/authors/rob/" target="_blank" rel="noopener">Rob</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
+<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
+
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本用法"><span class="toc-text">基本用法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#那么，有什么问题呢"><span class="toc-text">那么，有什么问题呢 ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#迷之更新：第一部分"><span class="toc-text">迷之更新：第一部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#迷之更新：第-2-部分"><span class="toc-text">迷之更新：第 2 部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#迷之更新：第-3-部分"><span class="toc-text">迷之更新：第 3 部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我该怎么解决这个问题呢？"><span class="toc-text">我该怎么解决这个问题呢？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#想要了解更多？"><span class="toc-text">想要了解更多？</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9A%E5%88%87%E7%89%87%E9%99%B7%E9%98%B1/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+     
+      <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%E7%9A%84%20Go%20Web%20%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

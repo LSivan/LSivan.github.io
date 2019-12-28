@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>（译）Golang 中的依赖注入之使用更高阶的函数 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,golang,翻译," />
+  
+
+  
+  <meta name="description" content="梁兴威的“抽屉”">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2019-12-28",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-04-02
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    （译）Golang 中的依赖注入之使用更高阶的函数
+  </h1>
+  
+  <article class="passage-article">
+    <p>你可以找到一个完整的代码示例在<a href="https://github.com/steinfletcher/func-dependency-injection-go" target="_blank" rel="noopener">github.com/steinfletcher/func-dependency-injection-go</a>。例子包含了一个暴露 REST 接口的 http 服务器。</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在这篇博文我们介绍一种 Go 中依赖注入的方式 – 使用更高阶的函数和闭包。</p>
+<p>考虑下以下返回用户资料的 domain 层函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserProfile</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span> &#123;</span><br><span class="line">    rows, err := db.Query(<span class="string">"SELECT ..."</span>)</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> profileText</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们想要将操作用户数据和接入数据库的代码分离开。在这个例子中，我们想要对 domain 层和任意的业务逻辑进行单元测试，同时为数据库接入函数提供 mock。让我们把这些关系分离，使得每个函数拥有单一职责。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 包含任意业务逻辑或者映射代码的 domain 层函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserProfile</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 数据库接入层函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SelectUserByID</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们也可以在其他的 domain 函数复用 <code>SelectUserByID</code>。我们需要一种方式把 <code>SelectUserByID</code> 注入到 <code>GetUserProfile</code> 中，从而可以在测试中对 <code>GetUserProfile</code> 进行单元测试以及数据接入层提供 mock。<code>go</code> 中能做到这种效果的一种方式是对函数定义使用类型别名。</p>
+<h2 id="类型别名"><a href="#类型别名" class="headerlink" title="类型别名"></a>类型别名</h2><p>让 <code>GetUserProfile</code> 依赖于一个抽象实现，这意味着我们可以在测试里注入一个数据接入层的 mock。<code>go</code> 里两种通常的做法是使用接口或者类型别名。类型别名很简便，不需要生成 struct，所以我们在这就用它吧。我们会为两个函数都定义类型别名。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SelectUserByID <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> GetUserProfile <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewGetUserProfile</span><span class="params">(selectUser SelectUserByID)</span> <span class="title">GetUserProfile</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">        user := selectUser(id)</span><br><span class="line">        <span class="keyword">return</span> user.ProfileText</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">selectUser</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> User&#123;ProfileText: userRow.ProfileText&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>SelectUserByID</code> 是提供用户 ID 返回一个用户的函数，我们不定义它的实现。<code>NewGetUserProfile</code> 是一个从参数 <code>selectUser</code> 中得到依赖的工厂方法，然后返回一个能被调用者使用的函数。这个策略使用闭包让内部函数访问到外层函数的依赖。闭包在变量和常量定义的地方捕获它们的上下文，这被称为 <code>关闭</code> 那些变量和常量。( 译者注：想表达的意思应该是，把变量和常量的上下文给 <code>关闭</code> 起来，因而称为闭包。一个形象化的比喻 )</p>
+<p>我们可以像这样调用 domain 函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 应用中某一处的连接依赖项</span></span><br><span class="line">getUser := NewGetUserProfile(selectUser)</span><br><span class="line"></span><br><span class="line">user := getUser(<span class="string">"1234"</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="另一种看法"><a href="#另一种看法" class="headerlink" title="另一种看法"></a>另一种看法</h2><p>如果你对类似于 Java 这类的语言比较熟悉的话，这类似于创建了一个类，注入类依赖到构造器，然后在某个方法中访问依赖。其实和这个途径并没有功能性的区别，你可以认为函数的类型别名是一个简单抽象方法 (SAM) 的接口。在 Java 里我们可能会使用构造器注入依赖。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> DB &#123;</span><br><span class="line">    User SelectUser(String id)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class UserService &#123;</span><br><span class="line">    private final DB db;</span><br><span class="line"></span><br><span class="line">    public UserService(DB db) &#123; <span class="comment">// 注入依赖到构造器中</span></span><br><span class="line">        this.DB = db;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public UserProfile getUserProfile(String id) &#123; <span class="comment">// 访问 ( 依赖 ) 的方法</span></span><br><span class="line">        User user = this.DB.SelectUser(id);</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> userProfile;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而 <code>go</code> 使用更高阶的函数也有等同的效果</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SelectUser <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> GetUserProfile <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewGetUserProfile</span><span class="params">(selectUser SelectUser)</span></span> &#123; <span class="comment">// 注入依赖的工厂方法</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span> &#123; <span class="comment">// 访问 ( 依赖 ) 的方法</span></span><br><span class="line">        user := selectUser(id)</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> userProfile</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>现在可以对我们的 domain 层功能进行单元测试以及为数据库接入层提供 mock。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUserProfile</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">    selectUserMock := <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span> &#123;</span><br><span class="line">        <span class="keyword">return</span> User&#123;name: <span class="string">"jan"</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    getUser := NewGetUserProfile(selectUserMock)</span><br><span class="line"></span><br><span class="line">    user := getUser(<span class="string">"12345"</span>)</span><br><span class="line"></span><br><span class="line">    assert.Equal(t, UserProfile&#123;ID: <span class="string">"12345"</span>, Name: <span class="string">"jan"</span>&#125;, user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你可以找到一个完整的代码示例在<a href="https://github.com/steinfletcher/func-dependency-injection-go" target="_blank" rel="noopener">github.com/steinfletcher/func-dependency-injection-go</a>。例子包含了一个暴露 REST 接口的 http 服务器。</p>
+<hr>
+<p>via: <a href="https://stein.wtf/posts/2019-03-12/inject/" target="_blank" rel="noopener">https://stein.wtf/posts/2019-03-12/inject/</a></p>
+<p>作者：<a href="https://github.com/steinfletcher" target="_blank" rel="noopener">Stein Fletcher</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
+<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
+
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#类型别名"><span class="toc-text">类型别名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#另一种看法"><span class="toc-text">另一种看法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试"><span class="toc-text">测试</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+     
+      <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%E7%9A%84%20Go%20Web%20%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

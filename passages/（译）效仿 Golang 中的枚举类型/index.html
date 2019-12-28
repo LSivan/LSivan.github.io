@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>（译）效仿 Golang 中的枚举类型 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,golang,翻译," />
+  
+
+  
+  <meta name="description" content="梁兴威的“抽屉”">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2019-12-28",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-04-20
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    （译）效仿 Golang 中的枚举类型
+  </h1>
+  
+  <article class="passage-article">
+    <p>在这篇博文中我们看到使用 <code>go generate</code> 和遍历抽象语法树来生成强大的枚举类型。</p>
+<p>博文的结果是一个生成枚举类型的客户端。<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">全部代码</a> 都可以在 Github 上面找到。</p>
+<h2 id="Go-惯用技巧"><a href="#Go-惯用技巧" class="headerlink" title="Go 惯用技巧"></a>Go 惯用技巧</h2><p>Go 并没有对枚举类型提供一流的支持。模拟枚举类型的一种方法是，将一系列相关的常量定义为一个新的类型。Iota 可用于预定义连续自增的整形常量。我们可以像下面这样定义一个 <code>Color</code> 类型。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Color <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    Red Color = <span class="literal">iota</span> <span class="comment">// 0</span></span><br><span class="line">    Blue             <span class="comment">// 1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> b1 Color = Red</span><br><span class="line">    b1 = Red</span><br><span class="line">    fmt.Println(b1) <span class="comment">// 打印 0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b2 Color = <span class="number">1</span></span><br><span class="line">    fmt.Println(b2 == Blue) <span class="comment">// 打印 true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b3 Color</span><br><span class="line">    b3 = <span class="number">42</span></span><br><span class="line">    fmt.Println(b3)  <span class="comment">// 打印 42</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>value - we ’ ll need to convert the const to a display value in code.<br>这种模式在 Go 的代码中十分常见。虽然很常见但这个方法有其缺陷。因为没有静态语言检测，所以任意的整型都能作为 Color。没有序列化支持 - 开发者想要将其序列化为整型进行传输或者作为数据库记录，这是相当罕见的。没有可读的显示值支持 - 我们会需要在代码中将常量强转为显示值。</p>
+<p>知道一门语言的习惯以及何时打破这些习惯是十分重要的。习惯用法的论据往往被用来关闭论点。这有时可能是创造力的死亡。</p>
+<h2 id="设计枚举类型"><a href="#设计枚举类型" class="headerlink" title="设计枚举类型"></a>设计枚举类型</h2><p>Go 最好的一个特性之一就是它的简便性 - 从其他语言转型而来的开发者通常可以非常快速的进行高效的开发。另一方面，这也带来了限制（译者注：作者想表达的应该是，某些其他语言支持泛型而 Golang 不支持，因而转到 Go 的开发者会受限），例如缺失能让代码变得整洁的泛型。为了克服这些缺点，社区已经将代码生成作为定义更为强大和灵活的类型的方案。</p>
+<p>让我们用这个途径来定义枚举类型。其中一种做法是生成枚举结构体。我们还可以将方法附加到结构体中。结构体还提供了元标签，这对定义显示的值和描述很有帮助。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ColorEnum <span class="keyword">struct</span> &#123;</span><br><span class="line">    Red  <span class="keyword">string</span> <span class="string">`enum:"RED"`</span></span><br><span class="line">    Blue <span class="keyword">string</span> <span class="string">`enum:"BLUE"`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们需要做的是为结构体的每个字段生成一个结构体实例</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Red  = Color&#123;name: <span class="string">"RED"</span>&#125;</span><br><span class="line"><span class="keyword">var</span> Blue = Color&#123;name: <span class="string">"BLUE"</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以对 Color 结构体增加方法以支持 JSON 编码 / 解码。我们实现 <code>Marshaler</code> 接口来提供 JSON 编码。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Color)</span> <span class="title">MarshalJSON</span><span class="params">()</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> JSON.Marshal(c.name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Go 会在序列化这个类型为 JSON 的时候，调用我们定义的实现。同样，我们可以实现 <code>Unmarshaler</code> 接口，该接口使我们能够使用枚举类型——这允许我们直接在 API 中的数据传输对象上定义枚举类型。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Color)</span> <span class="title">UnmarshalJSON</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> JSON.Unmarshal(b, c.name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们还可以增加一些辅助方法来生成显示值的切片。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ColorNames 返回所有枚举实例的显示值的切片</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ColorNames</span><span class="params">()</span> []<span class="title">string</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们也需要支持根据 string 生成枚举实例的方法，加上它。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NewColore 根据提供的显示值生成一个新的 Color</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewColor</span><span class="params">(value <span class="keyword">string</span>)</span> <span class="params">(Color, error)</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种设计极具扩展性，你可能想要添加其他方法来返回名称，通过实现 <code>Error() string</code> 接口提供 errors，以及通过实现 <code>String() string</code> 支持 <code>Stringer</code>。</p>
+<h2 id="生成代码"><a href="#生成代码" class="headerlink" title="生成代码"></a>生成代码</h2><h3 id="遍历抽象语法树"><a href="#遍历抽象语法树" class="headerlink" title="遍历抽象语法树"></a>遍历抽象语法树</h3><p>在渲染模板生成代码之前，我们需要解析源码中的 <code>ColorEnum</code> 类型。两个常用的方法是使用 <code>refelct</code> 和 <code>ast</code> 包。我们需要扫描在包级别声明的结构体。<code>ast</code> 包拥有能力去构造抽象语法树 - 一种代表 Go 源码的可遍历数据结构。然后可以遍历抽象语法树并匹配提供的类型。这个类型和定义的结构体标签可以被解析并用于建立生成模板的模型。我们先加载一个 Go 的包</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cfg := &amp;packages.Config&#123;</span><br><span class="line">    Mode:  packages.LoadSyntax,</span><br><span class="line">    Tests: <span class="literal">false</span>,</span><br><span class="line">&#125;</span><br><span class="line">pkgs, err := packages.Load(cfg, patterns...)</span><br></pre></td></tr></table></figure>
+
+<p>变量 <code>pkgs</code> 包含了这个包每个文件的抽象语法树。<code>ast.Inspect</code> 方法可用于遍历 AST( 译者注：抽象语法树 )，我们遍历每个文件，然后处理该文件的语法树。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, file := <span class="keyword">range</span> pkg.files &#123;</span><br><span class="line">...</span><br><span class="line">    ast.Inspect(file.file, <span class="function"><span class="keyword">func</span><span class="params">(node ast.Node)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">        <span class="comment">// 处理节点，检查是否是我们感兴趣的东西</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消费者应该定义自身的方法来过滤出它们所感兴趣的标志类型。你可以通过在节点上做以下校验来过滤结构体</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node.Tok == token.STRUCT &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在我们的例子中，我们对定义 <code>enum:</code> 标签的 struct 进行过滤。我们简单对源码中的每一个标志进行处理，并根据碰到的数据构建模型（自定义 Go struct）。</p>
+<h3 id="渲染源码"><a href="#渲染源码" class="headerlink" title="渲染源码"></a>渲染源码</h3><p>有几个方法可以生成代码。工具<a href="https://github.com/golang/tools/blob/master/cmd/stringer/stringer.go" target="_blank" rel="noopener">Stringer</a> 使用 <code>fmt</code> 包将内容写到标准输出。虽然这很容易实现，但随着生成器的扩展，它变得难以操作且难以调试。更为合理的方法是使用 <code>text/template</code> 包并使用 Go 强大的模板库。它允许你从模板中分离生成模型的逻辑，从而导致将关注点和易于推理的代码分离开。（译者注：对比 stringer 源码之后就更精确地了解这句话的意思）生成的类型定义可能如下所示。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &#123;&#123;.NewType&#125;&#125; 是需要被创建的枚举实例</span></span><br><span class="line"><span class="keyword">type</span> &#123;&#123;.NewType&#125;&#125; <span class="keyword">struct</span> &#123;</span><br><span class="line">    name  <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 枚举实例</span></span><br><span class="line">&#123;&#123;- <span class="keyword">range</span> $e := .Fields&#125;&#125;</span><br><span class="line"><span class="keyword">var</span> &#123;&#123;.Value&#125;&#125; = &#123;&#123;$.NewType&#125;&#125;&#123;name: <span class="string">"&#123;&#123;.Key&#125;&#125;"</span>&#125;</span><br><span class="line">&#123;&#123;- end&#125;&#125;</span><br><span class="line"></span><br><span class="line">... 生成方法的代码</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以根据我们的模型来渲染模板</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">t, err := template.New(tmpl).Parse(tmpl)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Fatal(<span class="string">"instance template parse error: "</span>, err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">err = t.Execute(buf, model)</span><br></pre></td></tr></table></figure>
+
+<p>在开发模板的时候无需担心格式化就最好的。<code>format</code> 包存在将源码作为参数然后返回格式化后的 Go 代码的方法，所以让 Go 帮你处理这个东西吧。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Source</span><span class="params">(src []<span class="keyword">byte</span>)</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>在这篇博文中我们看到了解析 Go 源码生成枚举类型的方法。这个方法可作为需要解析源码的其他代码生成器的模板。我们以可维护的方式使用 Go 的 <code>text/template</code> 库来渲染源码。</p>
+<p>在 Github 上阅读<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">所有的代码</a>。</p>
+<hr>
+<p>via: <a href="https://stein.wtf/posts/2019-04-16/enums/" target="_blank" rel="noopener">https://stein.wtf/posts/2019-04-16/enums/</a></p>
+<p>作者：<a href="https://github.com/steinfletcher" target="_blank" rel="noopener">Stein Fletcher</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
+<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
+
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Go-惯用技巧"><span class="toc-text">Go 惯用技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设计枚举类型"><span class="toc-text">设计枚举类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成代码"><span class="toc-text">生成代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#遍历抽象语法树"><span class="toc-text">遍历抽象语法树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染源码"><span class="toc-text">渲染源码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结论"><span class="toc-text">结论</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+     
+      <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

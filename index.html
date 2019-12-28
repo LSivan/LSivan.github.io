@@ -1,933 +1,640 @@
 <!DOCTYPE html>
 <html>
+  
 <head>
   <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
   
+  
+  <title>sivan&#39;s drawer</title>
 
-  
-  <title>Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  
-<link rel="stylesheet" href="/css/style.css">
 
+  
+    <meta name="keywords" content="这个世界就是一群人在废寝忘食改变世界，另外一群人睡觉起来发现世界变了" />
+  
+
+  
+  <meta name="description" content="梁兴威的“抽屉”">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2019-12-28",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: false,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
 <meta name="generator" content="Hexo 4.2.0"></head>
-
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
       
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
     </div>
   </div>
 </header>
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-（译）Go：Go 调度器的任务窃取（Work-Stealing）" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/12/26/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9AGo%20%E8%B0%83%E5%BA%A6%E5%99%A8%E7%9A%84%E4%BB%BB%E5%8A%A1%E7%AA%83%E5%8F%96%EF%BC%88Work-Stealing%EF%BC%89/" class="article-date">
-  <time datetime="2019-12-26T12:12:57.000Z" itemprop="datePublished">2019-12-26</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
   </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/12/26/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9AGo%20%E8%B0%83%E5%BA%A6%E5%99%A8%E7%9A%84%E4%BB%BB%E5%8A%A1%E7%AA%83%E5%8F%96%EF%BC%88Work-Stealing%EF%BC%89/">（译）Go：Go 调度器的任务窃取（Work-Stealing）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
+  <div class="table-content-main">
+    <ol class="toc">
       
-        <p>ℹ️ <em>这篇文章基于 Go 1.13 环境。</em></p>
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      <div class="home">
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-12-26
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/2019-12-26-go-work-stealing/">（译）Go：Go 调度器的任务窃取（Work-Stealing）</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              <p>ℹ️ <em>这篇文章基于 Go 1.13 环境。</em></p>
 <p>在 Go 中创建 gorotine 既方便又快捷，然而 go 在同一时间内最多在一个核上运行一个 gorotine，因此需要一种方法来存放其他的gorotine，从而确保处理器（processor）负载均衡。</p>
-<h2 id="Goroutine-队列"><a href="#Goroutine-队列" class="headerlink" title="Goroutine 队列"></a>Goroutine 队列</h2><p>Go 使用两级队列来管理等待中的 goroutine，分别为本地队列和全局队列。每一个处理器都拥有本地队列，而全局队列是唯一的，且能被所有的处理器访问到：</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-1.png" alt="Global and local queues"></p>
-<p>每个本地队列都有最大容量，为 256。在容量满了之后，任意新到来的 goroutine 都会被放置到全局队列。下面的例子是，生产了上千个 goroutine 的程序：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line">   var wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line">   for i :&#x3D; 0;i &lt; 2000 ;i++ &#123;</span><br><span class="line">      wg.Add(1)</span><br><span class="line">      go func() &#123;</span><br><span class="line">         a :&#x3D; 0</span><br><span class="line"></span><br><span class="line">         for i :&#x3D; 0; i &lt; 1e6; i++ &#123;</span><br><span class="line">            a +&#x3D; 1</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">         wg.Done()</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>下面是拥有两个处理器的调度器追踪数据（traces）：</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-2.png" alt="Details of the local and global queues"></p>
-<p>追踪数据通过 <code>runqueue</code> 展示了全局队列中 goroutine 的数量，以及方括号中 <code>[3 256]</code> 的本地队列goroutine数量（分别为<code>P0</code>和<code>P1</code>）。当本地队列满了，积压了256个等待中的 goroutine后，下一个 goroutine 会被压栈到全局队列中，正如我们从 <code>runqueue</code> 看到的数量增长一样。</p>
-<p><em>Goroutine 仅在本地队列满载之后才会加入到全局队列；它也会在 Go 往调度器中批量注入时被加到全局队列，例如，网络轮询器（network poller） 或者在垃圾回收期间等待的 goroutine。</em></p>
-<p>下面是上一个例子的图示：</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-3.png" alt="Local queues have up to 256 goroutines"></p>
-<p>不过，我们还想知道，为什么本地队列 <code>P0</code> 在上一个列子中不为空。因为Go使用了其他策略确保每个处理器都有任务处理。</p>
-<h2 id="任务窃取"><a href="#任务窃取" class="headerlink" title="任务窃取"></a>任务窃取</h2><p>如果处理器没有任务可处理，它会按以下规则来执行，直到满足某一条规则：</p>
-<ul>
-<li>从本地队列获取任务</li>
-<li>从全局队列获取任务</li>
-<li>从网络轮询器获取任务</li>
-<li>从其它的处理器的本地队列窃取任务</li>
-</ul>
-<p>在我们前面的例子中，主函数在 <code>P1</code> 上运行并创建 goroutine。当第一批 gourinte 已经进入了 <code>P1</code> 的本地队列时，<code>P0</code> 正在寻找任务。然而，它的本地队列，全局队列，以及网络轮询器都是空的。最后的解决方法是从 <code>P1</code> 中窃取任务。</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-4.png" alt="Work-stealing by P0"></p>
-<p>下面是调度器在发生任务窃取前后的追踪数据：</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-8.png" alt="Work-stealing by P0"></p>
-<p>追踪数据展示了，处理器是如何从其它处理器中窃取任务的。它从（其他处理器的）本地队列中取走一半的 goroutine；在七个 goroutine 中，偷走了四个 —— 其中一个立马在 <code>P0</code> 执行，剩下的放到本地队列。现在处理器间工作处于负载良好的状态。这能通过执行 tracing 来确认：</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-5.png" alt="img"></p>
-<p>goroutine 被合理地分发，然后因为没有 I/O，goroutine 被链式执行而不需要切换。我们现在看一下，当出现例如涉及到文件操作等 I/O时，会发生什么。</p>
-<h2 id="I-O-与全局队列"><a href="#I-O-与全局队列" class="headerlink" title="I/O 与全局队列"></a>I/O 与全局队列</h2><p>一起看下涉及到文件操作的例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line">   var wg sync.WaitGroup</span><br><span class="line"></span><br><span class="line">   for i :&#x3D; 0;i &lt; 20 ;i++ &#123;</span><br><span class="line">      wg.Add(1)</span><br><span class="line">      go func() &#123;</span><br><span class="line">         a :&#x3D; 0</span><br><span class="line">         for i :&#x3D; 0; i &lt; 1e6; i++ &#123;</span><br><span class="line">            a +&#x3D; 1</span><br><span class="line">            if i &#x3D;&#x3D; 1e6&#x2F;2 &#123;</span><br><span class="line">               bytes, _ :&#x3D; ioutil.ReadFile(&#96;add.txt&#96;)</span><br><span class="line">               inc, _ :&#x3D; strconv.Atoi(string(bytes))</span><br><span class="line">               a +&#x3D; inc</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         wg.Done()</span><br><span class="line">      &#125;()</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>变量 <code>a</code> 随着时间以文件的字节数增加，下面是新的追踪数据：</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-6.png" alt="img"></p>
-<p>在这个例子中，我们能看到每一个 goroutine 不只被一个处理器处理。在系统调用的情况下，当调用完成后，Go 使用网络轮询器从全局队列中把 gouroutine 取回来。这里是 goroutine #35 的一个示意图：</p>
-<p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/go-work-stealing-in-go-Scheduler/ws-7.png" alt="I/O operations put the work back to the global queue"></p>
-<p>当一个处理器能从全局队列中获取任务，第一个可用的处理器（ <code>P</code>） 会执行这个 goroutine。这个行为解释了，为什么一个 goroutine 能在不同的处理器中运行，也展示了 go 是如何让空闲的处理器资源运行 goroutine，从而进行系统调用的优化。</p>
-<hr>
-<p>via: <a href="https://medium.com/a-journey-with-go/go-work-stealing-in-go-scheduler-d439231be64d" target="_blank" rel="noopener">https://medium.com/a-journey-with-go/go-work-stealing-in-go-scheduler-d439231be64d</a></p>
-<p>作者：<a href="https://medium.com/@blanchon.vincent" target="_blank" rel="noopener">Vincent Blanchon</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/校对者ID" target="_blank" rel="noopener">校对者ID</a></p>
-<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/12/26/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9AGo%20%E8%B0%83%E5%BA%A6%E5%99%A8%E7%9A%84%E4%BB%BB%E5%8A%A1%E7%AA%83%E5%8F%96%EF%BC%88Work-Stealing%EF%BC%89/" data-id="ck4oyxmfh0007kqu3582c93mr" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-（译）Go 中记录 HTTP 请求" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/09/15/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/" class="article-date">
-  <time datetime="2019-09-14T17:05:26.000Z" itemprop="datePublished">2019-09-15</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/09/15/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/">（译）Go 中记录 HTTP 请求</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>如果你有运行的 HTTP 服务，你可能想记录 HTTP 请求。</p>
-<p>请求日志有助于诊断问题。（哪些请求失败了？我们一天处理多少请求？哪些请求比较慢？）</p>
-<p>这对于分析是必需的。（哪个页面受欢迎？网页的浏览者都来自哪里？）</p>
-<p>这篇文章介绍了在 Go Web 服务器中，记录 HTTP 请求日志相关的全部内容。</p>
-<p>这不是关于可复用的库，而是关于实现你自己的解决方案需要知道的事情，以及关于我日志记录的选择的描述。</p>
-<p>你可以在示例应用上查看详细内容： <a href="https://github.com/essentialbooks/books/tree/master/code/go/logging_http_requests" target="_blank" rel="noopener">https://github.com/essentialbooks/books/tree/master/code/go/logging_http_requests</a></p>
-<p>我在 Web 服务 <a href="https://onepage.nopub.io/" target="_blank" rel="noopener">OnePage</a> 中用到了这个记录系统。</p>
-<p><a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36#63fd0006-6ebd-442c-a463-d11862e8c33c" target="_blank" rel="noopener">记录什么信息</a></p>
-<p><a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36#c8a27402-1650-402a-8679-69214078b88a" target="_blank" rel="noopener">获取要记录的信息</a></p>
-<p><a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36#97da9f14-289e-42f6-94fd-936a4eb88f26" target="_blank" rel="noopener">日志文件的格式</a></p>
-<p><a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36#99565a90-2f57-4aab-a5e7-5eb9a9194adc" target="_blank" rel="noopener">每日滚动日志</a></p>
-<p><a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36#a099947d-2079-4d1d-a996-41e4ed1ff02a" target="_blank" rel="noopener">长期存储以及分析</a></p>
-<p><a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36#4405e240-bd60-45a8-ba47-65e175eb7f8f" target="_blank" rel="noopener">更多的 Go 资源</a></p>
-<p><a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36#5076eef2-d176-43f3-bab5-c0d3030efa23" target="_blank" rel="noopener">招聘 Go 开发者</a></p>
-<h2 id="记录什么信息"><a href="#记录什么信息" class="headerlink" title="记录什么信息"></a>记录什么信息</h2><p>为了展示通常会记录什么信息，这里有一条 Apache 的扩展日志文件格式的日志记录样本。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">111.222.333.123 HOME - [01&#x2F;Feb&#x2F;1998:01:08:39 -0800] &quot;GET &#x2F;bannerad&#x2F;ad.htm HTTP&#x2F;1.0&quot; 200 198 &quot;http:&#x2F;&#x2F;www.referrer.com&#x2F;bannerad&#x2F;ba_intro.htm&quot; &quot;Mozilla&#x2F;4.01 (Macintosh; I; PPC)&quot;</span><br></pre></td></tr></table></figure>
-
-<p>我们能看到：</p>
-<ul>
-<li><code>111.222.333.123</code> ：客户端发起 HTTP 请求的 IP 地址。</li>
-<li><code>HOME</code> ： 域（适用单个 Web 服务器提供多个域的情况）。</li>
-<li><code>-</code> ：用户认证信息（这个例子下为空）。</li>
-<li><code>[01/Feb/1998:01:08:39 -0800]</code> ：请求被记录的时间。</li>
-<li><code>&quot;GET /bannerad/ad.htm HTTP/1.0&quot;</code> ：HTTP 方法，URL 以及协议类型。</li>
-<li><code>200</code>：HTTP 状态码。200 代表请求被成功处理。</li>
-<li><code>198</code>：响应体的大小。</li>
-<li><code>&quot;http://www.referrer.com/bannerad/ba_intro.htm&quot;</code> ：引荐来源（referer）。</li>
-<li><code>&quot;Mozilla/4.01 (Macintosh; I; PPC)&quot;</code> ：应该认为用户代理标志 HTTP 客户端（极大程度上是一个 web 浏览器）</li>
-</ul>
-<p>我们可以记录更多的信息，或者选择不去记录上面的某些信息。</p>
-<p>个人而言：</p>
-<ul>
-<li>我也会记录服务器处理单次请求的耗时，毫秒为单位。（毫秒对我而言已经足够了，用微秒来记录也可以但有点过度了）</li>
-<li>我不记录协议（比如 HTTP/1.0）。</li>
-<li>服务器通常只提供单一用途，所以不需要记录域。</li>
-<li>如果服务有用户认证信息，我也会记录用户 ID。</li>
-</ul>
-<h2 id="获取记录的信息"><a href="#获取记录的信息" class="headerlink" title="获取记录的信息"></a>获取记录的信息</h2><p>Go 中标准 HTTP 处理函数的签名如下：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span></span><br></pre></td></tr></table></figure>
-
-<p>我们会把日志记录作为所谓的中间件，这是一种向 HTTP 服务管道中添加可复用功能的一个方法。</p>
-<p>我们有 <code>logReqeustHandler</code> 函数，它以 <code>http.Handler</code> 接口作为参数，然后返回另一个包装了原有处理器并添加了日志记录功能的 <code>http.Handler</code>。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">logRequestHandler</span><span class="params">(h http.Handler)</span> <span class="title">http</span>.<span class="title">Handler</span></span> &#123;</span><br><span class="line">	fn := <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 在我们包装的时候调用原始的 http.Handle</span></span><br><span class="line">		h.ServeHTTP(w, r)</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 得到请求的有关信息，并记录之</span></span><br><span class="line">		uri := r.URL.String()</span><br><span class="line">		method := r.Method</span><br><span class="line">		<span class="comment">// ... 更多信息</span></span><br><span class="line">		logHTTPReq(uri, method, ....)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 用 http.HandlerFunc 包装函数，这样就实现了 http.Handler 接口</span></span><br><span class="line">	<span class="keyword">return</span> http.HandlerFunc(fn)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们可以把中间件处理器嵌套到每一个（HTTP 处理器）的顶部，这样所有（处理器）都会拥有这些功能。</p>
-<p>下面介绍了我们如何使用它来把日志记录功能添加到所有的请求函数：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeHTTPServer</span><span class="params">()</span> *<span class="title">http</span>.<span class="title">Server</span></span> &#123;</span><br><span class="line">	mux := &amp;http.ServeMux&#123;&#125;</span><br><span class="line">	mux.HandleFunc(<span class="string">"/"</span>, handleIndex)</span><br><span class="line">	<span class="comment">// ... 可能会添加更多处理器</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> handler http.Handler = mux</span><br><span class="line">	<span class="comment">// 用我们的日志记录器包装 mux 。 this will (译者注：应当是注释没写全)</span></span><br><span class="line">	handler = logRequestHandler(handler)</span><br><span class="line">	<span class="comment">// ... 可能会添加更多中间件处理器</span></span><br><span class="line"></span><br><span class="line">	srv := &amp;http.Server&#123;</span><br><span class="line">		ReadTimeout:  <span class="number">120</span> * time.Second,</span><br><span class="line">		WriteTimeout: <span class="number">120</span> * time.Second,</span><br><span class="line">		IdleTimeout:  <span class="number">120</span> * time.Second, <span class="comment">// Go 1.8 开始引进</span></span><br><span class="line">		Handler:      handler,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> srv</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>首先，我们定义一个 struct 封装所有需要记录的信息：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LogReqInfo 描述了有关 HTTP 请求的信息（译者注：此处为作者笔误，应当是 HTTPReqInfo）</span></span><br><span class="line"><span class="keyword">type</span> HTTPReqInfo <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// GET 等方法</span></span><br><span class="line">	method <span class="keyword">string</span></span><br><span class="line">	uri <span class="keyword">string</span></span><br><span class="line">	referer <span class="keyword">string</span></span><br><span class="line">	ipaddr <span class="keyword">string</span></span><br><span class="line">	<span class="comment">// 响应状态码，如 200，204</span></span><br><span class="line">	code <span class="keyword">int</span></span><br><span class="line">	<span class="comment">// 所发送响应的字节数</span></span><br><span class="line">	size <span class="keyword">int64</span></span><br><span class="line">	<span class="comment">// 处理花了多长时间</span></span><br><span class="line">	duration time.Duration</span><br><span class="line">	userAgent <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>下面是 <code>logRequestHandler</code> 的全部实现：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">logRequestHandler</span><span class="params">(h http.Handler)</span> <span class="title">http</span>.<span class="title">Handler</span></span> &#123;</span><br><span class="line">	fn := <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		ri := &amp;HTTPReqInfo&#123;</span><br><span class="line">			method: r.Method,</span><br><span class="line">			uri: r.URL.String(),</span><br><span class="line">			referer: r.Header.Get(<span class="string">"Referer"</span>),</span><br><span class="line">			userAgent: r.Header.Get(<span class="string">"User-Agent"</span>),</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		ri.ipaddr = requestGetRemoteAddress(r)</span><br><span class="line"></span><br><span class="line">		<span class="comment">// this runs handler h and captures information about</span></span><br><span class="line">		<span class="comment">// HTTP request</span></span><br><span class="line">		<span class="comment">// 这里运行处理器 h 并捕获有关 HTTP 请求的信息</span></span><br><span class="line">		m := httpsnoop.CaptureMetrics(h, w, r)</span><br><span class="line"></span><br><span class="line">		ri.code = m.Code</span><br><span class="line">		ri.size = m.BytesWritten</span><br><span class="line">		ri.duration = m.Duration</span><br><span class="line">		logHTTPReq(ri)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> http.HandlerFunc(fn)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们复盘下这个简单的例子：</p>
-<ul>
-<li><code>r.Method</code> 返回 HTTP 的方法，如 “GET”, “POST” 等。</li>
-<li><code>r.URL</code> 是一个解析后的 url，如 <code>/getname?id=5</code>，然后 `String()返回我们需要的字符串形式。</li>
-<li><code>r.Header</code> 是代表 HTTP 头部信息的结构体。头部信息包含 <code>Referer</code> 和 <code>User-Agent</code> 以及其他信息。</li>
-<li>为了记录服务器处理请求的耗时，我们在开始时记录了 <code>timeStart</code>, 调用处理器候，通过 <code>time.Since(timeStart)</code> 获取时长。</li>
-</ul>
-<p>其他的信息则比较难获取。</p>
-<p>获取客户端 IP 地址的问题是有可能涉及到 HTTP 代理。客户端向代理发起请求，然后代理向我们请求。于是，我们拿到了代理的 IP 地址，而不是客户端的。</p>
-<p>因为这样，代理通常在请求的 HTTP 头部信息中以 <code>X-Real-Ip</code> 或者 <code>X-Forwarded-For</code> 来携带客户端真正的 IP 地址。</p>
-<p>下面展示了如何提取这个信息：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Request.RemoteAddress 包含了端口，我们需要把它删掉，比如: "[::1]:58292" =&gt; "[::1]"</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ipAddrFromRemoteAddr</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	idx := strings.LastIndex(s, <span class="string">":"</span>)</span><br><span class="line">	<span class="keyword">if</span> idx == <span class="number">-1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> s</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> s[:idx]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// requestGetRemoteAddress 返回发起请求的客户端 ip 地址，这是出于存在 http 代理的考量</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">requestGetRemoteAddress</span><span class="params">(r *http.Request)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	hdr := r.Header</span><br><span class="line">	hdrRealIP := hdr.Get(<span class="string">"X-Real-Ip"</span>)</span><br><span class="line">	hdrForwardedFor := hdr.Get(<span class="string">"X-Forwarded-For"</span>)</span><br><span class="line">	<span class="keyword">if</span> hdrRealIP == <span class="string">""</span> &amp;&amp; hdrForwardedFor == <span class="string">""</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> ipAddrFromRemoteAddr(r.RemoteAddr)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> hdrForwardedFor != <span class="string">""</span> &#123;</span><br><span class="line">		<span class="comment">// X-Forwarded-For 可能是以","分割的地址列表</span></span><br><span class="line">		parts := strings.Split(hdrForwardedFor, <span class="string">","</span>)</span><br><span class="line">		<span class="keyword">for</span> i, p := <span class="keyword">range</span> parts &#123;</span><br><span class="line">			parts[i] = strings.TrimSpace(p)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// <span class="doctag">TODO:</span> 应当返回第一个非本地的地址</span></span><br><span class="line">		<span class="keyword">return</span> parts[<span class="number">0</span>]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> hdrRealIP</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>捕获响应写对象（ResponseWriter）的状态码以及响应的大小更为困难。</p>
-<p><code>http.ResponseWriter</code> 并没有给我们这些信息。但幸运的是，这是一个简单的接口:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ResponseWriter <span class="keyword">interface</span> &#123;</span><br><span class="line">    Header() Header</span><br><span class="line">    Write([]<span class="keyword">byte</span>) (<span class="keyword">int</span>, error)</span><br><span class="line">    WriteHeader(statusCode <span class="keyword">int</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>写一个包装了原始响应的接口实现，并记录我们想要了解的信息，这是可行的。幸运如我们，已经有人在包 <a href="https://github.com/felixge/httpsnoop" target="_blank" rel="noopener">httpsnoop</a> 中实现了。</p>
-<h2 id="日志文件的格式"><a href="#日志文件的格式" class="headerlink" title="日志文件的格式"></a>日志文件的格式</h2><p>Apache 的日志格式比较紧凑，虽然具备人类可读性但却难于解析。</p>
-<p>有的时候，我们也需要阅读日志分析，然后我不赞成为这个格式的实现解析器的想法。</p>
-<p>从实现的角度来看，一个简单的方式是用 JSON 来记录，并且换行隔开。</p>
-<p>对于这种方法我不喜欢的是：JSON 不易于阅读。</p>
-<p>作为一个中间层，我创建了 <code>siser</code> 库，它实现了一个可扩展，易于实现和人类可读的序列化格式。 它非常适合用于记录结构化信息，我已经在多个项目用到它了。</p>
-<p>下面展示了一个简单请求是如何被序列化的:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">171 1567185903788 httplog</span><br><span class="line">method: GET</span><br><span class="line">uri: &#x2F;favicon.ico</span><br><span class="line">ipaddr: 204.14.239.58</span><br><span class="line">code: 404</span><br><span class="line">size: 758</span><br><span class="line">duration: 0</span><br><span class="line">ua: Mozilla&#x2F;5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0) Gecko&#x2F;20100101 Firefox&#x2F;68.0</span><br></pre></td></tr></table></figure>
-
-<p>每个记录的第一行包含了以下信息：</p>
-<ul>
-<li><code>171</code> 是其下记录的数据的大小。提前知道数据的大小确保了安全和高效的实现。</li>
-<li><code>1567185903788</code> 是时间戳的 UNIX 格式（从系统纪元（Epoch）至今的秒数）。它让我们避免在数据里记录重复的时间戳。</li>
-<li><code>httplog</code> 是记录的类型。这让我们可以往同一文件写不同类型的日志。在我们的场景下，所有记录的类型都是一样的。</li>
-</ul>
-<p>然后第一行之后的数据都是 <code>key:value</code> 格式。</p>
-<p>下面展示了我们如何序列化一条记录并把它写到日志文件：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	muLogHTTP sync.Mutex</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">logHTTPReq</span><span class="params">(ri *HTTPReqInfo)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> rec siser.Record</span><br><span class="line">	rec.Name = <span class="string">"httplog"</span></span><br><span class="line">	rec.Append(<span class="string">"method"</span>, ri.method)</span><br><span class="line">	rec.Append(<span class="string">"uri"</span>, ri.uri)</span><br><span class="line">	<span class="keyword">if</span> ri.referer != <span class="string">""</span> &#123;</span><br><span class="line">		rec.Append(<span class="string">"referer"</span>, ri.referer)</span><br><span class="line">	&#125;</span><br><span class="line">	rec.Append(<span class="string">"ipaddr"</span>, ri.ipaddr)</span><br><span class="line">	rec.Append(<span class="string">"code"</span>, strconv.Itoa(ri.code))</span><br><span class="line">	rec.Append(<span class="string">"size"</span>, strconv.FormatInt(ri.size, <span class="number">10</span>))</span><br><span class="line">	durMs := ri.duration / time.Millisecond</span><br><span class="line">	rec.Append(<span class="string">"duration"</span>, strconv.FormatInt(<span class="keyword">int64</span>(durMs), <span class="number">10</span>))</span><br><span class="line">	rec.Append(<span class="string">"ua"</span>, ri.userAgent)</span><br><span class="line"></span><br><span class="line">	muLogHTTP.Lock()</span><br><span class="line">	<span class="keyword">defer</span> muLogHTTP.Unlock()</span><br><span class="line">	_, _ = httpLogSiser.WriteRecord(&amp;rec)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="日志每日滚动"><a href="#日志每日滚动" class="headerlink" title="日志每日滚动"></a>日志每日滚动</h2><p>我通常在 Ubuntu 上部署服务器，并把日志记录到 <code>/data/&lt;service-name./log</code> 目录。</p>
-<p>我们不能一直往同一个日志文件里写。否则到最后会用完所有空间。</p>
-<p>对于长时间的日志，我通常每天一个日志文件，以日期命名。如 <code>2019-09-23.txt</code>, <code>2019-09-24.txt</code> 等等。</p>
-<p>这有时称为日志滚动 ( log rotate).</p>
-<p>为了避免重复实现这个功能，我写了一个库 <a href="https://github.com/kjk/dailyrotate" target="_blank" rel="noopener">dailyrotate</a>。</p>
-<p>它实现了 <code>Write</code>, <code>Close</code> 以及 <code>Flush</code> 方法，所以它易于接入到现有已使用 <code>io.Reader</code> 等的代码。</p>
-<p>你要指定使用哪个目录，以及日志命名的格式。这个格式通过 Go 的时间格式化函数来实现的。我通常使用 <code>2006-01-02.txt</code> 每天生成一个唯一的时间，并根据日期来排序，<code>txt</code> 则是工具识别文本文件而不是二进制文件的标志。</p>
-<p>接着就和写普通的文件一样，以及确保代码会每天创建文件。</p>
-<p>你也可以提供一个通知的回调，当发生日志滚动时会通知你，这样就可以做一些动作，例如把刚刚关闭的文件上传线上存储，或者对它做分析。</p>
-<p>下面是代码:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pathFormat := filepath.Join(<span class="string">"dir"</span>, <span class="string">"2006-01-02.txt"</span>)</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">onClose</span><span class="params">(path <span class="keyword">string</span>, didRotate <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">"we just closed a file '%s', didRotate: %v\n"</span>, path, didRotate)</span><br><span class="line">	<span class="keyword">if</span> !didRotate &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// process just closed file e.g. upload to backblaze storage for backup</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="comment">// if processing takes a long time, do it in a background goroutine</span></span><br><span class="line">	&#125;()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">w, err := dailyrotate.NewFile(pathFormat, onClose)</span><br><span class="line">panicIfErr(err)</span><br><span class="line"></span><br><span class="line">_, err = io.WriteString(w, <span class="string">"hello\n"</span>)</span><br><span class="line">panicIfErr(err)</span><br><span class="line"></span><br><span class="line">err = w.Close()</span><br><span class="line">panicIfErr(err)</span><br></pre></td></tr></table></figure>
-
-<h2 id="长期存储以及分析"><a href="#长期存储以及分析" class="headerlink" title="长期存储以及分析"></a>长期存储以及分析</h2><p>为了长期存储我把它们压缩成 gzip 并把文件上传到线上存储。这有很多选择：S3, Google Storage, Digital Ocean Spaces, BackBlaze。</p>
-<p>我倾向于使用 Digital Ocean Spaces 或者 BackBlaze，因为他们足够廉价（存储成本和贷款成本）。</p>
-<p>它们均支持 S3 协议，所以我使用 <a href="https://github.com/minio/minio-go" target="_blank" rel="noopener">go-minio</a> 库。</p>
-<p>为了分析，我每天都会运行代码，生成大部分有用信息的总结。</p>
-<p>还有其他的做法，可以把数据引入到如 <a href="https://cloud.google.com/bigquery/what-is-bigquery" target="_blank" rel="noopener">BigQuery</a> 的系统。</p>
-<h2 id="更多的-Go-资源"><a href="#更多的-Go-资源" class="headerlink" title="更多的 Go 资源"></a>更多的 Go 资源</h2><ul>
-<li><a href="https://www.programming-books.io/essential/go/" target="_blank" rel="noopener">Essential Go</a> 是由我所维护关于 Go ，免费且全面的书籍。</li>
-<li><a href="https://github.com/kjk/siser" target="_blank" rel="noopener">siser</a> 是我写的库，实现了简单的序列化格式。</li>
-<li>我还写了一篇有关 <code>siser</code> 设计的<a href="https://blog.kowalczyk.info/article/fc9203f7c72a4532b1ae51d018fef7b3/trade-offs-in-designing-versatile-log-format.html" target="_blank" rel="noopener">深度文章</a> 。</li>
-<li><a href="https://github.com/kjk/dailyrotate" target="_blank" rel="noopener">dailyrotate</a> 是我写的库，实现了文件每日滚动。</li>
-</ul>
-<h2 id="招聘-Go-程序员"><a href="#招聘-Go-程序员" class="headerlink" title="招聘 Go 程序员"></a>招聘 Go 程序员</h2><p>如果你正在寻找程序员一起工作，<a href="https://blog.kowalczyk.info/goconsultantforhire.html" target="_blank" rel="noopener">希望一起谈一下</a>。</p>
-<p>由 <a href="https://blog.kowalczyk.info/" target="_blank" rel="noopener">Krzysztof Kowalczyk</a> 所著。</p>
-<hr>
-<p>via: <a href="https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36" target="_blank" rel="noopener">https://onepage.nopub.io/p/Logging-HTTP-requests-in-Go-233de7fe59a747078b35b82a1b035d36</a></p>
-<p>作者：<a href="https://onepage.nopub.io/u/bb760e2dd6794b64b2a903005b21870a" target="_blank" rel="noopener">Krzysztof Kowalczyk</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/JYSDeveloper" target="_blank" rel="noopener">JYSDeveloper</a></p>
-<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/09/15/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/" data-id="ck4oyxmf10000kqu37di0d3mn" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-（译）Go 中的垃圾回收：第一部分 - 基础" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/06/08/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/" class="article-date">
-  <time datetime="2019-06-08T09:03:19.000Z" itemprop="datePublished">2019-06-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/06/08/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/">（译）Go 中的垃圾回收：第一部分 - 基础</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这是三篇系列文章的第一篇博文，系列文章提供了 Go 中垃圾回收背后的机制和概念的理解。这篇博文主要介绍回收器的基础概念。</p>
-<p>三篇系列文章的索引：</p>
-<p>1) <a href="https://studygolang.com/articles/21569" target="_blank" rel="noopener">Go 中的垃圾回收：第一部分 - 概念</a><br>2) <a href="https://studygolang.com/articles/21570" target="_blank" rel="noopener">Go 中的垃圾回收：第二部分 -GC 追踪</a><br>3) 即将诞生</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>垃圾回收器负责跟踪堆内存分配，释放无用的分配内存以及维护在用分配内存。语言如何设计去实现这些行为是很复杂的，但不应该要求应用开发者为了构建软件而去理解细节。而且，对于语言不同版本的 VM 和运行时（runtime），这些细节的实现一直都在发展变化。对于应用开发者而言，重要的是保持一个良好的工作模型，了解垃圾回收器对其语言的行为以及如何在不关心其实现的情况下，对这种行为表示友好。</p>
-<p>在 1.12 版本，Go 语言使用了无分代同步三色标记清除回收器（non-generational concurrent tri-color mark and sweep collector）。如果想形象化地了解标记清除回收器如何工作，Ken Fox 写了这篇提供了动画的<a href="https://spin.atomicobject.com/2014/09/03/visualizing-garbage-collection-algorithms" target="_blank" rel="noopener">好文章</a>。Go 回收器的实现随着发行版而发展变化，所以一旦下一版本发行，任意讲述实现细节的博文将不再准确。</p>
-<p>虽然这样，我将在本文中做的分析不会关注实际的实现细节，而是关注你经历到的行为以及你希望在未来几年看到的行为。在这篇文章中，我将和你分享回收器的行为，并解释如何对该行为表示友好，无论当前实现或未来如何变化。这些都会让你成为更好的 Go 开发者。</p>
-<p><em>注意：这里你可以对有关<a href="https://github.com/ardanlabs/gotraining/tree/master/reading#garbage-collection" target="_blank" rel="noopener">垃圾回收器</a> 以及 Go 实际的回收器进行扩展阅读</em></p>
-<h2 id="堆不是一个容器"><a href="#堆不是一个容器" class="headerlink" title="堆不是一个容器"></a>堆不是一个容器</h2><p>我永远不会把堆叫做用来存储或释放值的容器。重要的是，要理解没有线性限制的内存都定义为“堆”。应该认为应用程序进程空间中的保留的任何内存都可用于堆内存分配。无论任何给定的堆内存分配属于虚拟或物理存储都与我们的模型无关。这种理解将帮助您更好地了解垃圾回收器的工作原理。</p>
-<h2 id="回收器行为"><a href="#回收器行为" class="headerlink" title="回收器行为"></a>回收器行为</h2><p>当某次回收开始，回收器经历三个阶段的工作。其中两个阶段引起 Stop The World ( STW ) 的延迟，另外的阶段会产生降低程序吞吐量的延迟。这三个阶段为：</p>
-<ul>
-<li>标记开始 - STW</li>
-<li>标记中 - 并发</li>
-<li>标记结束 - STW</li>
-</ul>
-<p>以下为每一个阶段的细分</p>
-<h3 id="标记开始-STW"><a href="#标记开始-STW" class="headerlink" title="标记开始 - STW"></a>标记开始 - STW</h3><p>当回收开始，首先执行的动作是打开写屏障。写屏障的目的是允许回收器在收集过程保持堆上的数据完整性，因为回收器和应用程序的 Goroutine 会并发执行。</p>
-<p>为了打开写屏障，必须停止应用运行的所有 Goroutine 。这个动作通常非常快，平均在 10~30 微秒之间。这是指，如果应用程序的 Goroutine 表现正常情况下。</p>
-<p><em>注意：为了更好理解这些调度图，请务必阅读<a href="https://studygolang.com/articles/14264" target="_blank" rel="noopener">Go Scheduler</a> 上的系列文章。</em></p>
-<h3 id="图-1"><a href="#图-1" class="headerlink" title="图 1"></a>图 1</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure1.png" alt="figure1"></p>
-<p>图 1 展示了回收之前应用有 4 个 Goroutine 在运行。这 4 个 Goroutine 都应该被停掉，唯一方法就是观察和等待每个 Goroutine 进行函数调用。函数调用保证了 Goroutine 在一个安全的点上被停掉。如果其中一个 Goroutine 没有进行函数调用，但其他的却做了函数调用，这会发生什么呢？</p>
-<h3 id="图-2"><a href="#图-2" class="headerlink" title="图 2"></a>图 2</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure2.png" alt=""></p>
-<p>图 2 展示了一个真正的问题。在 P4 上运行的 Goroutine 停下来之前都不会开始回收。然而 P4 的 Goroutine 是不会停止的，因为它正在<a href="https://github.com/golang/go/issues/10958" target="_blank" rel="noopener">紧密循环</a> 地进行某些数学运算。</p>
-<h3 id="清单-1"><a href="#清单-1" class="headerlink" title="清单 1"></a>清单 1</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(numbers []<span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">     <span class="keyword">var</span> v <span class="keyword">int</span></span><br><span class="line">     <span class="keyword">for</span> _, n := <span class="keyword">range</span> numbers &#123;</span><br><span class="line">         v += n</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> v</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>清单 1 展示了运行在 P4 上的 Goroutine 正在执行的代码。goroutine 可能以不合理的大量时间运行从而无法停止，这取决于切片的大小。这种代码会拖延回收的启动，更糟糕的是当回收器在等待时，其他的 P 都不能为任何其他的 Goroutine 服务。gorotine 在一个合理的时间范围内进行函数调用显得极其重要。</p>
-<p><em>注意 : 这是语言团队想要在 1.14 通过加入<a href="https://github.com/golang/go/issues/24543" target="_blank" rel="noopener">preemotive</a> 技术到调度中去修复的问题</em></p>
-<h3 id="标记中-并发"><a href="#标记中-并发" class="headerlink" title="标记中 - 并发"></a>标记中 - 并发</h3><p>一旦开启了写障碍，回收器进入标记阶段。回收器做的第一件事是占用 CPU 可用处理能力的 25%。回收器使用 Gorouitne 去做回收工作，也同样需要应用程序的 Goroutine 使用的 P 和 M（译者注：从此处开始作者将 G 划分了两类，一类是应用程序用于自身工作的 Gourinte ，下文称应用  Goroutine，一类是用于 GC 的 Goroutine，这样会更好理解）。这意味着对于我们四个线程的 Go 程序，有一个完整的 P 会专门用来进行回收工作。</p>
-<h3 id="图-3"><a href="#图-3" class="headerlink" title="图 3"></a>图 3</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure3.png" alt=""></p>
-<p>图 3 展示了回收器在回收过程中如何为自身占有 P1。现在回收器开始标记阶段了，标记阶段标记堆内存中仍在使用的值。这个工作先检查栈内所有存活的 Gorouitne，去寻找堆内存的根指针。然后回收器必须从那些根指针遍历堆内存图。当标记工作发生在 P1 上，应用程序可以继续在 P2, P3 和 P4 上同步工作。这意味着回收器的影响被最小化到当前 CPU 处理能力的 25%。</p>
-<p>我希望这个事就这样完了然而并没有。如果在收集过程中，确认在 P1 上专用于 GC 的 Goroutine 在堆内存达到上限之前无法完成标记工作，该怎么办？如果 3 个 Goroutine 中，其中一个所进行的应用工作导致回收器无法及时完成 ( 标记工作 ) 又怎么办？ ( 译者注：此处的意思为内存分配过快 )。在这种情况下，新的分配必须放慢速度，特别是从那个 ( 导致标记无法完成的 ) Goroutine。</p>
-<p>如果回收器确定它需要减慢分配，它会招募应用 Goroutine 以协助标记工作，这叫做辅助标记。任何应用 Goroutine 花费在辅助标记的时间长度与它添加到堆内存中的数据量成正比。辅助标记的一个好处是它有助于更快地完成回收。</p>
-<h3 id="图-4"><a href="#图-4" class="headerlink" title="图 4"></a>图 4</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure4.png" alt=""></p>
-<p>图 4 展示了运行在 P3 上的应用 Goroutine 如何进行辅助标记来帮助回收工作的。希望其他的应用 Goroutine 不用参与进来。分配动作较多的应用可以看到，大部分运行中的 Goroutine 在回收过程中都进行了少量的辅助标记。</p>
-<p>回收器的一个目标是消除对辅助标记的需求。如果每次回收都需要大量的辅助标记才能结束，那么回收器很快就会开始下一次的垃圾回收。为了不那么快进行下一次的回收，努力去减少辅助标记的数量是必要的。</p>
-<h3 id="标记结束-STW"><a href="#标记结束-STW" class="headerlink" title="标记结束 - STW"></a>标记结束 - STW</h3><p>一旦标记工作完成，下阶段就是标记结束了。到这个阶段，写屏障会被停止，各样的清洁工作会被执行，然后计算好下一次的回收目标。在标记阶段，发现自身处于紧密循环的 Goroutine 也会延长这个阶段的时长。</p>
-<h3 id="图-5"><a href="#图-5" class="headerlink" title="图 5"></a>图 5</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure5.png" alt=""></p>
-<p>图 5 展示了在标记结束阶段完成时，所有的 Goroutine 如何停止的。这个动作通常平均在 60 到 90 微秒之间。这个阶段可以不需要 STW，但通过使用 STW，代码会更简单，小小的收益抵不上增加的复杂度。</p>
-<p>一旦回收完成，每个 P 都能服务于应用 Goroutine，然后应用回到全力运行状态。</p>
-<h3 id="图-6"><a href="#图-6" class="headerlink" title="图 6"></a>图 6</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure6.png" alt=""></p>
-<p>图 6 展示了一旦回收完成，所有可选的 P 如何再次处理应用的工作，应用回到回收开始前的全力运行状态。</p>
-<h3 id="并发清除"><a href="#并发清除" class="headerlink" title="并发清除"></a>并发清除</h3><p>在回收完成之后有另一个叫清除的动作发生。清除是指回收堆内存中，未标记为使用中的值所关联的内存。该动作会在应用程序 Goroutine 尝试分配新值到堆内存时发生。清除的延迟被算到在堆内存中执行分配的成本中，与垃圾回收相关的任何延迟无关。</p>
-<p>下面是我机器上的追踪样本，有 12 条硬件线程可用于执行 Gorouitne。</p>
-<h3 id="图-7"><a href="#图-7" class="headerlink" title="图 7"></a>图 7</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure7.png" alt=""></p>
-<p>图 7 展示了追踪的部分快照。你可以看到在回收过程中 ( 盯着顶部的蓝色 GC 线 )，12 个 P 中的其中 3 个如何专门用于 GC。你可以看到 Goroutine2450，1978 和 2696 在这段时间进行了数次辅助标记，而不是执行应用的工作。在回收的最后，只有一个 P 用于 GC 并最终执行 STW ( 标记结束 ) 的工作。</p>
-<p>在回收完成后，应用程序回到全力运行状态。此外你看到在 Goroutine 下面有一些玫瑰色的线条。</p>
-<h3 id="图-8"><a href="#图-8" class="headerlink" title="图 8"></a>图 8</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure8.png" alt=""></p>
-<p>图 8 展示了那些玫瑰色的线条如何代表 Goroutine 不执行应用的工作而进行清除工作的时刻。这些都是 Goroutine 尝试分配新值到堆内存的时刻。</p>
-<h3 id="图-9"><a href="#图-9" class="headerlink" title="图 9"></a>图 9</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure9.png" alt=""></p>
-<p>图 9 展示了其中一个进行清除动作的 Gorouitne 最后的栈跟踪情况。<code>runtime.mallocgc</code> 的调用会导致在堆内存分配新值。<code>runtime.(*mcache).nextFree</code> 的调用引起清除动作。一旦堆内存上没有更多的已分配内存需要回收，就不会再看到 <code>nextFree</code> 的调用。</p>
-<p>刚刚描述的回收动作仅仅在回收过程开始和进行中才会发生。配置项 GC 百分比在决定何时启动垃圾回收任务中扮演重要角色。</p>
-<h2 id="GC-百分比"><a href="#GC-百分比" class="headerlink" title="GC 百分比"></a>GC 百分比</h2><p>运行过程中有一个配置项叫 GC 百分比，默认值设置为 100。这个值代表了在下次回收开始前能分配多大的堆内存。设置 GC 百分比为 100 意味着，根据回收完成后标记为存活的堆内存量，下一次回收必须在堆内存上添加 100 ％ 以上的新分配 ( 内存 ) 才启动。</p>
-<p>举个例子，想象某次回收完成后堆内存有 2MB 存活。( 译者注：后半句话应该是分配 2MB 后 GC 才会开始，作者省了。。。)</p>
-<p><em>注意 : 在这篇博文中堆内存的图不代表使用 Go 的时候的真实情况。Go 中的堆内存通常是碎片化和混乱的，而且没有图像所描绘的那么清晰。这些图在更为易于理解的方式上提供可视化堆内存的方法，这种方式对于你将体验的行为是准确的。</em></p>
-<h3 id="图-10"><a href="#图-10" class="headerlink" title="图 10"></a>图 10</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure10.png" alt=""></p>
-<p>图 10 展示了最后的回收完成后，使用中的 2 MB 堆内存。因为 GC 百分比设置为 100%，下一次回收需要在额外分配 2 MB 的堆内存时才开始，或者在超过 2 MB 之前开始。</p>
-<h3 id="图-11"><a href="#图-11" class="headerlink" title="图 11"></a>图 11</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure11.png" alt=""></p>
-<p>图 11 展示了超过 2MB 堆内存正在使用，这会触发回收。查看该动作所有 ( 细节 ) 的方法是，为每次回收生成 GC 追踪。</p>
-<h2 id="GC-追踪"><a href="#GC-追踪" class="headerlink" title="GC 追踪"></a>GC 追踪</h2><p>GC 追踪可以通过在运行任意 Go 应用时包含环境变量 <code>GODEBUG</code> 并指定 <code>gctracec=1</code> 来生成。每次回收发生，运行时会将 GC 追踪信息写到 <code>stderr</code> 中。</p>
-<h3 id="清单-2"><a href="#清单-2" class="headerlink" title="清单 2"></a>清单 2</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GODEBUG=gctrace=1 ./app</span><br><span class="line"></span><br><span class="line">gc 1405 @6.068s 11%: 0.058+1.2+0.083 ms clock, 0.70+2.5/1.5/0+0.99 ms CPU, 7-&gt;11-&gt;6 MB, 10 MB Goal, 12 P</span><br><span class="line"></span><br><span class="line">gc 1406 @6.070s 11%: 0.051+1.8+0.076 ms clock, 0.61+2.0/2.5/0+0.91 ms CPU, 8-&gt;11-&gt;6 MB, 13 MB Goal, 12 P</span><br><span class="line"></span><br><span class="line">gc 1407 @6.073s 11%: 0.052+1.8+0.20 ms clock, 0.62+1.5/2.2/0+2.4 ms CPU, 8-&gt;14-&gt;8 MB, 13 MB Goal, 12 P</span><br></pre></td></tr></table></figure>
-
-<p>清单 2 展示了如何使用 <code>GODEBUG</code> 变量来生成 GC 追踪。清单也展示了运行 Go 应用生成的 3 份追踪信息。</p>
-<p>以下是通过查看清单中的第一个 GC 追踪线来拆解 GC 追踪中每个值的含义。</p>
-<h3 id="清单-3"><a href="#清单-3" class="headerlink" title="清单 3"></a>清单 3</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">gc 1405 @6.068s 11%: 0.058+1.2+0.083 ms clock, 0.70+2.5/1.5/0+0.99 ms CPU, 7-&gt;11-&gt;6 MB, 10 MB Goal, 12 P</span><br><span class="line"></span><br><span class="line">// General</span><br><span class="line">gc 1404     : 自程序启动以来，1404 的 GC 运行 ( 译者注：此处应当是笔误，联系上文其实是 1405)</span><br><span class="line">@6.068s     : 自程序启动至此总共 6s</span><br><span class="line">11%         : 到目前为止，可用 CPU 的 11% 被用于 GC</span><br><span class="line">// Wall-Clock</span><br><span class="line">0.058ms     : STW     : 标记开始，开启写障碍</span><br><span class="line">1.2ms       : 并发     : 标记中</span><br><span class="line">0.083ms     : STW     : 标记结束 - 关闭写障碍并清除</span><br><span class="line"></span><br><span class="line">// CPU Time</span><br><span class="line">0.70ms      : STW        : 标记开始</span><br><span class="line">2.5ms       : 并发        : 辅助标记时间 (GC 按照分配执行 )</span><br><span class="line">1.5ms       : 并发        : 标记 - 后台 GC 时间</span><br><span class="line">0ms         : 并发        : 标记 - 空闲 GC 时间</span><br><span class="line">0.99ms      : STW        : 标记结束</span><br><span class="line"></span><br><span class="line">// Memory</span><br><span class="line">7MB         : 标记开始前使用中的堆内存</span><br><span class="line">11MB        : 标记完成后使用中的堆内存</span><br><span class="line">6MB         : 标记完成后被标记为存活的堆内存</span><br><span class="line">10MB        : 标记完成后使用中的堆内存收集目标</span><br><span class="line"></span><br><span class="line">// Threads</span><br><span class="line">12P         : 用于运行 Gorouitne 的物理调度器或线程的数量</span><br></pre></td></tr></table></figure>
-
-<p>清单 3 展示了第一条 GC 追踪线的实际数字所代表的含义，按行进行拆解。我后面会谈及这些值中的大部分，但现在只要关注 1405 的 GC 追踪的内存部分。</p>
-<h3 id="图-12"><a href="#图-12" class="headerlink" title="图 12"></a>图 12</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure12.png" alt=""></p>
-<h3 id="清单-4"><a href="#清单-4" class="headerlink" title="清单 4"></a>清单 4</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// Memory</span><br><span class="line">7MB         : 标记开始前使用中的堆内存</span><br><span class="line">11MB        : 标记完成后使用中的堆内存</span><br><span class="line">6MB         : 标记完成后被标记为存活的堆内存</span><br><span class="line">10MB        : 标记完成后使用中的堆内存收集目标</span><br></pre></td></tr></table></figure>
-
-<p>清单 4 中的 GC 追踪线想告诉你的是，在标记工作开始前使用中的堆内存大小为 7 MB。当标记工作完成时，使用中的堆内存大小达到了 11 MB。这意味着在回收过程中出现了额外的 4 MB 内存分配。在标记工作完成后被标记为存活的堆内存大小为 6 MB。这意味着在下次回收开始前应用可以增加使用的堆内存到 12 MB ( 存活堆大小 6 MB 的 100%)。</p>
-<p>你可以看到回收器与其目标有 1 MB 的偏差，标记工作完成后正在使用的堆内存量为 11 MB 而不是 10 MB。这没关系，因为目标是根据当前正在使用的堆内存量、标记为存活的堆内存量以及在回收运行时将会发生的其他分配的时间计算情况来计算的。在这种情况下，应用程序做了一些需要在标记之后使用更多的堆内存的事情，而不是像预期那样。</p>
-<p>如果查看下一个 GC 跟踪线（1406），你会看到事情在 2 ms 内发生了变化。</p>
-<h3 id="图-13"><a href="#图-13" class="headerlink" title="图 13"></a>图 13</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure13.png" alt=""></p>
-<h3 id="清单-5"><a href="#清单-5" class="headerlink" title="清单 5"></a>清单 5</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gc 1406 @6.070s 11%: 0.051+1.8+0.076 ms clock, 0.61+2.0/2.5/0+0.91 ms CPU, 8-&gt;11-&gt;6 MB, 13 MB Goal, 12 P</span><br><span class="line"></span><br><span class="line">// Memory</span><br><span class="line">8MB         : 标记开始前使用中的堆内存</span><br><span class="line">11MB        : 标记完成后使用中的堆内存</span><br><span class="line">6MB         : 标记开完成后被标记为存活的堆内存</span><br><span class="line">13MB        : 标记完成后的使用堆内存收集目标</span><br></pre></td></tr></table></figure>
-
-<p>清单 5 展示了这次回收如何在前一次回收 2 ms 之后开始了，即便使用中的堆内存仅仅达到了 8 MB，而所允许的是 12 MB。这需要特别注意，如果回收器认为早点开始回收会好一点，那么就会提前开始。在这种情况下，它提前开始大概是因为应用在进行大量的分配工作，然后回收器想要降低这次回收的辅助标记的延时。</p>
-<p>还有两件事要注意。回收器这次在他的目标之内。标记完成后使用中堆内存的大小是 11 MB 而不是 13 MB，少了 2 MB。标记完成后标记为存活的堆内存大小一样为 6 MB。</p>
-<p>附注一点，你可以通过增加 <code>gcpacertrace=1</code> 标志从 GC 追踪获取更多细节，这会让回收器打印更多有关并发步调器的内部状态。</p>
-<h3 id="清单-6"><a href="#清单-6" class="headerlink" title="清单 6"></a>清单 6</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> GODEBUG=gctrace=1,gcpacertrace=1 ./app</span><br><span class="line"></span><br><span class="line">样本输出：</span><br><span class="line">gc 5 @0.071s 0%: 0.018+0.46+0.071 ms clock, 0.14+0/0.38/0.14+0.56 ms CPU, 29-&gt;29-&gt;29 MB, 30 MB Goal, 8 P</span><br><span class="line"></span><br><span class="line">pacer: sweep <span class="keyword">done</span> at heap size 29MB; allocated 0MB of spans; swept 3752 pages at +6.183550e-004 pages/byte</span><br><span class="line"></span><br><span class="line">pacer: assist ratio=+1.232155e+000 (scan 1 MB <span class="keyword">in</span> 70-&gt;71 MB) workers=2+0</span><br><span class="line"></span><br><span class="line">pacer: H_m_prev=30488736 h_t=+2.334071e-001 H_T=37605024 h_a=+1.409842e+000 H_a=73473040 h_g=+1.000000e+000 H_g=60977472 u_a=+2.500000e-001 u_g=+2.500000e-001 W_a=308200 Goal Δ =+7.665929e-001 actual Δ =+1.176435e+000 u_a/u_g=+1.000000e+000</span><br></pre></td></tr></table></figure>
-
-<p>运行 GC 追踪可以告诉你很多关于程序健康状态以及回收器步调的事情。回收器运行的步调在回收过程中起了重要作用。</p>
-<h2 id="步调"><a href="#步调" class="headerlink" title="步调"></a>步调</h2><p>回收器具有确定何时开始收集的步调算法。算法依赖于回收器用于收集有关正在运行的应用的信息以及应用在堆上分配的压力的反馈循环。压力可以被定义为在指定时间范围内应用分配堆内存的速度。正是压力决定了回收器需要运行的速度。</p>
-<p>在回收器开始回收之前，它会计算完成回收所需的时间。然后一旦回收运行，将会对正在运行的应用程序上造成延迟，这将让应用程序的工作变慢。每次回收都会增加应用程序的整体延迟。</p>
-<p>一种误解是认为降低回收器步调是改善性能的一种方法。这个想法是，如果你能延缓下次回收的开始，那么你也能延缓它所造成的延时。对回收器友好并不是要降慢其步调。</p>
-<p>你可以决定改变 GC 百分比的值使其超过 100。这会在下次回收开始前增加分配的堆内存的大小，从而导致回收的步调降低，不要考虑做这种事。</p>
-<h3 id="图-14"><a href="#图-14" class="headerlink" title="图 14"></a>图 14</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure14.png" alt=""></p>
-<p>图 14 展示了改变 GC 百分比会如何改变下次回收开始前允许分配的堆内存大小。你可以想象回收器如何因为等待更多的堆内存被使用而变慢。</p>
-<p>尝试直接影响回收器的步调对友好对待回收器并无帮助。如果确实希望在每次回收之间或回收期间完成更多的工作，可以减少任意工作添加到堆内存的分配数量或次数。</p>
-<p><em>注意：这个想法也是为了用尽可能小的堆来实现所需的吞吐量。请记住，在云环境中运行时，最小化堆内存等资源的使用非常重要。</em></p>
-<h3 id="图-15"><a href="#图-15" class="headerlink" title="图 15"></a>图 15</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure15.png" alt=""></p>
-<p>清单 15 显示了将在本系列 ( 博文 ) 的下一篇文章中所使用的 Go 应用程序运行的一些统计信息。蓝色版本显示没经过任何优化的应用程序在处理 10 K 请求时的统计信息。绿色版本显示了发现并去掉应用程序 4.48 GB 的非生产性的内存分配后，处理相同的 10 k 请求的统计信息。</p>
-<p>看这两个版本的平均收集速度（2.08 ms vs 1.96 ms），它们几乎相同，约为 2.0 ms。这两个版本之间的根本差异是每次回收之间的工作量，从每次回收处理 3.98 增加到 7.13 个请求，以同样的速度完成的工作量增加了 79.1 ％。正如你所看到的，回收并没有随着这些分配的减少而减慢，而是保持不变，（绿色版本的）胜出之处是因为每次回收之间完成了更多工作。</p>
-<p>调整回收的步调以延缓其延迟花费并不是你提高应用程序性能的方式。减少回收器运行所需的时间，这反过来就会减少造成的延迟成本。虽然已经对回收器造成的延迟花费进行了解释，但为了清楚起见，让我再总结一下。</p>
-<h2 id="回收器延时消耗"><a href="#回收器延时消耗" class="headerlink" title="回收器延时消耗"></a>回收器延时消耗</h2><p>运行应用中每次回收有两种类型的延时。第一种是窃取（stealing） CPU 的处理能力。窃取 CPU 处理能力的影响是你的应用在回收过程中不能以全力状态运行。因为应用的 Goruinte 正在和回收器的 Goroutine 共享 P，或者正在帮助回收 ( 辅助标记 )。</p>
-<h3 id="图-16"><a href="#图-16" class="headerlink" title="图 16"></a>图 16</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure16.png" alt=""></p>
-<p>图 16 展示了应用如何仅仅使用 CPU 处理能力的 75% 去工作。这是因为回收器为了回收占用了 P1。</p>
-<h3 id="图-17"><a href="#图-17" class="headerlink" title="图 17"></a>图 17</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure17.png" alt=""></p>
-<p>图 17 展示了在这个时刻（通常只有几微秒）应用如何只使用一半的 CPU 处理能力为应用工作。这是因为在 P3 上的 Goroutine 正在进行辅助标记，并且回收器为自己设置了专用的 P1。</p>
-<p><em>注意：标记通常需要 4 个 CPU- 毫秒（CPU-millseconds）处理每 MB 存活的堆 (e.g. 为了评估标记需要运行多少毫秒，用存活的堆大小 MB 然后除以 0.25 乘上 CPU 个数 )。标记实际以 1 MB/ms 运行，但是因为只用了 1/4 的 CPU（译者注：所以是 4 ms 处理 1 MB，也就是开头的 4 个 CPU- 毫秒每 MB）</em></p>
-<p>第二个延时取决于在回收过程中出现的 STW 延迟出现的次数。STW 时间是没有应用程序 Goroutine 执行任意应用程序工作的时间。该应用程序基本上停止了。</p>
-<h3 id="图-18"><a href="#图-18" class="headerlink" title="图 18"></a>图 18</h3><p><img src="https://raw.githubusercontent.com/studygolang/gctt-images/master/Garbage-Collection-in-Go-Part-I-semantics/100_figure18.png" alt=""></p>
-<p>图 18 展示了 STW 延时，这个时候所有 Goroutine 都会停止，这会在每次回收发生两次。如果你的应用健康，回收器可以保持大部分回收过程的总 STW 时间在 100 微秒之内。</p>
-<p>你现在已经知道回收器的不同时期，内存如何分配，步调器如何工作，以及回收器在你运行应用中主要出现的不同延时。通过这些知识，你如何对回收器友好的问题终于能解决了。</p>
-<h2 id="对回收器友好"><a href="#对回收器友好" class="headerlink" title="对回收器友好"></a>对回收器友好</h2><p>对回收器表示友好就是降低内存压力。请记住，压力定义为应用在指定时间内分配内存的速度。当压力降低时，因回收器主要引发的延迟就会降低。而 GC 延迟会拖慢你的应用。</p>
-<p>能够降低 GC 延迟的方式是，从应用中辨别和去掉不需要的内存分配。可以通过以下几种方式帮助回收器。</p>
-<p>帮助回收器：</p>
-<ul>
-<li>尽可能维护最小化的堆</li>
-<li>找到最佳的一致步调</li>
-<li>每次回收保持在目标之内</li>
-<li>最小化每次回收，STW 以及辅助标记的持续时长</li>
-</ul>
-<p>以上所列都能帮助降低在你运行中的程序，主要因回收器造成的延迟大小。这会改善应用的吞吐量表现。我们不需要回收器的步调做任何处理，下面是你可以做的其他事情，以帮助做出更好的工程决策，减少堆上的压力。</p>
-<h3 id="了解应用程序执行的工作负载的性质"><a href="#了解应用程序执行的工作负载的性质" class="headerlink" title="了解应用程序执行的工作负载的性质"></a>了解应用程序执行的工作负载的性质</h3><p>了解工作负载意味着确保使用合理数量的 Goroutine 来完成你的工作。CPU 密集型与 IO 密集型的工作负载不同，需要不同的工程决策。</p>
-<p><a href="https://studygolang.com/articles/17014" target="_blank" rel="noopener">https://studygolang.com/articles/17014</a></p>
-<h3 id="了解已定义的数据及其在应用程序中的传递方式"><a href="#了解已定义的数据及其在应用程序中的传递方式" class="headerlink" title="了解已定义的数据及其在应用程序中的传递方式"></a>了解已定义的数据及其在应用程序中的传递方式</h3><p>了解数据意味着了解你尝试解决的问题。数据语义一致性是维护数据完整性的关键部分，并且允许你在堆栈上选择堆分配时（通过读取代码）知道这件事。</p>
-<p><a href="https://studygolang.com/articles/12487" target="_blank" rel="noopener">https://studygolang.com/articles/12487</a></p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>作为 Go 开发者，如果你花时间专注于减少分配，你正在对垃圾回收器表示友好。你不能编写零分配的应用程序，因此重要的是要认识到有效的分配（对应用有助）和无生产力的分配（对应用有害）之间的差异。然后信任垃圾回收器，相信它能保持堆处于健康状态，并使你的应用程序始终如一地运行。</p>
-<p>拥有垃圾回收器是一笔很划算的交易，我花费垃圾回收的成本，因而没有内存管理的负担。Go 允许你作为开发人员提高工作效率的同时还可以编写足够快的应用程序。垃圾回收器对实现这一目标起了重要作用。在下一篇文章中，我将向你展示一个示例 Web 应用程序以及如何动手使用工具查看所有这些信息。</p>
-<hr>
-<p>via: <a href="https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html" target="_blank" rel="noopener">https://www.ardanlabs.com/blog/2018/12/garbage-collection-in-go-part1-semantics.html</a></p>
-<p>作者：<a href="https://www.ardanlabs.com/" target="_blank" rel="noopener">William Kennedy</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/magichan" target="_blank" rel="noopener">magichan</a></p>
-<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/06/08/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/" data-id="ck4oyxmf90002kqu3bjuo1l9e" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-（译）效仿 Golang 中的枚举类型" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/" class="article-date">
-  <time datetime="2019-04-20T02:56:17.000Z" itemprop="datePublished">2019-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/">（译）效仿 Golang 中的枚举类型</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在这篇博文中我们看到使用 <code>go generate</code> 和遍历抽象语法树来生成强大的枚举类型。</p>
-<p>博文的结果是一个生成枚举类型的客户端。<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">全部代码</a> 都可以在 Github 上面找到。</p>
-<h2 id="Go-惯用技巧"><a href="#Go-惯用技巧" class="headerlink" title="Go 惯用技巧"></a>Go 惯用技巧</h2><p>Go 并没有对枚举类型提供一流的支持。模拟枚举类型的一种方法是，将一系列相关的常量定义为一个新的类型。Iota 可用于预定义连续自增的整形常量。我们可以像下面这样定义一个 <code>Color</code> 类型。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Color <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    Red Color = <span class="literal">iota</span> <span class="comment">// 0</span></span><br><span class="line">    Blue             <span class="comment">// 1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> b1 Color = Red</span><br><span class="line">    b1 = Red</span><br><span class="line">    fmt.Println(b1) <span class="comment">// 打印 0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b2 Color = <span class="number">1</span></span><br><span class="line">    fmt.Println(b2 == Blue) <span class="comment">// 打印 true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b3 Color</span><br><span class="line">    b3 = <span class="number">42</span></span><br><span class="line">    fmt.Println(b3)  <span class="comment">// 打印 42</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>value - we ’ ll need to convert the const to a display value in code.<br>这种模式在 Go 的代码中十分常见。虽然很常见但这个方法有其缺陷。因为没有静态语言检测，所以任意的整型都能作为 Color。没有序列化支持 - 开发者想要将其序列化为整型进行传输或者作为数据库记录，这是相当罕见的。没有可读的显示值支持 - 我们会需要在代码中将常量强转为显示值。</p>
-<p>知道一门语言的习惯以及何时打破这些习惯是十分重要的。习惯用法的论据往往被用来关闭论点。这有时可能是创造力的死亡。</p>
-<h2 id="设计枚举类型"><a href="#设计枚举类型" class="headerlink" title="设计枚举类型"></a>设计枚举类型</h2><p>Go 最好的一个特性之一就是它的简便性 - 从其他语言转型而来的开发者通常可以非常快速的进行高效的开发。另一方面，这也带来了限制（译者注：作者想表达的应该是，某些其他语言支持泛型而 Golang 不支持，因而转到 Go 的开发者会受限），例如缺失能让代码变得整洁的泛型。为了克服这些缺点，社区已经将代码生成作为定义更为强大和灵活的类型的方案。</p>
-<p>让我们用这个途径来定义枚举类型。其中一种做法是生成枚举结构体。我们还可以将方法附加到结构体中。结构体还提供了元标签，这对定义显示的值和描述很有帮助。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ColorEnum <span class="keyword">struct</span> &#123;</span><br><span class="line">    Red  <span class="keyword">string</span> <span class="string">`enum:"RED"`</span></span><br><span class="line">    Blue <span class="keyword">string</span> <span class="string">`enum:"BLUE"`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>现在我们需要做的是为结构体的每个字段生成一个结构体实例</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Red  = Color&#123;name: <span class="string">"RED"</span>&#125;</span><br><span class="line"><span class="keyword">var</span> Blue = Color&#123;name: <span class="string">"BLUE"</span>&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后我们可以对 Color 结构体增加方法以支持 JSON 编码 / 解码。我们实现 <code>Marshaler</code> 接口来提供 JSON 编码。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Color)</span> <span class="title">MarshalJSON</span><span class="params">()</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> JSON.Marshal(c.name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Go 会在序列化这个类型为 JSON 的时候，调用我们定义的实现。同样，我们可以实现 <code>Unmarshaler</code> 接口，该接口使我们能够使用枚举类型——这允许我们直接在 API 中的数据传输对象上定义枚举类型。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Color)</span> <span class="title">UnmarshalJSON</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> JSON.Unmarshal(b, c.name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们还可以增加一些辅助方法来生成显示值的切片。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ColorNames 返回所有枚举实例的显示值的切片</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ColorNames</span><span class="params">()</span> []<span class="title">string</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们也需要支持根据 string 生成枚举实例的方法，加上它。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NewColore 根据提供的显示值生成一个新的 Color</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewColor</span><span class="params">(value <span class="keyword">string</span>)</span> <span class="params">(Color, error)</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<p>这种设计极具扩展性，你可能想要添加其他方法来返回名称，通过实现 <code>Error() string</code> 接口提供 errors，以及通过实现 <code>String() string</code> 支持 <code>Stringer</code>。</p>
-<h2 id="生成代码"><a href="#生成代码" class="headerlink" title="生成代码"></a>生成代码</h2><h3 id="遍历抽象语法树"><a href="#遍历抽象语法树" class="headerlink" title="遍历抽象语法树"></a>遍历抽象语法树</h3><p>在渲染模板生成代码之前，我们需要解析源码中的 <code>ColorEnum</code> 类型。两个常用的方法是使用 <code>refelct</code> 和 <code>ast</code> 包。我们需要扫描在包级别声明的结构体。<code>ast</code> 包拥有能力去构造抽象语法树 - 一种代表 Go 源码的可遍历数据结构。然后可以遍历抽象语法树并匹配提供的类型。这个类型和定义的结构体标签可以被解析并用于建立生成模板的模型。我们先加载一个 Go 的包</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cfg := &amp;packages.Config&#123;</span><br><span class="line">    Mode:  packages.LoadSyntax,</span><br><span class="line">    Tests: <span class="literal">false</span>,</span><br><span class="line">&#125;</span><br><span class="line">pkgs, err := packages.Load(cfg, patterns...)</span><br></pre></td></tr></table></figure>
-
-<p>变量 <code>pkgs</code> 包含了这个包每个文件的抽象语法树。<code>ast.Inspect</code> 方法可用于遍历 AST( 译者注：抽象语法树 )，我们遍历每个文件，然后处理该文件的语法树。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, file := <span class="keyword">range</span> pkg.files &#123;</span><br><span class="line">...</span><br><span class="line">    ast.Inspect(file.file, <span class="function"><span class="keyword">func</span><span class="params">(node ast.Node)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">        <span class="comment">// 处理节点，检查是否是我们感兴趣的东西</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>消费者应该定义自身的方法来过滤出它们所感兴趣的标志类型。你可以通过在节点上做以下校验来过滤结构体</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node.Tok == token.STRUCT &#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<p>在我们的例子中，我们对定义 <code>enum:</code> 标签的 struct 进行过滤。我们简单对源码中的每一个标志进行处理，并根据碰到的数据构建模型（自定义 Go struct）。</p>
-<h3 id="渲染源码"><a href="#渲染源码" class="headerlink" title="渲染源码"></a>渲染源码</h3><p>有几个方法可以生成代码。工具<a href="https://github.com/golang/tools/blob/master/cmd/stringer/stringer.go" target="_blank" rel="noopener">Stringer</a> 使用 <code>fmt</code> 包将内容写到标准输出。虽然这很容易实现，但随着生成器的扩展，它变得难以操作且难以调试。更为合理的方法是使用 <code>text/template</code> 包并使用 Go 强大的模板库。它允许你从模板中分离生成模型的逻辑，从而导致将关注点和易于推理的代码分离开。（译者注：对比 stringer 源码之后就更精确地了解这句话的意思）生成的类型定义可能如下所示。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &#123;&#123;.NewType&#125;&#125; 是需要被创建的枚举实例</span></span><br><span class="line"><span class="keyword">type</span> &#123;&#123;.NewType&#125;&#125; <span class="keyword">struct</span> &#123;</span><br><span class="line">    name  <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 枚举实例</span></span><br><span class="line">&#123;&#123;- <span class="keyword">range</span> $e := .Fields&#125;&#125;</span><br><span class="line"><span class="keyword">var</span> &#123;&#123;.Value&#125;&#125; = &#123;&#123;$.NewType&#125;&#125;&#123;name: <span class="string">"&#123;&#123;.Key&#125;&#125;"</span>&#125;</span><br><span class="line">&#123;&#123;- end&#125;&#125;</span><br><span class="line"></span><br><span class="line">... 生成方法的代码</span><br></pre></td></tr></table></figure>
-
-<p>然后我们可以根据我们的模型来渲染模板</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">t, err := template.New(tmpl).Parse(tmpl)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Fatal(<span class="string">"instance template parse error: "</span>, err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">err = t.Execute(buf, model)</span><br></pre></td></tr></table></figure>
-
-<p>在开发模板的时候无需担心格式化就最好的。<code>format</code> 包存在将源码作为参数然后返回格式化后的 Go 代码的方法，所以让 Go 帮你处理这个东西吧。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Source</span><span class="params">(src []<span class="keyword">byte</span>)</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>在这篇博文中我们看到了解析 Go 源码生成枚举类型的方法。这个方法可作为需要解析源码的其他代码生成器的模板。我们以可维护的方式使用 Go 的 <code>text/template</code> 库来渲染源码。</p>
-<p>在 Github 上阅读<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">所有的代码</a>。</p>
-<hr>
-<p>via: <a href="https://stein.wtf/posts/2019-04-16/enums/" target="_blank" rel="noopener">https://stein.wtf/posts/2019-04-16/enums/</a></p>
-<p>作者：<a href="https://github.com/steinfletcher" target="_blank" rel="noopener">Stein Fletcher</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
-<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/" data-id="ck4oyxmfn000ckqu39b6g7t8a" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-（译）Golang 中的依赖注入之使用更高阶的函数" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/04/02/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/" class="article-date">
-  <time datetime="2019-04-02T13:10:03.000Z" itemprop="datePublished">2019-04-02</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/04/02/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/">（译）Golang 中的依赖注入之使用更高阶的函数</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>你可以找到一个完整的代码示例在<a href="https://github.com/steinfletcher/func-dependency-injection-go" target="_blank" rel="noopener">github.com/steinfletcher/func-dependency-injection-go</a>。例子包含了一个暴露 REST 接口的 http 服务器。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在这篇博文我们介绍一种 Go 中依赖注入的方式 – 使用更高阶的函数和闭包。</p>
-<p>考虑下以下返回用户资料的 domain 层函数。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserProfile</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span> &#123;</span><br><span class="line">    rows, err := db.Query(<span class="string">"SELECT ..."</span>)</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> profileText</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们想要将操作用户数据和接入数据库的代码分离开。在这个例子中，我们想要对 domain 层和任意的业务逻辑进行单元测试，同时为数据库接入函数提供 mock。让我们把这些关系分离，使得每个函数拥有单一职责。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 包含任意业务逻辑或者映射代码的 domain 层函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserProfile</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 数据库接入层函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SelectUserByID</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们也可以在其他的 domain 函数复用 <code>SelectUserByID</code>。我们需要一种方式把 <code>SelectUserByID</code> 注入到 <code>GetUserProfile</code> 中，从而可以在测试中对 <code>GetUserProfile</code> 进行单元测试以及数据接入层提供 mock。<code>go</code> 中能做到这种效果的一种方式是对函数定义使用类型别名。</p>
-<h2 id="类型别名"><a href="#类型别名" class="headerlink" title="类型别名"></a>类型别名</h2><p>让 <code>GetUserProfile</code> 依赖于一个抽象实现，这意味着我们可以在测试里注入一个数据接入层的 mock。<code>go</code> 里两种通常的做法是使用接口或者类型别名。类型别名很简便，不需要生成 struct，所以我们在这就用它吧。我们会为两个函数都定义类型别名。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SelectUserByID <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> GetUserProfile <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewGetUserProfile</span><span class="params">(selectUser SelectUserByID)</span> <span class="title">GetUserProfile</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">        user := selectUser(id)</span><br><span class="line">        <span class="keyword">return</span> user.ProfileText</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">selectUser</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> User&#123;ProfileText: userRow.ProfileText&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>SelectUserByID</code> 是提供用户 ID 返回一个用户的函数，我们不定义它的实现。<code>NewGetUserProfile</code> 是一个从参数 <code>selectUser</code> 中得到依赖的工厂方法，然后返回一个能被调用者使用的函数。这个策略使用闭包让内部函数访问到外层函数的依赖。闭包在变量和常量定义的地方捕获它们的上下文，这被称为 <code>关闭</code> 那些变量和常量。( 译者注：想表达的意思应该是，把变量和常量的上下文给 <code>关闭</code> 起来，因而称为闭包。一个形象化的比喻 )</p>
-<p>我们可以像这样调用 domain 函数。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 应用中某一处的连接依赖项</span></span><br><span class="line">getUser := NewGetUserProfile(selectUser)</span><br><span class="line"></span><br><span class="line">user := getUser(<span class="string">"1234"</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="另一种看法"><a href="#另一种看法" class="headerlink" title="另一种看法"></a>另一种看法</h2><p>如果你对类似于 Java 这类的语言比较熟悉的话，这类似于创建了一个类，注入类依赖到构造器，然后在某个方法中访问依赖。其实和这个途径并没有功能性的区别，你可以认为函数的类型别名是一个简单抽象方法 (SAM) 的接口。在 Java 里我们可能会使用构造器注入依赖。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> DB &#123;</span><br><span class="line">    User SelectUser(String id)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class UserService &#123;</span><br><span class="line">    private final DB db;</span><br><span class="line"></span><br><span class="line">    public UserService(DB db) &#123; <span class="comment">// 注入依赖到构造器中</span></span><br><span class="line">        this.DB = db;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public UserProfile getUserProfile(String id) &#123; <span class="comment">// 访问 ( 依赖 ) 的方法</span></span><br><span class="line">        User user = this.DB.SelectUser(id);</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> userProfile;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>而 <code>go</code> 使用更高阶的函数也有等同的效果</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> SelectUser <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> GetUserProfile <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewGetUserProfile</span><span class="params">(selectUser SelectUser)</span></span> &#123; <span class="comment">// 注入依赖的工厂方法</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span> &#123; <span class="comment">// 访问 ( 依赖 ) 的方法</span></span><br><span class="line">        user := selectUser(id)</span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span> userProfile</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>现在可以对我们的 domain 层功能进行单元测试以及为数据库接入层提供 mock。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUserProfile</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">    selectUserMock := <span class="function"><span class="keyword">func</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">User</span></span> &#123;</span><br><span class="line">        <span class="keyword">return</span> User&#123;name: <span class="string">"jan"</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    getUser := NewGetUserProfile(selectUserMock)</span><br><span class="line"></span><br><span class="line">    user := getUser(<span class="string">"12345"</span>)</span><br><span class="line"></span><br><span class="line">    assert.Equal(t, UserProfile&#123;ID: <span class="string">"12345"</span>, Name: <span class="string">"jan"</span>&#125;, user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>你可以找到一个完整的代码示例在<a href="https://github.com/steinfletcher/func-dependency-injection-go" target="_blank" rel="noopener">github.com/steinfletcher/func-dependency-injection-go</a>。例子包含了一个暴露 REST 接口的 http 服务器。</p>
-<hr>
-<p>via: <a href="https://stein.wtf/posts/2019-03-12/inject/" target="_blank" rel="noopener">https://stein.wtf/posts/2019-03-12/inject/</a></p>
-<p>作者：<a href="https://github.com/steinfletcher" target="_blank" rel="noopener">Stein Fletcher</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
-<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/02/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/" data-id="ck4oyxmff0006kqu31s1t4f3v" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-（译）优雅关闭的 Go Web 服务器" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/03/27/%EF%BC%88%E8%AF%91%EF%BC%89%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%E7%9A%84%20Go%20Web%20%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="article-date">
-  <time datetime="2019-03-27T10:22:05.000Z" itemprop="datePublished">2019-03-27</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/03/27/%EF%BC%88%E8%AF%91%EF%BC%89%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%E7%9A%84%20Go%20Web%20%E6%9C%8D%E5%8A%A1%E5%99%A8/">（译）优雅关闭的 Go Web 服务器</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>在这篇博文里我想要给你们展示下，如何创建一个可以优雅关闭的 Go HTTP Web 服务器。通过这个方法可以让服务器在它真正关闭之前清理某些资源，( 例如 ) 想象下完成数据库事务或者一些其他长时间的操作。我们将会用到在我<a href="https://marcofranssen.nl/concurrency-in-go/" target="_blank" rel="noopener">关于并发的博文</a> 学习到的东西。所以，期待看到 channel 和 Goroutine 作为解决方法的一部分吧。</p>
-<p>当我建立新的 http 服务器，我通常通过使用命令行标志提供端口号启动。特别是当多个微服务的情况下，这会十分顺手，你可以陆续启动你的 Web 服务器，测试他们之间的集成。让我们看一下在启动服务器的时候，如何从命令行提供 <code>listen-address</code>，包括一个合理的默认值。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">  <span class="string">"flag"</span></span><br><span class="line">  <span class="string">"log"</span></span><br><span class="line">  <span class="string">"os"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">  listenAddr <span class="keyword">string</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  flag.StringVar(&amp;listenAddr, <span class="string">"listen-addr"</span>, <span class="string">":5000"</span>, <span class="string">"server listen address"</span>)</span><br><span class="line">  flag.Parse()</span><br><span class="line"></span><br><span class="line">  logger := log.New(os.Stdout, <span class="string">"http: "</span>, log.LstdFlags)</span><br><span class="line"></span><br><span class="line">  logger.Println(<span class="string">"Server is ready to handle requests at"</span>, listenAddr)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>程序会读取 <code>-listen-addr</code> 的命令行选项作为我们的变量 <code>listenAddr</code> 的值。如果没有值提供则使用 <code>:5000</code> 作为默认值。文本 <code>server listen address</code> 则会被用作帮助文档的描述。所以你可以使用<strong>flag</strong>包来管理所有想要的命令行选项。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> go build .</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./gracefull-webserver</span></span><br><span class="line">Server is ready to handle requests at :5000</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./gracefull-webserver --<span class="built_in">help</span></span></span><br><span class="line">Usage of gracefull-webserver.exe:</span><br><span class="line">  -listen-addr string</span><br><span class="line">        server listen address (default ":5000")</span><br><span class="line"></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./gracefull-webserver --listen-addr :6000</span></span><br><span class="line">Server is ready to handle requests at :6000</span><br></pre></td></tr></table></figure>
-
-<p>现在一起看下 Web 服务器的基本设置，在下面例子中我们创建了监听 <code>/</code> 的路由，它会返回 http 状态 200。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">router := http.NewServeMux() <span class="comment">// 这里你也可以用第三方的包来创建路由</span></span><br><span class="line"><span class="comment">// 注册你的路由</span></span><br><span class="line">router.HandleFunc(<span class="string">"/"</span>, <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">  w.WriteHeader(http.StatusOK)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server := &amp;http.Server&#123;</span><br><span class="line">  Addr:         listenAddr,</span><br><span class="line">  Handler:      router,</span><br><span class="line">  ErrorLog:     logger,</span><br><span class="line">  ReadTimeout:  <span class="number">5</span> * time.Second,</span><br><span class="line">  WriteTimeout: <span class="number">10</span> * time.Second,</span><br><span class="line">  IdleTimeout:  <span class="number">15</span> * time.Second,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> err := server.ListenAndServe(); err != <span class="literal">nil</span> &amp;&amp; err != http.ErrServerClosed &#123;</span><br><span class="line">  logger.Fatalf(<span class="string">"Could not listen on %s: %v\n"</span>, listenAddr, err)</span><br><span class="line">&#125;</span><br><span class="line">logger.Println(<span class="string">"Server stopped"</span>)</span><br></pre></td></tr></table></figure>
-
-<p>在最后的 if 语句中我们启动了我们的 Web 服务器并检查了所有错误。例如，指定端口可能已被使用，因而不能在该端口上启动我们的 Web 服务器。如果发生的话，它会记录错误并停止程序。<strong>请注意</strong>：在这一步你需要导入 <code>net/http</code> 包让代码运行起来。</p>
-<p>现在当我们运行咱们的应用，你会看到它阻塞在 <code>server.ListenAndServe()</code> 这一行，直到你杀掉进程。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./gracefull-webserver</span></span><br><span class="line">Server is ready to handle requests at :5000</span><br><span class="line">CTRL+C</span><br><span class="line">Server stopped</span><br></pre></td></tr></table></figure>
-
-<p>到目前为止一切顺利，一切进展良好。然而这不会优雅关闭服务器以及任何可能的与 Web 服务器打开的连接。想象下某人在你退出服务器的时刻接收到一个服务器的响应，那么同样的这个响应会被立刻终止掉。为了允许服务器可以完成任意打开的请求，我们可以加入一些代码在最大超时内去优雅地处理进行中的工作。我们也会改动服务器，让它不保持任何完成工作的连接存活。为了做到这种效果，我们会加更多的代码到一个单独运行的 Goroutine 中，让它拦截关闭应用的信号，然后在那做一些优雅的处理。</p>
-<p>要做的第一件事是添加一些 channel，通过他们我们可以在 2 个 Goroutine 之间进行通信。如果这是你第一次在 GO 里接触协程 (goroutine) 和 channel，你可能想要先看一下我的有关<a href="https://marcofranssen.nl/concurrency-in-go/" target="_blank" rel="noopener">Go 并发的博文</a>。</p>
-<p>首先我们会定义一个 channel 去通知主协程，优雅关闭已经完成了。我们也会增加一个 channel 来等待任意从操作系统而来的关闭应用的信号。</p>
-<p>在单独的 Goroutine 里，我们会等待任意到 <code>quit</code> channel 的中断信号。我们要做的第一件事，是在终端打印一条消息告诉用户服务器正在关闭。通过使用上下文我们给服务器 30 秒时间进行优雅关闭。使用 <code>server.SetKeepAlivesEnabled(false)</code> 通知 Web 服务器不保持任何存在的连接存活，这基本保证了我们的优雅关闭行为，而不是在一个消费者面前仅仅把门关上。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">bool</span>, <span class="number">1</span>)</span><br><span class="line">quit := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">signal.Notify(quit, os.Interrupt)</span><br><span class="line"></span><br><span class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">  &lt;-quit</span><br><span class="line">  logger.Println(<span class="string">"Server is shutting down..."</span>)</span><br><span class="line"></span><br><span class="line">  ctx, cancel := context.WithTimeout(context.Background(), <span class="number">30</span>*time.Second)</span><br><span class="line">  <span class="keyword">defer</span> cancel()</span><br><span class="line"></span><br><span class="line">  server.SetKeepAlivesEnabled(<span class="literal">false</span>)</span><br><span class="line">  <span class="keyword">if</span> err := server.Shutdown(ctx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">    logger.Fatalf(<span class="string">"Could not gracefully shutdown the server: %v\n"</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">close</span>(done)</span><br><span class="line">&#125;()</span><br><span class="line"></span><br><span class="line">logger.Println(<span class="string">"Server is ready to handle requests at"</span>, listenAddr)</span><br><span class="line"><span class="keyword">if</span> err := server.ListenAndServe(); err != <span class="literal">nil</span> &amp;&amp; err != http.ErrServerClosed &#123;</span><br><span class="line">  logger.Fatalf(<span class="string">"Could not listen on %s: %v\n"</span>, listenAddr, err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;-done</span><br><span class="line">logger.Println(<span class="string">"Server stopped"</span>)</span><br></pre></td></tr></table></figure>
-
-<p>一旦关闭完成，我们通过 <code>done</code> channel 来通知主协程我们完成优雅关闭了。这让程序继续执行最后一行 <code>logger.Println</code>。输出关闭顺序全部完成并关闭程序。</p>
-<h2 id="TLDR"><a href="#TLDR" class="headerlink" title="TLDR"></a>TLDR</h2><p>下面你可以看到我们在这篇博文中讨论的所有内容的完整示例，它们结合在一个完全可用的样板文件中。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">main.<span class="keyword">go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">  <span class="string">"context"</span></span><br><span class="line">  <span class="string">"flag"</span></span><br><span class="line">  <span class="string">"log"</span></span><br><span class="line">  <span class="string">"net/http"</span></span><br><span class="line">  <span class="string">"os"</span></span><br><span class="line">  <span class="string">"os/signal"</span></span><br><span class="line">  <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">  listenAddr <span class="keyword">string</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  flag.StringVar(&amp;listenAddr, <span class="string">"listen-addr"</span>, <span class="string">":5000"</span>, <span class="string">"server listen address"</span>)</span><br><span class="line">  flag.Parse()</span><br><span class="line"></span><br><span class="line">  logger := log.New(os.Stdout, <span class="string">"http: "</span>, log.LstdFlags)</span><br><span class="line"></span><br><span class="line">  done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">bool</span>, <span class="number">1</span>)</span><br><span class="line">  quit := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">  signal.Notify(quit, os.Interrupt)</span><br><span class="line"></span><br><span class="line">  server := newWebserver(logger)</span><br><span class="line">  <span class="keyword">go</span> gracefullShutdown(server, logger, quit, done)</span><br><span class="line"></span><br><span class="line">  logger.Println(<span class="string">"Server is ready to handle requests at"</span>, listenAddr)</span><br><span class="line">  <span class="keyword">if</span> err := server.ListenAndServe(); err != <span class="literal">nil</span> &amp;&amp; err != http.ErrServerClosed &#123;</span><br><span class="line">    logger.Fatalf(<span class="string">"Could not listen on %s: %v\n"</span>, listenAddr, err)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  &lt;-done</span><br><span class="line">  logger.Println(<span class="string">"Server stopped"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">gracefullShutdown</span><span class="params">(server *http.Server, logger *log.Logger, quit &lt;-<span class="keyword">chan</span> os.Signal, done <span class="keyword">chan</span>&lt;- <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">  &lt;-quit</span><br><span class="line">  logger.Println(<span class="string">"Server is shutting down..."</span>)</span><br><span class="line"></span><br><span class="line">  ctx, cancel := context.WithTimeout(context.Background(), <span class="number">30</span>*time.Second)</span><br><span class="line">  <span class="keyword">defer</span> cancel()</span><br><span class="line"></span><br><span class="line">  server.SetKeepAlivesEnabled(<span class="literal">false</span>)</span><br><span class="line">  <span class="keyword">if</span> err := server.Shutdown(ctx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">    logger.Fatalf(<span class="string">"Could not gracefully shutdown the server: %v\n"</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">close</span>(done)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newWebserver</span><span class="params">(logger *log.Logger)</span> *<span class="title">http</span>.<span class="title">Server</span></span> &#123;</span><br><span class="line">  router := http.NewServeMux()</span><br><span class="line">  router.HandleFunc(<span class="string">"/"</span>, <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    w.WriteHeader(http.StatusOK)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &amp;http.Server&#123;</span><br><span class="line">    Addr:         listenAddr,</span><br><span class="line">    Handler:      router,</span><br><span class="line">    ErrorLog:     logger,</span><br><span class="line">    ReadTimeout:  <span class="number">5</span> * time.Second,</span><br><span class="line">    WriteTimeout: <span class="number">10</span> * time.Second,</span><br><span class="line">    IdleTimeout:  <span class="number">15</span> * time.Second,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>正如你所能看到的，我做了两处小型重构，我把服务器创建和优雅关闭移到了他们各自的方法中。对于细心的读者可能也会注意到，我已经控制在函数里读写的 channel 仅仅在函数范围内，这为你提供了少量的编译时间优势，也防止你错误地使用 channel。最后但也挺重要的，你可以在这里下载样板文件，作为你自己的 Web 服务器的起点。</p>
-<p>期待你的反馈。请在社交媒体上和你的朋友、同事分享这篇博客吧。</p>
-<hr>
-<p>via: <a href="https://marcofranssen.nl/go-webserver-with-gracefull-shutdown/" target="_blank" rel="noopener">https://marcofranssen.nl/go-webserver-with-gracefull-shutdown/</a></p>
-<p>作者：<a href="https://marcofranssen.nl/about" target="_blank" rel="noopener">Marco Franssen</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
-<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/27/%EF%BC%88%E8%AF%91%EF%BC%89%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%E7%9A%84%20Go%20Web%20%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-id="ck4oyxmfm000bkqu34b9i2rgg" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-（译）Go：切片陷阱" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/03/10/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9A%E5%88%87%E7%89%87%E9%99%B7%E9%98%B1/" class="article-date">
-  <time datetime="2019-03-10T08:34:02.000Z" itemprop="datePublished">2019-03-10</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/03/10/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9A%E5%88%87%E7%89%87%E9%99%B7%E9%98%B1/">（译）Go：切片陷阱</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我最喜欢 Go 的一个特性就是，毫无惊喜。某些程度上可以说有点无聊的感觉。这是编程语言的一个优秀的品质。这样的话，在编码的时候就可以专注于手头上的问题，而不是<a href="https://twitter.com/chordbug/status/1092824183124488192?s=19" target="_blank" rel="noopener">语言做了你不希望它做的事情</a>。</p>
-<p>这篇文章有关 Go 的一个对新人来说最 “惊喜” 的特性 : slice。</p>
-<h2 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h2><p>如果你了解如何使用 Go slice, 请跳到下一节。</p>
-<p>你可以这样声明一个 slice:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a []<span class="keyword">int</span></span><br></pre></td></tr></table></figure>
-
-<p>带字面量的 slice:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
-
-<p>slice 是可变长度的集合。不像数组，slice 可以按需进行增长和切分。</p>
-<p>数组 :</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 全 0 数组，大小为 4</span></span><br><span class="line"><span class="keyword">var</span> a [<span class="number">4</span>]<span class="keyword">int</span></span><br><span class="line"><span class="comment">// 有字面量的全 0 数组，大小为 3</span></span><br><span class="line">b := [...]<span class="keyword">int</span>&#123;<span class="number">2</span>: <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 有字面量的全 0 数组，大小为 2</span></span><br><span class="line">c := [...]<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 以下都不合法，[4]int, [3]int 以及 [2]int 是不一样的类型</span></span><br><span class="line">a = b</span><br><span class="line">c = b</span><br></pre></td></tr></table></figure>
-
-<p>Slices:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 全 0 slice, 大小为 4</span></span><br><span class="line">a := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">4</span>)</span><br><span class="line"><span class="comment">// 有字面量的全 0 slice, 大小为 3</span></span><br><span class="line">b := []<span class="keyword">int</span>&#123;<span class="number">2</span>: <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 有字面量的全 0 slice, 大小为 2</span></span><br><span class="line">c := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">0</span>&#125;</span><br><span class="line"><span class="comment">// 以下是允许的 :[]int 和 []int 是相同的类型</span></span><br><span class="line">a = b</span><br><span class="line">c = a</span><br></pre></td></tr></table></figure>
-
-<p>而且，slice 还可以进行子切分：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">b := a[<span class="number">1</span>:<span class="number">3</span>] <span class="comment">/* [1, 2]          */</span></span><br><span class="line">c := a[<span class="number">3</span>:]  <span class="comment">/* [3, 4]          */</span></span><br><span class="line">d := a[:<span class="number">2</span>]  <span class="comment">/* [0, 1]          */</span></span><br><span class="line">e := a[:]   <span class="comment">/* [0, 1, 2, 3, 4] */</span></span><br></pre></td></tr></table></figure>
-
-<p>以及增长：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">b := <span class="built_in">append</span>(a, a...) <span class="comment">/* [1, 2, 1, 2] */</span></span><br><span class="line">a = <span class="built_in">append</span>(a, <span class="number">3</span>, <span class="number">4</span>)  <span class="comment">/* [1, 2, 3, 4] */</span></span><br></pre></td></tr></table></figure>
-
-<p>这通常让 slice 成为所有应用场景首选的数据结构 ( 译者注：应该是对于所有适用数组和 slice 的场景而言，slice 胜于数组 )。</p>
-<h2 id="那么，有什么问题呢"><a href="#那么，有什么问题呢" class="headerlink" title="那么，有什么问题呢 ?"></a>那么，有什么问题呢 ?</h2><p>slice 不是其他东西，而是一个携带三份信息的 struct</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// 在 data 中使用到的空间大小</span></span><br><span class="line">	<span class="built_in">len</span>  <span class="keyword">int</span></span><br><span class="line">	<span class="comment">// data 的大小</span></span><br><span class="line">	<span class="built_in">cap</span>  <span class="keyword">int</span></span><br><span class="line">	<span class="comment">// 底层数组 data</span></span><br><span class="line">	data *[...]Type</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当从 slice 中拿到一个 slice，<code>cap</code>, <code>len</code> 和 <code>data</code> 都可能会变化，但<strong>底层数组既不会进行重新分配，也不会进行复制。</strong></p>
-<p>这个特性导致了一些怪异的行为。</p>
-<h2 id="迷之更新：第一部分"><a href="#迷之更新：第一部分" class="headerlink" title="迷之更新：第一部分"></a>迷之更新：第一部分</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">b := a[:<span class="number">1</span>]     <span class="comment">/* [1]     */</span></span><br><span class="line">b[<span class="number">0</span>] = <span class="number">42</span>      <span class="comment">/* [42]    */</span></span><br><span class="line">fmt.Println(a) <span class="comment">/* [42, 2] */</span></span><br></pre></td></tr></table></figure>
-
-<p>这类技巧基本在 Gophers 的意料之中，通常是因为语言的某些核心接口依赖于 slice 的底层数据通过引用传递的事实。 例如，io.Reader 具有与 io.Writer 相同的类型签名，对于新人来说可能相当令人惊讶：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Reader <span class="keyword">interface</span> &#123;</span><br><span class="line">	<span class="comment">// Read 把数据写到 p 中</span></span><br><span class="line">	Read(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> Writer <span class="keyword">interface</span> &#123;</span><br><span class="line">	<span class="comment">// Write 从 p 中读取数据</span></span><br><span class="line">	Write(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="迷之更新：第-2-部分"><a href="#迷之更新：第-2-部分" class="headerlink" title="迷之更新：第 2 部分"></a>迷之更新：第 2 部分</h2><p>这部分看起来更具迷惑性</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">b := a[:<span class="number">2</span>] <span class="comment">/* [1, 2] */</span></span><br><span class="line">c := a[<span class="number">2</span>:] <span class="comment">/* [3, 4] */</span></span><br><span class="line">b = <span class="built_in">append</span>(b, <span class="number">5</span>)</span><br><span class="line">fmt.Println(a) <span class="comment">/* [1 2 5 4] */</span></span><br><span class="line">fmt.Println(b) <span class="comment">/* [1 2 5]   */</span></span><br><span class="line">fmt.Println(c) <span class="comment">/* [5 4]     */</span></span><br></pre></td></tr></table></figure>
-
-<p>当数据被追加到 <code>b</code>，底层数组有足够的容量来保存多两个元素，所以 <code>append</code> 不会重新分配，这意味着，数据追加到 <code>b</code> 之后会改变 <code>c</code>。</p>
-<h2 id="迷之更新：第-3-部分"><a href="#迷之更新：第-3-部分" class="headerlink" title="迷之更新：第 3 部分"></a>迷之更新：第 3 部分</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">a := []<span class="keyword">int</span>&#123;<span class="number">0</span>&#125;     <span class="comment">/* [0]          */</span></span><br><span class="line">a = <span class="built_in">append</span>(a, <span class="number">0</span>)  <span class="comment">/* [0, 0]       */</span></span><br><span class="line">b := a[:]         <span class="comment">/* [0, 0]       */</span></span><br><span class="line">a = <span class="built_in">append</span>(a, <span class="number">2</span>)  <span class="comment">/* [0, 0, 2]    */</span></span><br><span class="line">b = <span class="built_in">append</span>(b, <span class="number">1</span>)  <span class="comment">/* [0, 0, 1]    */</span></span><br><span class="line">fmt.Println(a[<span class="number">2</span>]) <span class="comment">/* 2 &lt;- 对的   */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 一样的代码，只是以一个稍大的 slice 开始</span></span><br><span class="line">c := []<span class="keyword">int</span>&#123;<span class="number">0</span>, <span class="number">0</span>&#125;  <span class="comment">/* [0, 0]       */</span></span><br><span class="line">c = <span class="built_in">append</span>(c, <span class="number">0</span>)  <span class="comment">/* [0, 0, 0]    */</span></span><br><span class="line">d := c[:]         <span class="comment">/* [0, 0, 0]    */</span></span><br><span class="line">c = <span class="built_in">append</span>(c, <span class="number">2</span>)  <span class="comment">/* [0, 0, 0, 2] */</span></span><br><span class="line">d = <span class="built_in">append</span>(d, <span class="number">1</span>)  <span class="comment">/* [0, 0, 0, 1] */</span></span><br><span class="line">fmt.Println(c[<span class="number">3</span>]) <span class="comment">/* 1 &lt;- ??      */</span></span><br></pre></td></tr></table></figure>
-
-<p>这个奇怪的行为的原因是，当 slice 变得比某个确切的阈值要大时，Go 停止线性增长并开始分配一个大小翻倍的 slice。<strong>这取决于 slice 类型的大小</strong>。</p>
-<p>分析更多的细节 :</p>
-<ul>
-<li>第一个在 <code>a</code> 上的 <code>append</code> 复制前一个 0 到一个 <code>cap==2</code> 的 slice, 然后在 <code>a[1]</code> 上填一个 <code>0</code></li>
-<li>从 <code>a</code> 拿到了一个 slice, <code>len(b) == cap(b) == 2</code></li>
-<li>第二个在 <code>a</code> 上的 <code>append</code> 复制前面的 0 到一个 <code>cap==4</code> 的 slice, 然后在 <code>a[2]</code> 上填上 <code>2</code></li>
-<li>在这里，<code>b</code> 依然还是 <code>cap == 2</code>, 所以在 <code>b</code> 上 <code>append</code>, 分配了一个新的底层数组</li>
-</ul>
-<p>同样的过程，以初始 <code>cap</code> 为 2 的 slice 开始，产生了不一样的结果，因为当我们拿到 slice <code>c</code> 时，它已经增长到 <code>cap == 4</code></p>
-<blockquote>
-<p>碎碎念：由于这种行为取决于底层类型的大小，因此 <code>[]struct{}{}</code> 将始终通过追加的元素的确切数量增长。</p>
-</blockquote>
-<h2 id="我该怎么解决这个问题呢？"><a href="#我该怎么解决这个问题呢？" class="headerlink" title="我该怎么解决这个问题呢？"></a>我该怎么解决这个问题呢？</h2><p>如果你传递一个从不追加的 slice, 那么这是安全的。只需要紧紧记住，每一个 ( 传递的 slice) 都共享相同内存区域的 “视图”。如果你调用的函数在返回后不保留对 slice 的引用，也同样适用。</p>
-<p>相反地，如果你打算传递可能要追加数据的 slice, 然后你也打算对原 slice 进行扩容，你可能会希望考虑限制你所分享的数据的容量。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="built_in">append</span>([]<span class="keyword">int</span>&#123;&#125;, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line"><span class="comment">// 如果 `potentialSliceGrower` 保持着对 `a` 的引用，下方这种调用可能是危险的</span></span><br><span class="line">potentialSliceGrower(a)</span><br><span class="line"><span class="comment">// 这个是安全的，取一个确定大小的 slice( 进行传递 )</span></span><br><span class="line"><span class="comment">// 追加则会引起复制</span></span><br><span class="line">potentialSliceGrower(a[:<span class="number">4</span>:<span class="number">4</span>])</span><br></pre></td></tr></table></figure>
-
-<p>这种不常使用的 <code>3-index</code> 语法，从 <code>a</code> 中拿到了一个从下标 <code>0</code> 开始，到下标 <code>4</code> 结束，<code>cap=4</code> 的 slice。</p>
-<p>请在<strong>真正有需要的时候</strong>再使用它，但在需要的时候别忘记这个方法。</p>
-<h2 id="想要了解更多？"><a href="#想要了解更多？" class="headerlink" title="想要了解更多？"></a>想要了解更多？</h2><p>这儿有一个关于 slice 内部机制的 Go 的官方<a href="https://blog.golang.org/go-slices-usage-and-internals" target="_blank" rel="noopener">博客</a>, 在文末还有<a href="https://blog.golang.org/go-slices-usage-and-internals#TOC_6" target="_blank" rel="noopener">其他陷阱</a>。</p>
-<hr>
-<p>via: <a href="https://blogtitle.github.io/go-slices-gotchas/" target="_blank" rel="noopener">https://blogtitle.github.io/go-slices-gotchas/</a></p>
-<p>作者：<a href="https://blogtitle.github.io/authors/rob/" target="_blank" rel="noopener">Rob</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
-<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/10/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9A%E5%88%87%E7%89%87%E9%99%B7%E9%98%B1/" data-id="ck4oyxmfi0008kqu3ak8j26a6" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/golang/" style="font-size: 10px;">golang</a> <a href="/tags/%E7%BF%BB%E8%AF%91/" style="font-size: 10px;">翻译</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2019/12/26/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9AGo%20%E8%B0%83%E5%BA%A6%E5%99%A8%E7%9A%84%E4%BB%BB%E5%8A%A1%E7%AA%83%E5%8F%96%EF%BC%88Work-Stealing%EF%BC%89/">（译）Go：Go 调度器的任务窃取（Work-Stealing）</a>
-          </li>
-        
-          <li>
-            <a href="/2019/09/15/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/">（译）Go 中记录 HTTP 请求</a>
-          </li>
-        
-          <li>
-            <a href="/2019/06/08/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/">（译）Go 中的垃圾回收：第一部分 - 基础</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/">（译）效仿 Golang 中的枚举类型</a>
-          </li>
-        
-          <li>
-            <a href="/2019/04/02/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/">（译）Golang 中的依赖注入之使用更高阶的函数</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
+            
+          </div>
+          <a class="home-article-read" href="/passages/2019-12-26-go-work-stealing/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
         
       </div>
-      <footer id="footer">
+    </div>
   
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2019 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-09-15
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/">（译）Go 中记录 HTTP 请求</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              
+            
+          </div>
+          <a class="home-article-read" href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-06-08
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/">（译）Go 中的垃圾回收：第一部分 - 基础</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              
+            
+          </div>
+          <a class="home-article-read" href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-04-20
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/">（译）效仿 Golang 中的枚举类型</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              
+            
+          </div>
+          <a class="home-article-read" href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-04-02
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/">（译）Golang 中的依赖注入之使用更高阶的函数</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              
+            
+          </div>
+          <a class="home-article-read" href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-03-27
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%E7%9A%84%20Go%20Web%20%E6%9C%8D%E5%8A%A1%E5%99%A8/">（译）优雅关闭的 Go Web 服务器</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              
+            
+          </div>
+          <a class="home-article-read" href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%E7%9A%84%20Go%20Web%20%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-03-10
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9A%E5%88%87%E7%89%87%E9%99%B7%E9%98%B1/">（译）Go：切片陷阱</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              
+            
+          </div>
+          <a class="home-article-read" href="/passages/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9A%E5%88%87%E7%89%87%E9%99%B7%E9%98%B1/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+</div>
+    </main>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
     </div>
   </div>
-</footer>
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
+</div>
     
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-
-  
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
-
-
-
-
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-right"></i>
+    </a>
   </div>
-</body>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="false" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="javascript:void(0);" data-enable="false">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-twitter"></i>
+    </a>
+  
+  
+    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-facebook"></i>
+    </a>
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
 </html>
