@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>（译）效仿 Golang 中的枚举类型 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在这篇博文中我们看到使用 go generate 和遍历抽象语法树来生成强大的枚举类型。 博文的结果是一个生成枚举类型的客户端。全部代码 都可以在 Github 上面找到。 Go 惯用技巧Go 并没有对枚举类型提供一流的支持。模拟枚举类型的一种方法是，将一系列相关的常量定义为一个新的类型。Iota 可用于预定义连续自增的整形常量。我们可以像下面这样定义一个 Color 类型。 1234567891">
+<meta property="og:type" content="article">
+<meta property="og:title" content="（译）效仿 Golang 中的枚举类型">
+<meta property="og:url" content="http://yoursite.com/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在这篇博文中我们看到使用 go generate 和遍历抽象语法树来生成强大的枚举类型。 博文的结果是一个生成枚举类型的客户端。全部代码 都可以在 Github 上面找到。 Go 惯用技巧Go 并没有对枚举类型提供一流的支持。模拟枚举类型的一种方法是，将一系列相关的常量定义为一个新的类型。Iota 可用于预定义连续自增的整形常量。我们可以像下面这样定义一个 Color 类型。 1234567891">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-04-20T02:56:17.000Z">
+<meta property="article:modified_time" content="2019-12-28T02:27:17.763Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="golang">
+<meta property="article:tag" content="翻译">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-（译）效仿 Golang 中的枚举类型" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/" class="article-date">
+  <time datetime="2019-04-20T02:56:17.000Z" itemprop="datePublished">2019-04-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      （译）效仿 Golang 中的枚举类型
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在这篇博文中我们看到使用 <code>go generate</code> 和遍历抽象语法树来生成强大的枚举类型。</p>
+<p>博文的结果是一个生成枚举类型的客户端。<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">全部代码</a> 都可以在 Github 上面找到。</p>
+<h2 id="Go-惯用技巧"><a href="#Go-惯用技巧" class="headerlink" title="Go 惯用技巧"></a>Go 惯用技巧</h2><p>Go 并没有对枚举类型提供一流的支持。模拟枚举类型的一种方法是，将一系列相关的常量定义为一个新的类型。Iota 可用于预定义连续自增的整形常量。我们可以像下面这样定义一个 <code>Color</code> 类型。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Color <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    Red Color = <span class="literal">iota</span> <span class="comment">// 0</span></span><br><span class="line">    Blue             <span class="comment">// 1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> b1 Color = Red</span><br><span class="line">    b1 = Red</span><br><span class="line">    fmt.Println(b1) <span class="comment">// 打印 0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b2 Color = <span class="number">1</span></span><br><span class="line">    fmt.Println(b2 == Blue) <span class="comment">// 打印 true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b3 Color</span><br><span class="line">    b3 = <span class="number">42</span></span><br><span class="line">    fmt.Println(b3)  <span class="comment">// 打印 42</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>value - we ’ ll need to convert the const to a display value in code.<br>这种模式在 Go 的代码中十分常见。虽然很常见但这个方法有其缺陷。因为没有静态语言检测，所以任意的整型都能作为 Color。没有序列化支持 - 开发者想要将其序列化为整型进行传输或者作为数据库记录，这是相当罕见的。没有可读的显示值支持 - 我们会需要在代码中将常量强转为显示值。</p>
+<p>知道一门语言的习惯以及何时打破这些习惯是十分重要的。习惯用法的论据往往被用来关闭论点。这有时可能是创造力的死亡。</p>
+<h2 id="设计枚举类型"><a href="#设计枚举类型" class="headerlink" title="设计枚举类型"></a>设计枚举类型</h2><p>Go 最好的一个特性之一就是它的简便性 - 从其他语言转型而来的开发者通常可以非常快速的进行高效的开发。另一方面，这也带来了限制（译者注：作者想表达的应该是，某些其他语言支持泛型而 Golang 不支持，因而转到 Go 的开发者会受限），例如缺失能让代码变得整洁的泛型。为了克服这些缺点，社区已经将代码生成作为定义更为强大和灵活的类型的方案。</p>
+<p>让我们用这个途径来定义枚举类型。其中一种做法是生成枚举结构体。我们还可以将方法附加到结构体中。结构体还提供了元标签，这对定义显示的值和描述很有帮助。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> ColorEnum <span class="keyword">struct</span> &#123;</span><br><span class="line">    Red  <span class="keyword">string</span> <span class="string">`enum:"RED"`</span></span><br><span class="line">    Blue <span class="keyword">string</span> <span class="string">`enum:"BLUE"`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在我们需要做的是为结构体的每个字段生成一个结构体实例</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Red  = Color&#123;name: <span class="string">"RED"</span>&#125;</span><br><span class="line"><span class="keyword">var</span> Blue = Color&#123;name: <span class="string">"BLUE"</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以对 Color 结构体增加方法以支持 JSON 编码 / 解码。我们实现 <code>Marshaler</code> 接口来提供 JSON 编码。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Color)</span> <span class="title">MarshalJSON</span><span class="params">()</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> JSON.Marshal(c.name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Go 会在序列化这个类型为 JSON 的时候，调用我们定义的实现。同样，我们可以实现 <code>Unmarshaler</code> 接口，该接口使我们能够使用枚举类型——这允许我们直接在 API 中的数据传输对象上定义枚举类型。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Color)</span> <span class="title">UnmarshalJSON</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> JSON.Unmarshal(b, c.name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们还可以增加一些辅助方法来生成显示值的切片。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ColorNames 返回所有枚举实例的显示值的切片</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ColorNames</span><span class="params">()</span> []<span class="title">string</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们也需要支持根据 string 生成枚举实例的方法，加上它。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NewColore 根据提供的显示值生成一个新的 Color</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewColor</span><span class="params">(value <span class="keyword">string</span>)</span> <span class="params">(Color, error)</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种设计极具扩展性，你可能想要添加其他方法来返回名称，通过实现 <code>Error() string</code> 接口提供 errors，以及通过实现 <code>String() string</code> 支持 <code>Stringer</code>。</p>
+<h2 id="生成代码"><a href="#生成代码" class="headerlink" title="生成代码"></a>生成代码</h2><h3 id="遍历抽象语法树"><a href="#遍历抽象语法树" class="headerlink" title="遍历抽象语法树"></a>遍历抽象语法树</h3><p>在渲染模板生成代码之前，我们需要解析源码中的 <code>ColorEnum</code> 类型。两个常用的方法是使用 <code>refelct</code> 和 <code>ast</code> 包。我们需要扫描在包级别声明的结构体。<code>ast</code> 包拥有能力去构造抽象语法树 - 一种代表 Go 源码的可遍历数据结构。然后可以遍历抽象语法树并匹配提供的类型。这个类型和定义的结构体标签可以被解析并用于建立生成模板的模型。我们先加载一个 Go 的包</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cfg := &amp;packages.Config&#123;</span><br><span class="line">    Mode:  packages.LoadSyntax,</span><br><span class="line">    Tests: <span class="literal">false</span>,</span><br><span class="line">&#125;</span><br><span class="line">pkgs, err := packages.Load(cfg, patterns...)</span><br></pre></td></tr></table></figure>
+
+<p>变量 <code>pkgs</code> 包含了这个包每个文件的抽象语法树。<code>ast.Inspect</code> 方法可用于遍历 AST( 译者注：抽象语法树 )，我们遍历每个文件，然后处理该文件的语法树。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> _, file := <span class="keyword">range</span> pkg.files &#123;</span><br><span class="line">...</span><br><span class="line">    ast.Inspect(file.file, <span class="function"><span class="keyword">func</span><span class="params">(node ast.Node)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">        <span class="comment">// 处理节点，检查是否是我们感兴趣的东西</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消费者应该定义自身的方法来过滤出它们所感兴趣的标志类型。你可以通过在节点上做以下校验来过滤结构体</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node.Tok == token.STRUCT &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在我们的例子中，我们对定义 <code>enum:</code> 标签的 struct 进行过滤。我们简单对源码中的每一个标志进行处理，并根据碰到的数据构建模型（自定义 Go struct）。</p>
+<h3 id="渲染源码"><a href="#渲染源码" class="headerlink" title="渲染源码"></a>渲染源码</h3><p>有几个方法可以生成代码。工具<a href="https://github.com/golang/tools/blob/master/cmd/stringer/stringer.go" target="_blank" rel="noopener">Stringer</a> 使用 <code>fmt</code> 包将内容写到标准输出。虽然这很容易实现，但随着生成器的扩展，它变得难以操作且难以调试。更为合理的方法是使用 <code>text/template</code> 包并使用 Go 强大的模板库。它允许你从模板中分离生成模型的逻辑，从而导致将关注点和易于推理的代码分离开。（译者注：对比 stringer 源码之后就更精确地了解这句话的意思）生成的类型定义可能如下所示。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// &#123;&#123;.NewType&#125;&#125; 是需要被创建的枚举实例</span></span><br><span class="line"><span class="keyword">type</span> &#123;&#123;.NewType&#125;&#125; <span class="keyword">struct</span> &#123;</span><br><span class="line">    name  <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 枚举实例</span></span><br><span class="line">&#123;&#123;- <span class="keyword">range</span> $e := .Fields&#125;&#125;</span><br><span class="line"><span class="keyword">var</span> &#123;&#123;.Value&#125;&#125; = &#123;&#123;$.NewType&#125;&#125;&#123;name: <span class="string">"&#123;&#123;.Key&#125;&#125;"</span>&#125;</span><br><span class="line">&#123;&#123;- end&#125;&#125;</span><br><span class="line"></span><br><span class="line">... 生成方法的代码</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以根据我们的模型来渲染模板</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">t, err := template.New(tmpl).Parse(tmpl)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Fatal(<span class="string">"instance template parse error: "</span>, err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">err = t.Execute(buf, model)</span><br></pre></td></tr></table></figure>
+
+<p>在开发模板的时候无需担心格式化就最好的。<code>format</code> 包存在将源码作为参数然后返回格式化后的 Go 代码的方法，所以让 Go 帮你处理这个东西吧。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Source</span><span class="params">(src []<span class="keyword">byte</span>)</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>在这篇博文中我们看到了解析 Go 源码生成枚举类型的方法。这个方法可作为需要解析源码的其他代码生成器的模板。我们以可维护的方式使用 Go 的 <code>text/template</code> 库来渲染源码。</p>
+<p>在 Github 上阅读<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">所有的代码</a>。</p>
+<hr>
+<p>via: <a href="https://stein.wtf/posts/2019-04-16/enums/" target="_blank" rel="noopener">https://stein.wtf/posts/2019-04-16/enums/</a></p>
+<p>作者：<a href="https://github.com/steinfletcher" target="_blank" rel="noopener">Stein Fletcher</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
+<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/" data-id="ck4oyxmfn000ckqu39b6g7t8a" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/06/08/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          （译）Go 中的垃圾回收：第一部分 - 基础
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/02/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">（译）Golang 中的依赖注入之使用更高阶的函数</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%AD%A6%E4%B9%A0/">学习</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/golang/" rel="tag">golang</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/golang/" style="font-size: 10px;">golang</a> <a href="/tags/%E7%BF%BB%E8%AF%91/" style="font-size: 10px;">翻译</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/26/%EF%BC%88%E8%AF%91%EF%BC%89Go%EF%BC%9AGo%20%E8%B0%83%E5%BA%A6%E5%99%A8%E7%9A%84%E4%BB%BB%E5%8A%A1%E7%AA%83%E5%8F%96%EF%BC%88Work-Stealing%EF%BC%89/">（译）Go：Go 调度器的任务窃取（Work-Stealing）</a>
+          </li>
+        
+          <li>
+            <a href="/2019/09/15/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E8%AE%B0%E5%BD%95%20HTTP%20%E8%AF%B7%E6%B1%82/">（译）Go 中记录 HTTP 请求</a>
+          </li>
+        
+          <li>
+            <a href="/2019/06/08/%EF%BC%88%E8%AF%91%EF%BC%89Go%20%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%9A%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%20-%20%E5%9F%BA%E7%A1%80/">（译）Go 中的垃圾回收：第一部分 - 基础</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/20/%EF%BC%88%E8%AF%91%EF%BC%89%E6%95%88%E4%BB%BF%20Golang%20%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B/">（译）效仿 Golang 中的枚举类型</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/02/%EF%BC%88%E8%AF%91%EF%BC%89Golang%20%E4%B8%AD%E7%9A%84%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BD%BF%E7%94%A8%E6%9B%B4%E9%AB%98%E9%98%B6%E7%9A%84%E5%87%BD%E6%95%B0/">（译）Golang 中的依赖注入之使用更高阶的函数</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
