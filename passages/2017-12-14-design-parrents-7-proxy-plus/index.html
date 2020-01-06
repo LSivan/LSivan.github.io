@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>设计模式（七 扩展篇）——动态代理 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,Java," />
+  
+
+  
+  <meta name="description" content="本文介绍了Java SDK对于代理模式的原生支持，JDK代理以及cglib代理。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    设计模式（七 扩展篇）——动态代理
+  </h1>
+  
+  <article class="passage-article">
+    <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>上一篇写的那个代理模式，是属于静态代理。假设一种场景，假设我们要为很多类的很多方法添加前置和后置方法（别忘了代理模式是为了<strong>控制</strong>），按照静态代理的方法，我们就得为所有类的所有方法一个一个地去实现需求，想想这工程量就觉得可怕，所以就有了很优美的实现方式，叫做动态代理。</p>
+<h3 id="JDK代理"><a href="#JDK代理" class="headerlink" title="JDK代理"></a>JDK代理</h3><p>且看代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 抽象接口</span><br><span class="line">public interface MyInterface &#123;</span><br><span class="line">	void hello(int i, int j);</span><br><span class="line">	void hello(int i, int j, int k);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 接口实现类，也是我们的代理目标类</span><br><span class="line">public class MySubject implements MyInterface&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void hello(int i, int j) &#123;</span><br><span class="line">		System.out.println(&quot;hello(): &quot;+i+&quot;-&quot;+j);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public void hello(int i, int j, int k) &#123;</span><br><span class="line">		System.out.println(&quot;hello(): &quot;+i+&quot;-&quot;+j+&quot;~&quot;+k);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 这个是关键，被代理对象方法的实际执行地方，通过反射实现</span><br><span class="line">public class MyInvocationHandler implements InvocationHandler&#123;</span><br><span class="line">	&#x2F;&#x2F; 被代理的目标对象</span><br><span class="line">	private Object target;</span><br><span class="line">    MyInvocationHandler(Object target) &#123;  </span><br><span class="line">        super();  </span><br><span class="line">        this.target &#x3D; target;  </span><br><span class="line">    &#125; </span><br><span class="line">	@Override</span><br><span class="line">	&#x2F;\*\*</span><br><span class="line">	 \* proxy 代理的目标对象</span><br><span class="line">	 \* method 代理的目标对象的方法</span><br><span class="line">	 \*  args，方法的参数</span><br><span class="line">	 \*&#x2F;</span><br><span class="line">	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable &#123;</span><br><span class="line">		System.out.println(&quot;方法： &quot; + method.getName() + &quot;执行前&quot;);</span><br><span class="line">		StringBuilder sb &#x3D; new StringBuilder(&quot;方法的参数：&quot;);</span><br><span class="line">		for (Object arg : args) &#123;</span><br><span class="line">			sb.append(arg.toString()+&quot; &quot;);</span><br><span class="line">		&#125;</span><br><span class="line">		System.out.println(sb.toString());</span><br><span class="line">		Object result &#x3D; method.invoke(target, args);</span><br><span class="line">		System.out.println(&quot;方法： &quot; + method.getName() + &quot;执行后&quot;);</span><br><span class="line">		return result;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		MyInterface mySubject &#x3D; new MySubject();</span><br><span class="line">		MyInvocationHandler handler &#x3D; new MyInvocationHandler(mySubject);</span><br><span class="line">		MyInterface mySubjectProxy &#x3D; (MyInterface) Proxy.newProxyInstance(mySubject.getClass().getClassLoader(),  </span><br><span class="line">				mySubject.getClass().getInterfaces(), handler);</span><br><span class="line">proxy.getProxyObject();</span><br><span class="line">		mySubjectProxy.hello(5,98);</span><br><span class="line">        System.out.println(&quot;\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*&quot;);</span><br><span class="line">		mySubjectProxy.hello(5, 23, 54);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">方法： hello执行前</span><br><span class="line">方法的参数：5 98 </span><br><span class="line">hello(): 5-98</span><br><span class="line">方法： hello执行后</span><br><span class="line">\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*</span><br><span class="line">方法： hello执行前</span><br><span class="line">方法的参数：5 23 54 </span><br><span class="line">hello(): 5-23~54</span><br><span class="line">方法： hello执行后</span><br></pre></td></tr></table></figure>
+<p>比较关键的就三个地方：</p>
+<ul>
+<li>一、被代理的目标对象必须实现接口，即上文的<code>MySubject</code>和<code>MyInterface</code>。</li>
+<li>二、实现InvocationHandler接口的handler类，即上文中的<code>public class MyInvocationHandler implements InvocationHandler</code>。方法的参数说明在上面也有了，这里就不在阐述了。</li>
+<li>三、使用Proxy类获取到目标对象的代理对象，即上文中的<code>Proxy.newProxyInstance(mySubject.getClass().getClassLoader(),mySubject.getClass().getInterfaces(), handler);</code>
+
+</li>
+</ul>
+<p>之前也想过Proxy是怎么实现这个代理过程的，结果在<a href="http://www.cnblogs.com/flyoung2008/archive/2013/08/11/3251148.html" target="_blank" rel="noopener">这里</a>看到了。<br>回到上面的代码，其实上面的代码还可以封装下，比如变成下面的样子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 接口类，接口实现类，handler类都没变化，引入下面的类</span><br><span class="line">&#x2F;&#x2F; 简单的动态代理类，传入一个目标对象参数，得到其代理对象</span><br><span class="line">public class DynamicProxy&#123;</span><br><span class="line">	private MyInvocationHandler handler;</span><br><span class="line">	private Object target;</span><br><span class="line">	public DynamicProxy(Object _target) &#123;</span><br><span class="line">		this.target &#x3D; _target;</span><br><span class="line">		handler &#x3D; new MyInvocationHandler(_target);</span><br><span class="line">	&#125;</span><br><span class="line">	public Object getProxyObject()&#123;</span><br><span class="line">		return Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(), handler);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		MyInterface mySubject &#x3D; new MySubject();</span><br><span class="line">		**DynamicProxy proxy &#x3D; new DynamicProxy(mySubject);</span><br><span class="line">		MyInterface mySubjectProxy &#x3D; (MyInterface) proxy.getProxyObject();**</span><br><span class="line">		mySubjectProxy.hello(5,98);</span><br><span class="line">		System.out.println(&quot;\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*&quot;);</span><br><span class="line">		mySubjectProxy.hello(5, 23, 54);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">方法： hello执行前</span><br><span class="line">方法的参数：5 98 </span><br><span class="line">hello(): 5-98</span><br><span class="line">方法： hello执行后</span><br><span class="line">\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*</span><br><span class="line">方法： hello执行前</span><br><span class="line">方法的参数：5 23 54 </span><br><span class="line">hello(): 5-23~54</span><br><span class="line">方法： hello执行后</span><br></pre></td></tr></table></figure>
+<p>上面场景类的代码，用自然语言解释挺流畅的，就是创建代理类对象，通过代理类对象获取被代理对象的代理对象。反正封装方法多种多样，上面其实其中一种，有意者多试试呗。<br>上面就是JDK代理，但是JDK代理有一个限制，就是上面说到的关键点的第一点，JDK代理无法脱离接口而实现，要为某个目标对象实现JDK代理，该目标对象至少实现一个接口，那如果要为没实现接口的类实现代理，怎么办，就是我们的Cglib代理。</p>
+<h3 id="cglib代理"><a href="#cglib代理" class="headerlink" title="cglib代理"></a>cglib代理</h3><p>且看代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 我们的代理目标类，这次是没有实现接口的</span><br><span class="line">public class MySubject &#123;</span><br><span class="line">	public void hello(int i, int j) &#123;</span><br><span class="line">		System.out.println(&quot;hello(): &quot;+i+&quot;-&quot;+j);</span><br><span class="line">	&#125;</span><br><span class="line">	public void hello(int i, int j, int k) &#123;</span><br><span class="line">		System.out.println(&quot;hello(): &quot;+i+&quot;-&quot;+j+&quot;~&quot;+k);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; cglib代理类</span><br><span class="line">public class CglibProxy implements MethodInterceptor &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable &#123;</span><br><span class="line">		System.out.println(&quot;方法： &quot; + method.getName() + &quot;执行前&quot;);</span><br><span class="line">		StringBuilder sb &#x3D; new StringBuilder(&quot;方法的参数：&quot;);</span><br><span class="line">		for (Object arg : args) &#123;</span><br><span class="line">			sb.append(arg.toString() + &quot; &quot;);</span><br><span class="line">		&#125;</span><br><span class="line">		System.out.println(sb.toString());</span><br><span class="line">		Object obj &#x3D; methodProxy.invokeSuper(o, args);</span><br><span class="line">		System.out.println(&quot;方法： &quot; + method.getName() + &quot;执行后&quot;);</span><br><span class="line">		return obj;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		CglibProxy cglibProxy &#x3D; new CglibProxy();</span><br><span class="line">		Enhancer enhancer &#x3D; new Enhancer();</span><br><span class="line">		enhancer.setSuperclass(MySubject.class);</span><br><span class="line">		enhancer.setCallback(cglibProxy);</span><br><span class="line">		&#x2F;&#x2F; 得到代理对象</span><br><span class="line">		MySubject o &#x3D; (MySubject) enhancer.create();</span><br><span class="line">		o.hello(5, 98);</span><br><span class="line">		System.out.println(&quot;\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*&quot;);</span><br><span class="line">		o.hello(5, 23, 54);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">方法： hello执行前</span><br><span class="line">方法的参数：5 98 </span><br><span class="line">hello(): 5-98</span><br><span class="line">方法： hello执行后</span><br><span class="line">\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*</span><br><span class="line">方法： hello执行前</span><br><span class="line">方法的参数：5 23 54 </span><br><span class="line">hello(): 5-23~54</span><br><span class="line">方法： hello执行后</span><br></pre></td></tr></table></figure>
+<p>cglib是提供动态代理的第三方库，并不是jdk给我们代理，所以需要自己解决导包的问题。<br>这里，cglib设计的几个核心类，分别是：</p>
+<ul>
+<li>net.sf.cglib.proxy.Enhancer – 主要的增强类</li>
+<li>net.sf.cglib.proxy.MethodInterceptor – 主要的方法拦截类，它是Callback接口的子接口，需要用户实现</li>
+<li>net.sf.cglib.proxy.MethodProxy – JDK的java.lang.reflect.Method类的代理类，可以方便的实现对源对象方法的调用</li>
+</ul>
+<p>核心方法就是<code>public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable </code>,第一个参数是代理对象，第二和第三个参数分别是拦截的方法和方法的参数，第四个是方法的代理对象。这个就是cglib代理。</p>
+<p>以上就是动态代理。</p>
+<h5 id="水平有限，难免有错，还请评论区指责下"><a href="#水平有限，难免有错，还请评论区指责下" class="headerlink" title="水平有限，难免有错，还请评论区指责下"></a>水平有限，难免有错，还请评论区指责下</h5>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JDK代理"><span class="toc-text">JDK代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cglib代理"><span class="toc-text">cglib代理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#水平有限，难免有错，还请评论区指责下"><span class="toc-text">水平有限，难免有错，还请评论区指责下</span></a></li></ol></li></ol></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-design-parrents-7-proxy-plus/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-design-parrents-6-builder/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-design-parrents-7-proxy/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

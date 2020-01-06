@@ -15,7 +15,7 @@
   
 
   
-  <meta name="description" content="梁兴威的“抽屉”">
+  <meta name="description" content="你可以找到一个完整的代码示例在github.com/steinfletcher/func-dependency-injection-go。例子包含了一个暴露 REST 接口的 http 服务器。">
 
   
 
@@ -38,14 +38,14 @@
   // it can be used in every script
   
   window.AD_CONFIG = {
-    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
     welcome: {"enable":false,"interval":30},
-    start_time: "2019-12-28",
+    start_time: "2017-12-14",
     passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
     is_post: true,
     lock: false,
     author: "Sivan",
-    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
     mathjax: true,
     page_type: "",
     root: "/"
@@ -186,8 +186,7 @@
   </h1>
   
   <article class="passage-article">
-    <p>你可以找到一个完整的代码示例在<a href="https://github.com/steinfletcher/func-dependency-injection-go" target="_blank" rel="noopener">github.com/steinfletcher/func-dependency-injection-go</a>。例子包含了一个暴露 REST 接口的 http 服务器。</p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在这篇博文我们介绍一种 Go 中依赖注入的方式 – 使用更高阶的函数和闭包。</p>
+    <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在这篇博文我们介绍一种 Go 中依赖注入的方式 – 使用更高阶的函数和闭包。</p>
 <p>考虑下以下返回用户资料的 domain 层函数。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserProfile</span><span class="params">(id <span class="keyword">string</span>)</span> <span class="title">UserProfile</span></span> &#123;</span><br><span class="line">    rows, err := db.Query(<span class="string">"SELECT ..."</span>)</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">return</span> profileText</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -216,7 +215,6 @@
 <p>via: <a href="https://stein.wtf/posts/2019-03-12/inject/" target="_blank" rel="noopener">https://stein.wtf/posts/2019-03-12/inject/</a></p>
 <p>作者：<a href="https://github.com/steinfletcher" target="_blank" rel="noopener">Stein Fletcher</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
 <p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
   </article>
   <aside class="table-content" id="site-toc">
   <div class="table-content-title">
@@ -312,6 +310,10 @@
       <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
     </div>
     
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
     
       <div class="site-footer-info">
         <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
@@ -366,7 +368,7 @@
 
 <div class="bottom-bar">
   <div class="bottom-bar-left">
-    <a href="/passages/2019-04-20-go-enums/" data-enable="true">
+    <a href="/passages/2019-04-03-go-source-code-slice/" data-enable="true">
       <i class="fa fa-arrow-left"></i>
     </a>
     <a href="/passages/2019-03-27-go-webserver-with-gracefull-shutdown/" data-enable="true">
@@ -397,14 +399,6 @@
 </div>
     <div id="share-btn">
   
-    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-twitter"></i>
-    </a>
-  
-  
-    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-facebook"></i>
-    </a>
   
   
     <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">

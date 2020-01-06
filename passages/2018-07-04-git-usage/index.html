@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>(转)Git常用终端命令 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,git," />
+  
+
+  
+  <meta name="description" content="原文链接：Git常用终端命令-chenfanfang">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2018-07-04
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    (转)Git常用终端命令
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>Git想必大家都熟悉了，由于现在Git的管理工具用的的确很方便，估计大家都用Git管理工具了，所以真正能够熟练用终端敲出常用的Git命令，想必没有多少人（当然也包括我）。</p>
+<p>我用Git比较无规律，都是混合使用的：终端Git命令（会一些常用的） + Xcode自带Git管理工具 + SourceTree。具体会使用哪种方式，完全看心情和操作的熟练度。</p>
+<p>最近闲来无事（等后台哥们的接口），索性看了下常用的Git终端命令，顺便做了下笔记与大家分享，当然也方便了以后自己的查阅。</p>
+<p>本文Git常用命令知识点基本来自“廖雪峰”前辈的Git教程。若对Git没有些许的了解，只看常用命令可能对大家的帮助不是太大，所以建议大家有空的时候花点时间去看下“廖雪峰 ”前辈的Git教程，通熟易懂，相信会有所收获。</p>
+<p>最后，若文章有什么错误的地方，望评论指出。</p>
+<h2 id="git-init"><a href="#git-init" class="headerlink" title="git init"></a>git init</h2><p>初始化一个Git仓库：把某个目录变成Git可以管理的仓库</p>
+<h2 id="git-add-test-h"><a href="#git-add-test-h" class="headerlink" title="git add test.h"></a>git add test.h</h2><p>把文件test.h添加到仓库</p>
+<h2 id="git-commit-m-“添加了test-h文件”"><a href="#git-commit-m-“添加了test-h文件”" class="headerlink" title="git commit -m “添加了test.h文件”"></a>git commit -m “添加了test.h文件”</h2><p>把文件提交到仓库。(git commit命令，-m后面输入的是本次提交的说明)</p>
+<h2 id="git-status"><a href="#git-status" class="headerlink" title="git status"></a>git status</h2><p>查看工作区的状态</p>
+<h2 id="git-diff-test-h"><a href="#git-diff-test-h" class="headerlink" title="git diff test.h"></a>git diff test.h</h2><p>查看test.h文件修改了什么（diff—&gt;difference）</p>
+<h2 id="git-log"><a href="#git-log" class="headerlink" title="git log"></a>git log</h2><p>显示从最近到最远的提交日志。如果嫌输出信息太多，看得眼花缭乱的，可以试试加上–pretty=oneline参数</p>
+<h2 id="git-reset-–hard-HEAD"><a href="#git-reset-–hard-HEAD" class="headerlink" title="git reset –hard HEAD^"></a>git reset –hard HEAD^</h2><p>回到上一个版本</p>
+<h2 id="git-reset-–hard-HEAD-1"><a href="#git-reset-–hard-HEAD-1" class="headerlink" title="git reset –hard HEAD^^"></a>git reset –hard HEAD^^</h2><p>回到上上个版本</p>
+<h2 id="git-reset-–hard-HEAD-100"><a href="#git-reset-–hard-HEAD-100" class="headerlink" title="git reset –hard HEAD~100"></a>git reset –hard HEAD~100</h2><p>回到上100个版本</p>
+<h2 id="git-reset-–hard-791c95aa44cc5540d93a146d6d341e5d38936762"><a href="#git-reset-–hard-791c95aa44cc5540d93a146d6d341e5d38936762" class="headerlink" title="git reset –hard 791c95aa44cc5540d93a146d6d341e5d38936762"></a>git reset –hard 791c95aa44cc5540d93a146d6d341e5d38936762</h2><p>根据提交的版本号进行版本的回退</p>
+<h2 id="git-reflog"><a href="#git-reflog" class="headerlink" title="git reflog"></a>git reflog</h2><p>查看命令历史，以便确定要回到未来的哪个版本。</p>
+<h2 id="git-checkout-–-readme-txt"><a href="#git-checkout-–-readme-txt" class="headerlink" title="git checkout – readme.txt"></a>git checkout – readme.txt</h2><p>命令git checkout – readme.txt意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：<br>一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；<br>一种是readme.txt已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。<br>总之，就是让这个文件回到最近一次git commit或git add时的状态。</p>
+<h2 id="git-reset-HEAD-文件"><a href="#git-reset-HEAD-文件" class="headerlink" title="git reset HEAD 文件"></a>git reset HEAD 文件</h2><p>例如： git reset HEAD readme.txt<br>可以把暂存区的修改撤销掉（unstage），重新放回工作区。若要丢弃工作区的修改，还需要git checkout – readme.txt<br>git reset命令既可以回退版本，也可以把暂存区的修改回退到工作区。当我们用HEAD时，表示最新的版本。</p>
+<h2 id="git-remote-add-origin-git-………………"><a href="#git-remote-add-origin-git-………………" class="headerlink" title="git remote add origin git@………………."></a>git remote add origin git@……………….</h2><p>关联一个远程库</p>
+<h2 id="git-push"><a href="#git-push" class="headerlink" title="git push"></a>git push</h2><p>把当前分支推送到远程</p>
+<h2 id="git-push-u-origin-master"><a href="#git-push-u-origin-master" class="headerlink" title="git push -u origin master"></a>git push -u origin master</h2><p>当远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令。</p>
+<h2 id="git-clone-git-…………"><a href="#git-clone-git-…………" class="headerlink" title="git clone git@…………."></a>git clone git@………….</h2><p>克隆</p>
+<h2 id="git-branch-dev"><a href="#git-branch-dev" class="headerlink" title="git branch dev"></a>git branch dev</h2><p>创建一个名称叫dev的分支</p>
+<h2 id="git-checkout-dev"><a href="#git-checkout-dev" class="headerlink" title="git checkout dev"></a>git checkout dev</h2><p>当前的分支切换为dev分支</p>
+<h2 id="git-checkout-b-dev"><a href="#git-checkout-b-dev" class="headerlink" title="git checkout -b dev"></a>git checkout -b dev</h2><p>创建一个dev分支，并且切换到dev分支（相当于是是前面两句命令的合并）</p>
+<h2 id="git-branch"><a href="#git-branch" class="headerlink" title="git branch"></a>git branch</h2><p>列出所有分支，当前分支前面会标一个*号</p>
+<h2 id="git-merge-dev"><a href="#git-merge-dev" class="headerlink" title="git merge dev"></a>git merge dev</h2><p>把dev分支的工作成果合并到当前分支上、</p>
+<p>git merge命令用于合并指定分支到当前分支</p>
+<h2 id="git-branch-d-dev"><a href="#git-branch-d-dev" class="headerlink" title="git branch -d dev"></a>git branch -d dev</h2><p>删除dev分支</p>
+<h2 id="git-branch-D-dev"><a href="#git-branch-D-dev" class="headerlink" title="git branch -D dev"></a>git branch -D dev</h2><p>若dev分支还没合并到所切出来的分支，则git branch -d dev将不能删除dev分支，可以通过git branch -D dev强行删除dev分支</p>
+<h2 id="git-log-–graph"><a href="#git-log-–graph" class="headerlink" title="git log –graph"></a>git log –graph</h2><p>查看分支合并图</p>
+<p>git log –graph –pretty=oneline –abbrev-commit</p>
+<h2 id="git-merge-–no-ff-m-“备注的信息”-dev"><a href="#git-merge-–no-ff-m-“备注的信息”-dev" class="headerlink" title="git merge –no-ff -m “备注的信息” dev"></a>git merge –no-ff -m “备注的信息” dev</h2><p>将dev分支合并到当前分支的时候强制禁用Fast forward模式</p>
+<p>通常，合并分支时，如果可能，Git会用Fast forward模式，但这种模式下，删除分支后，会丢掉分支信息。<br>如果要强制禁用Fast forward模式，Git就会在merge时生成一个新的commit，这样，从分支历史上就可以看出分支信息。</p>
+<p>合并分支时，加上–no-ff<br>参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并，而fast forward<br>合并就看不出来曾经做过合并。</p>
+<h2 id="git-stash"><a href="#git-stash" class="headerlink" title="git stash"></a>git stash</h2><p>可用来暂存当前正在进行的工作</p>
+<h2 id="git-stash-list"><a href="#git-stash-list" class="headerlink" title="git stash list"></a>git stash list</h2><p>查看已暂存列表</p>
+<h2 id="git-stash-apply"><a href="#git-stash-apply" class="headerlink" title="git stash apply"></a>git stash apply</h2><p>恢复工作现场，但是恢复后，stash内容并不删除</p>
+<h2 id="git-stash-drop"><a href="#git-stash-drop" class="headerlink" title="git stash drop"></a>git stash drop</h2><p>删除stash内容</p>
+<h2 id="git-stash-pop"><a href="#git-stash-pop" class="headerlink" title="git stash pop"></a>git stash pop</h2><p>恢复的同时把stash内容也删了，相当于前面两个命令的结合</p>
+<h2 id="git-stash-apply-stash-0"><a href="#git-stash-apply-stash-0" class="headerlink" title="git stash apply stash@{0}"></a>git stash apply stash@{0}</h2><p>恢复指定的stash</p>
+<h2 id="git-remote"><a href="#git-remote" class="headerlink" title="git remote"></a>git remote</h2><p>要查看远程库的名称</p>
+<h2 id="git-remote-v"><a href="#git-remote-v" class="headerlink" title="git remote -v"></a>git remote -v</h2><p>显示更详细的远程库信息。显示可以抓取和推送的origin的地址。如果没有推送权限，就看不到push的地址</p>
+<h2 id="git-push-origin-本地分支的名称"><a href="#git-push-origin-本地分支的名称" class="headerlink" title="git push origin 本地分支的名称"></a>git push origin 本地分支的名称</h2><p>把该分支上的所有本地提交推送到远程库。推送时，要指定本地分支，这样，Git就会把该分支推送到远程库对应的远程分支上：</p>
+<h2 id="git-branch-r"><a href="#git-branch-r" class="headerlink" title="git branch -r"></a>git branch -r</h2><p>查看远程分支</p>
+<h2 id="git-branch-a"><a href="#git-branch-a" class="headerlink" title="git branch -a"></a>git branch -a</h2><p>查看所有分支（会显示本地分支和远程分支）</p>
+<h2 id="git-fetch"><a href="#git-fetch" class="headerlink" title="git fetch"></a>git fetch</h2><p>个人粗浅的理解为将远程所有的分支信息拉取到本地</p>
+<h2 id="git-checkout-b-local-branchname-origin-remote-branchname"><a href="#git-checkout-b-local-branchname-origin-remote-branchname" class="headerlink" title="git checkout -b local-branchname origin/remote_branchname"></a>git checkout -b local-branchname origin/remote_branchname</h2><p>将远程分支映射到本地命名为local-branchname 的一分支（本地分支名称最好和远程分支名称一致）</p>
+<h2 id="git-branch-–set-upstream-dev-origin-dev"><a href="#git-branch-–set-upstream-dev-origin-dev" class="headerlink" title="git branch –set-upstream dev origin/dev"></a>git branch –set-upstream dev origin/dev</h2><p>指定本地dev分支与远程origin/dev分支的链接</p>
+<h2 id="git-tag"><a href="#git-tag" class="headerlink" title="git tag"></a>git tag</h2><p>查看所有标签</p>
+<h2 id="git-tag-标签名称"><a href="#git-tag-标签名称" class="headerlink" title="git tag 标签名称"></a>git tag 标签名称</h2><p>打标签：默认标签是打在最新提交的commit上的</p>
+<h2 id="git-tag-标签名称-commit的版本号"><a href="#git-tag-标签名称-commit的版本号" class="headerlink" title="git tag 标签名称 commit的版本号"></a>git tag 标签名称 commit的版本号</h2><p>例如：git tag v0.9 6224937<br>在制定的提交位置上打上标签</p>
+<h2 id="git-show-标签名称"><a href="#git-show-标签名称" class="headerlink" title="git show 标签名称"></a>git show 标签名称</h2><p>查看标签信息</p>
+<h2 id="git-tag-a-我是标签-m-“添加了标签”-3628164"><a href="#git-tag-a-我是标签-m-“添加了标签”-3628164" class="headerlink" title="git tag -a 我是标签 -m “添加了标签” 3628164"></a>git tag -a 我是标签 -m “添加了标签” 3628164</h2><p>例如：git tag -a v0.1 -m “version 0.1 released” 3628164<br>创建带有说明的标签，用-a指定标签名，-m指定说明文字。经测试 -a可以去掉，也就可以写成<br>git tag 我是标签 -m “添加了标签” 3628164</p>
+<h2 id="git-tag-d-v0-1"><a href="#git-tag-d-v0-1" class="headerlink" title="git tag -d v0.1"></a>git tag -d v0.1</h2><p>删除一个叫做 v0.1的本地标签</p>
+<h2 id="git-push-origin-refs-tags"><a href="#git-push-origin-refs-tags" class="headerlink" title="git push origin :refs/tags/"></a>git push origin :refs/tags/<tagname></h2><p>删除一个远程标签</p>
+<h2 id="git-push-origin-标签名称"><a href="#git-push-origin-标签名称" class="headerlink" title="git push origin 标签名称"></a>git push origin 标签名称</h2><p>推送某个标签到远程</p>
+<h2 id="git-push-origin-–tags"><a href="#git-push-origin-–tags" class="headerlink" title="git push origin –tags"></a>git push origin –tags</h2><p>一次性推送全部尚未推送到远程的本地标签</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写在前面"><span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-init"><span class="toc-text">git init</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-add-test-h"><span class="toc-text">git add test.h</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-commit-m-“添加了test-h文件”"><span class="toc-text">git commit -m “添加了test.h文件”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-status"><span class="toc-text">git status</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-diff-test-h"><span class="toc-text">git diff test.h</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-log"><span class="toc-text">git log</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-reset-–hard-HEAD"><span class="toc-text">git reset –hard HEAD^</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-reset-–hard-HEAD-1"><span class="toc-text">git reset –hard HEAD^^</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-reset-–hard-HEAD-100"><span class="toc-text">git reset –hard HEAD~100</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-reset-–hard-791c95aa44cc5540d93a146d6d341e5d38936762"><span class="toc-text">git reset –hard 791c95aa44cc5540d93a146d6d341e5d38936762</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-reflog"><span class="toc-text">git reflog</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-checkout-–-readme-txt"><span class="toc-text">git checkout – readme.txt</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-reset-HEAD-文件"><span class="toc-text">git reset HEAD 文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-remote-add-origin-git-………………"><span class="toc-text">git remote add origin git@……………….</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-push"><span class="toc-text">git push</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-push-u-origin-master"><span class="toc-text">git push -u origin master</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-clone-git-…………"><span class="toc-text">git clone git@………….</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-branch-dev"><span class="toc-text">git branch dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-checkout-dev"><span class="toc-text">git checkout dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-checkout-b-dev"><span class="toc-text">git checkout -b dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-branch"><span class="toc-text">git branch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-merge-dev"><span class="toc-text">git merge dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-branch-d-dev"><span class="toc-text">git branch -d dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-branch-D-dev"><span class="toc-text">git branch -D dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-log-–graph"><span class="toc-text">git log –graph</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-merge-–no-ff-m-“备注的信息”-dev"><span class="toc-text">git merge –no-ff -m “备注的信息” dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-stash"><span class="toc-text">git stash</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-stash-list"><span class="toc-text">git stash list</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-stash-apply"><span class="toc-text">git stash apply</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-stash-drop"><span class="toc-text">git stash drop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-stash-pop"><span class="toc-text">git stash pop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-stash-apply-stash-0"><span class="toc-text">git stash apply stash@{0}</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-remote"><span class="toc-text">git remote</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-remote-v"><span class="toc-text">git remote -v</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-push-origin-本地分支的名称"><span class="toc-text">git push origin 本地分支的名称</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-branch-r"><span class="toc-text">git branch -r</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-branch-a"><span class="toc-text">git branch -a</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-fetch"><span class="toc-text">git fetch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-checkout-b-local-branchname-origin-remote-branchname"><span class="toc-text">git checkout -b local-branchname origin&#x2F;remote_branchname</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-branch-–set-upstream-dev-origin-dev"><span class="toc-text">git branch –set-upstream dev origin&#x2F;dev</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-tag"><span class="toc-text">git tag</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-tag-标签名称"><span class="toc-text">git tag 标签名称</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-tag-标签名称-commit的版本号"><span class="toc-text">git tag 标签名称 commit的版本号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-show-标签名称"><span class="toc-text">git show 标签名称</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-tag-a-我是标签-m-“添加了标签”-3628164"><span class="toc-text">git tag -a 我是标签 -m “添加了标签” 3628164</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-tag-d-v0-1"><span class="toc-text">git tag -d v0.1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-push-origin-refs-tags"><span class="toc-text">git push origin :refs&#x2F;tags&#x2F;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-push-origin-标签名称"><span class="toc-text">git push origin 标签名称</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-push-origin-–tags"><span class="toc-text">git push origin –tags</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2018-07-04-git-usage/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/git/"><i class="fa fa-tags"></i>git</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2018-07-18-redis-common-sence/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2018-07-01-goroutine-pool/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

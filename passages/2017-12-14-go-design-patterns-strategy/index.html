@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>Golang策略模式的思考 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,golang," />
+  
+
+  
+  <meta name="description" content="这篇文章主要对于策略模式在golang中的使用进行了思考，我觉得golang中对于策略模式，有一个更优雅的实现方案。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    Golang策略模式的思考
+  </h1>
+  
+  <article class="passage-article">
+    <p>策略模式是设计模式中的行为型模式，其核心是将部分的算法实现以及调度分开来，从而实现向扩展开放，向修改关闭的面向对象的做法。之前写过一篇，<a href="http://sivanboy.xyz/passages/2017-12-14-design-patterns-8-strategy" target="_blank" rel="noopener">设计模式（八）——策略模式</a>，这两天想用下golang来实现的时候，发现之前写的比较片面，没进行更深入的思考，今天用golang实现的同时，来往深处钻一下。</p>
+<h3 id="传统策略模式"><a href="#传统策略模式" class="headerlink" title="传统策略模式"></a>传统策略模式</h3><p>策略模式的根本是为了解决某一个场景可以出现的多个类似的算法场景，最经典的，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if condition :</span><br><span class="line">   &#x2F;&#x2F; dosomething</span><br><span class="line">else if condition:</span><br><span class="line">  &#x2F;&#x2F; doOtherThing</span><br><span class="line">else:</span><br><span class="line"> &#x2F;&#x2F; doTheOtherThing</span><br></pre></td></tr></table></figure>
+<p>然后具体的做法就是将这些分支的里面的实现封装一次，共同继承一个基类或者实现一个接口，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public interface Strategy &#123;</span><br><span class="line">  void doSomething();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Strategy1 implements Strategy&#123;</span><br><span class="line">  void doSomething()&#123;</span><br><span class="line">    &#x2F;&#x2F;...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Strategy2 implements Strategy&#123;</span><br><span class="line">  void doSomething()&#123;</span><br><span class="line">    &#x2F;&#x2F;...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着在业务类组合一个基类对象并提供一个构造方法或set方法，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public Strategy strategy;</span><br><span class="line">public void setStrategy(Strategy strategy)&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>最后在业务那里就可以优化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public void service()&#123;</span><br><span class="line">  this.setsetStrategy(new Strategy1());</span><br><span class="line">  this.strategy.doSomething();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样做，就可以将分支的增长变为类的扩展，而且当策略之间有共同的一些操作，还可以用继承的方法将这些操作封装到父类中实现，这样可以最大限度的避免代码的冗余。（上面代码均以java的角度进行的分析）<br>然而策略模式的缺点也很明显，<strong>第一，策略的膨胀会导致对象的膨胀，第二，策略的选择还是需要人为了解策略实现后进行选择，甚至还是不可避免地需要使用多个if else的嵌套来选择策略</strong><br>策略的选择或许是通过下面的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if condition :</span><br><span class="line">   this.setStrategy(new Strategy1());</span><br><span class="line">else :</span><br><span class="line">   this.setStrategy(new Strategy2());</span><br><span class="line">strategy.doSomething();</span><br></pre></td></tr></table></figure>
+<p>这种方法其实治标不治本，策略的选择还是通过一个又臭又长的if else或者switch进行选择，怎么优化呢？好办，预先将策略类保存在一个map中，具体的开发时候，通过一个key来获取这个策略的实例（这个key可以是前后端某个接口的选择性参数，比如status:0,1,2）。<br>改进版</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String,Strategy&gt; strategyMap &#x3D; new HashMap&lt;String,Strategy&gt;();</span><br><span class="line">strategyMap.put(&quot;Strategy1&quot;,new Strategy1());</span><br><span class="line">strategyMap.put(&quot;Strategy2&quot;,new Strategy2());</span><br><span class="line">strategyMap.get(condition).do();</span><br></pre></td></tr></table></figure>
+<p>这样的话，策略的选择就通过变成了一个key的选择，不需要每次调用都是实例化策略实例，甚至可以做到通过文档规范来制约。（接口文档来约束，比如付钱的接口，需要用支付宝还是微信支付，肯定有一个参数来选择的，然后策略的选择就通过这个参数来作为key）</p>
+<p>于是，基于这种改进，golang的策略模式出来。</p>
+<h3 id="golang实现的”策略模式“"><a href="#golang实现的”策略模式“" class="headerlink" title="golang实现的”策略模式“"></a>golang实现的”策略模式“</h3><p>再重申一遍策略模式的精髓是封装一组算法实现以供使用时的调度，golang里面有一个很重要的语法糖就是<strong>func()</strong>——方法变量，也因为，golang实现类似策略模式的做法，不需要依赖于对象而进行，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line">import (</span><br><span class="line">	&quot;fmt&quot;</span><br><span class="line">)</span><br><span class="line">var Strategy map[string]func(v ...interface&#123;&#125;)</span><br><span class="line">func init()&#123;</span><br><span class="line">    Strategy :&#x3D; make(map[string]func(v ...interface&#123;&#125;))</span><br><span class="line">	Strategy[&quot;update&quot;] &#x3D; func(v ...interface&#123;&#125;)&#123;</span><br><span class="line">		fmt.Println(&quot;update table set ? &#x3D; ?&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">	Strategy[&quot;insert&quot;] &#x3D; func(v ...interface&#123;&#125;)&#123;</span><br><span class="line">		fmt.Println(&quot;insert into table values(?,?,?,?)&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">	Strategy[&quot;delete&quot;] &#x3D; func(v ...interface&#123;&#125;)&#123;</span><br><span class="line">		fmt.Println(&quot;delete from table where ?&#x3D;?&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">	Strategy[&quot;select&quot;] &#x3D; func(v ...interface&#123;&#125;)&#123;</span><br><span class="line">		fmt.Println(&quot;select ? from table where ?&#x3D;?&quot;)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">func main()&#123;</span><br><span class="line">	Strategy[&quot;insert&quot;]()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>golang这个func()方法变量的语法确实好用。</p>
+<p>看回来，策略模式的核心是封装一组算法实现特别是相似的算法实现，所以这个封装，就封装到方法变量中就好了，具体的调用过程，更是可以通过map来进行KV的约束，用文档规范好的字段作为key，用具体的fun()作为value，这样无论是算法的封装还是调度都从业务场景中解耦了，真的觉得很棒。当然，缺点就是如果需要扩展策略，就要到增加一个Entry&lt;K,V&gt;,没有传统的实现方式中直接扩展一个实现了策略接口的对象那么方便，这两个还得看具体的项目取舍，一句老话，没有好坏，只有合适不合适。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>传统的策略模式通过将某个算法实现封装到对象的方法中，在业务场景实例化具体的策略对象从而实现策略的选择，而使用map来用key-value的方法改进策略的选择后，更是大大改进了策略的选择过程。优点是扩展方便，缺点是对象膨胀。<br>golang使用func()语法糖+map实现的策略模式，优点是策略不需要于依赖于对象而存在，缺点是扩展没有传统方式方便。<br>水平有限，难免有错，欢迎拍砖。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#传统策略模式"><span class="toc-text">传统策略模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#golang实现的”策略模式“"><span class="toc-text">golang实现的”策略模式“</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-go-design-patterns-strategy/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-go-design-patterns-proxy/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-java-source-code-arraylist/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

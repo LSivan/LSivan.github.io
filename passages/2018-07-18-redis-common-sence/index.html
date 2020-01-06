@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>redis常用场景收集 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,后端,数据库,redis," />
+  
+
+  
+  <meta name="description" content="收录常见的redis用法，既涨涨见识，也方便遇到相关场景能快速参考。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2018-07-18
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    redis常用场景收集
+  </h1>
+  
+  <article class="passage-article">
+    <h4 id="求共同好友"><a href="#求共同好友" class="headerlink" title="求共同好友"></a>求共同好友</h4><p>原理 : sinter key1 key2</p>
+<p>redis自带的sinter命令就是对两个集合求交集，系统为用户添加好友的同时，只要往redis存入用户的好友ID集合，后续就能很简单得出了用户相对于另一个用户的共同好友</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; sinter user:friend:123 user:friend:234</span><br><span class="line">1) <span class="string">"3"</span></span><br><span class="line">2) <span class="string">"5"</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="简单的用户协同推荐"><a href="#简单的用户协同推荐" class="headerlink" title="简单的用户协同推荐"></a>简单的用户协同推荐</h4><p>原理：交集与差集的合理利用</p>
+<p>假设有用户A的喜好列表SA[1,2,3]和用户B的喜好列表SB[3,4,5]，通过len(SA^SB)/len(SA)就能简单地得到一个能代表B相对于A的相似度，虽然不一定很精准，但胜在简单。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; sinter a:like b:like</span><br><span class="line">1) <span class="string">"3"</span></span><br><span class="line"></span><br><span class="line">len(SA^SB)=1 </span><br><span class="line">len(SA)=3</span><br><span class="line">因而相似度为1/3</span><br></pre></td></tr></table></figure>
+<p>对于某个用户A，用A对其他用户C[2,3,6],D[1,2,3,4],E[1,2,3,4,5,6,7],求相似度，通过对列表排序，就能得到关于A的相似度优先列表[D,E,C,B]</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">相似度分别为2/3,1,1（此处有点问题，远多于这种情形应该是不怎么相似才对）</span><br><span class="line">因而排序是D，E，C，B</span><br></pre></td></tr></table></figure>
+
+<p>使用差集操作，B相对于A的差集就是除并集外B的剩余部分，此场景下通俗点来讲就是从相似好友中推荐A可能会喜欢的物品。<br>sdiff key1 key2，求出key1相对于key2的差集</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; sdiff d:like a:like</span><br><span class="line">1) <span class="string">"4"</span></span><br><span class="line">127.0.0.1:6379&gt; sdiff e:like a:like</span><br><span class="line">1) <span class="string">"4"</span></span><br><span class="line">2) <span class="string">"5"</span></span><br><span class="line">3) <span class="string">"6"</span></span><br><span class="line">4) <span class="string">"7"</span></span><br><span class="line">127.0.0.1:6379&gt; sdiff c:like a:like</span><br><span class="line">1) <span class="string">"6"</span></span><br><span class="line">127.0.0.1:6379&gt; sdiff b:like a:like</span><br><span class="line">1) <span class="string">"4"</span></span><br><span class="line">2) <span class="string">"5"</span></span><br><span class="line">(<span class="built_in">integer</span>) 2</span><br></pre></td></tr></table></figure>
+
+<p>这个时候，将所有的差集求并集之后就能得到用户a的推荐列表了</p>
+<h4 id="订阅发布"><a href="#订阅发布" class="headerlink" title="订阅发布"></a>订阅发布</h4><p>原理 : redis自带的pub/sub</p>
+<p>某个客户端sub某个频道后，往后有消息从该频道被pub时，该客户端就会收到通知，可以用在异步回调，应用解耦，广播等情形。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sub操作的客户端</span><br><span class="line">127.0.0.1:6379&gt; subscribe <span class="built_in">test</span></span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) <span class="string">"subscribe"</span></span><br><span class="line">2) <span class="string">"test"</span></span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">1) <span class="string">"message"</span></span><br><span class="line">2) <span class="string">"test"</span></span><br><span class="line">3) <span class="string">"test pub/sub"</span></span><br><span class="line"></span><br><span class="line">pub操作的客户端</span><br><span class="line">127.0.0.1:6379&gt; publish <span class="built_in">test</span> <span class="string">"test pub/sub"</span></span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br></pre></td></tr></table></figure>
+
+<h4 id="简单的延迟队列"><a href="#简单的延迟队列" class="headerlink" title="简单的延迟队列"></a>简单的延迟队列</h4><p>原理 : zrangebyscore delay:queue 0 now</p>
+<p>往zset里放置需要延时处理的消息或者任务的同时，设置score为当前时间的时间戳。</p>
+<p>另起一个协程，每隔一段时间从zset内取出score比取出时间的时间戳要小的消息或任务进行处理。</p>
+<h4 id="错误限制次数"><a href="#错误限制次数" class="headerlink" title="错误限制次数"></a>错误限制次数</h4><p>原理:setex userToken count ex</p>
+<p>通过设置key为用户的唯一标识，每次用户错误就累加count，达到限制次数后就禁止用户的操作，直到redis中的key过期后才恢复</p>
+<h4 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h4><p>期待交流</p>
+<p>后续代码存放<a href="https://github.com/LSivan/go_codes" target="_blank" rel="noopener">地址</a></p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#求共同好友"><span class="toc-text">求共同好友</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#简单的用户协同推荐"><span class="toc-text">简单的用户协同推荐</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#订阅发布"><span class="toc-text">订阅发布</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#简单的延迟队列"><span class="toc-text">简单的延迟队列</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#错误限制次数"><span class="toc-text">错误限制次数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#尾声"><span class="toc-text">尾声</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2018-07-18-redis-common-sence/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E5%90%8E%E7%AB%AF/"><i class="fa fa-tags"></i>后端</a>
+     
+      <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"><i class="fa fa-tags"></i>数据库</a>
+     
+      <a href="/tags/redis/"><i class="fa fa-tags"></i>redis</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2019-03-10-go-slices-gotchas/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2018-07-04-git-usage/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

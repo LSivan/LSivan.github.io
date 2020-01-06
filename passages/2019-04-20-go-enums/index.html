@@ -15,7 +15,7 @@
   
 
   
-  <meta name="description" content="梁兴威的“抽屉”">
+  <meta name="description" content="在这篇博文中我们看到使用 go generate 和遍历抽象语法树来生成强大的枚举类型。博文的结果是一个生成枚举类型的客户端。全部代码 都可以在 Github 上面找到。">
 
   
 
@@ -38,14 +38,14 @@
   // it can be used in every script
   
   window.AD_CONFIG = {
-    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
     welcome: {"enable":false,"interval":30},
-    start_time: "2019-12-28",
+    start_time: "2017-12-14",
     passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
     is_post: true,
     lock: false,
     author: "Sivan",
-    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
     mathjax: true,
     page_type: "",
     root: "/"
@@ -186,9 +186,7 @@
   </h1>
   
   <article class="passage-article">
-    <p>在这篇博文中我们看到使用 <code>go generate</code> 和遍历抽象语法树来生成强大的枚举类型。</p>
-<p>博文的结果是一个生成枚举类型的客户端。<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">全部代码</a> 都可以在 Github 上面找到。</p>
-<h2 id="Go-惯用技巧"><a href="#Go-惯用技巧" class="headerlink" title="Go 惯用技巧"></a>Go 惯用技巧</h2><p>Go 并没有对枚举类型提供一流的支持。模拟枚举类型的一种方法是，将一系列相关的常量定义为一个新的类型。Iota 可用于预定义连续自增的整形常量。我们可以像下面这样定义一个 <code>Color</code> 类型。</p>
+    <h2 id="Go-惯用技巧"><a href="#Go-惯用技巧" class="headerlink" title="Go 惯用技巧"></a>Go 惯用技巧</h2><p>Go 并没有对枚举类型提供一流的支持。模拟枚举类型的一种方法是，将一系列相关的常量定义为一个新的类型。Iota 可用于预定义连续自增的整形常量。我们可以像下面这样定义一个 <code>Color</code> 类型。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Color <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    Red Color = <span class="literal">iota</span> <span class="comment">// 0</span></span><br><span class="line">    Blue             <span class="comment">// 1</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> b1 Color = Red</span><br><span class="line">    b1 = Red</span><br><span class="line">    fmt.Println(b1) <span class="comment">// 打印 0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b2 Color = <span class="number">1</span></span><br><span class="line">    fmt.Println(b2 == Blue) <span class="comment">// 打印 true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> b3 Color</span><br><span class="line">    b3 = <span class="number">42</span></span><br><span class="line">    fmt.Println(b3)  <span class="comment">// 打印 42</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>value - we ’ ll need to convert the const to a display value in code.<br>这种模式在 Go 的代码中十分常见。虽然很常见但这个方法有其缺陷。因为没有静态语言检测，所以任意的整型都能作为 Color。没有序列化支持 - 开发者想要将其序列化为整型进行传输或者作为数据库记录，这是相当罕见的。没有可读的显示值支持 - 我们会需要在代码中将常量强转为显示值。</p>
@@ -238,7 +236,6 @@
 <p>via: <a href="https://stein.wtf/posts/2019-04-16/enums/" target="_blank" rel="noopener">https://stein.wtf/posts/2019-04-16/enums/</a></p>
 <p>作者：<a href="https://github.com/steinfletcher" target="_blank" rel="noopener">Stein Fletcher</a><br>译者：<a href="https://github.com/LSivan" target="_blank" rel="noopener">LSivan</a><br>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
 <p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go 中文网</a> 荣誉推出</p>
-
   </article>
   <aside class="table-content" id="site-toc">
   <div class="table-content-title">
@@ -334,6 +331,10 @@
       <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
     </div>
     
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
     
       <div class="site-footer-info">
         <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
@@ -391,7 +392,7 @@
     <a href="/passages/2019-06-08-garbage-collection-in-go-part1/" data-enable="true">
       <i class="fa fa-arrow-left"></i>
     </a>
-    <a href="/passages/2019-04-02-func-dependency-injection-go/" data-enable="true">
+    <a href="/passages/2019-04-03-go-source-code-slice/" data-enable="true">
       <i class="fa fa-arrow-right"></i>
     </a>
   </div>
@@ -419,14 +420,6 @@
 </div>
     <div id="share-btn">
   
-    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-twitter"></i>
-    </a>
-  
-  
-    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-facebook"></i>
-    </a>
   
   
     <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">

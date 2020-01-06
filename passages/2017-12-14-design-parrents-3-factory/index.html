@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>设计模式（三）——工厂模式 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,Java," />
+  
+
+  
+  <meta name="description" content="本文介绍了设计模式中，简单工厂模式的用法及其简单实现。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    设计模式（三）——工厂模式
+  </h1>
+  
+  <article class="passage-article">
+    <blockquote>
+<p>本文原创<a href="https://juejin.im/user/59df548bf265da432d2718aa" target="_blank" rel="noopener">掘金：L_Sivan</a></p>
+</blockquote>
+<h1 id="工厂模式定义"><a href="#工厂模式定义" class="headerlink" title="工厂模式定义"></a>工厂模式定义</h1><ul>
+<li>定义一个创建对象的接口，由子类决定要实例化的类是哪一个。工厂方法让类把实例化推迟到子类</li>
+<li>作用：没使用工厂的话，我们要创造对象使用new，工厂方法就是帮我们负责创建需要的对象。</li>
+<li>工厂模式是创建类模式。</li>
+</ul>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>先看一下没用到工厂类的场景，我们需要AProduct和BProduct</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;产品类接口</span><br><span class="line">public interface IProduct &#123;</span><br><span class="line">	public void say();</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; A产品类</span><br><span class="line">public class AProduct implements IProduct &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void say() &#123;</span><br><span class="line">		System.out.println(&quot;我是A产品&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;B产品类</span><br><span class="line">public class BProduct implements IProduct &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void say() &#123;</span><br><span class="line">		System.out.println(&quot;我是B产品&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		IProduct aProduct &#x3D; new AProduct();</span><br><span class="line">		aProduct.say();</span><br><span class="line">		IProduct bProduct &#x3D; new BProduct();</span><br><span class="line">		bProduct.say();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">我是A产品</span><br><span class="line">我是B产品</span><br></pre></td></tr></table></figure>
+<p>完美运行，但是这个有什么问题呢？试想一下，假设以后改需求，需要在生产产品的时候传入生产批次，怎么传？构造函数或者setter都可以，但是都有一个问题，就是我们在改了产品类的时候，还得改正在使用它的地方，这个耦合其实可以解的，用的就是工厂方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 抽象工厂类</span><br><span class="line">public abstract class AbstractFactory &#123;</span><br><span class="line">	public  abstract &lt;T extends IProduct&gt; T  getProduct(Class&lt;T&gt; clazz) ;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 具体工厂类</span><br><span class="line">public class ConcreteFactory extends AbstractFactory&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public &lt;T extends IProduct&gt; T getProduct(Class&lt;T&gt; clazz) &#123;</span><br><span class="line">		T product &#x3D; null;</span><br><span class="line">		try &#123;</span><br><span class="line">			product &#x3D; (T) Class.forName(clazz.getName()).newInstance();</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">		&#125;</span><br><span class="line">		return product;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 产品类不变</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		ConcreteFactory factory &#x3D; new ConcreteFactory();</span><br><span class="line">		AProduct aproduct &#x3D; factory.getProduct(AProduct.class);</span><br><span class="line">		aproduct.say();</span><br><span class="line">		BProduct bProduct &#x3D; factory.getProduct(BProduct.class);</span><br><span class="line">		bProduct.say();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">我是A产品</span><br><span class="line">我是B产品</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>分析下上面的代码，定义了一个抽象工厂类，工厂里面有一个方法，接收参数是继承产品类接口的类的类属性，确保工厂生产出来必定是继承自IProduct的对象。为什么要用泛型？因为你会发现，不用泛型的话，接收的参数不知道该怎么定义，直接用IProduct的class属性的话，在使用ConcreteFactory传参的时候是不能传实现IProduct接口的类的class属性的。</li>
+<li>然后结果不变，但是可以发现，依赖关系改变了，没改动代码之前，调用者（场景类）依赖于产品类，只要产品类有改动，都有可能对调用者造成影响。而使用工厂模式后，调用者对产品类的依赖变成了对工厂类的依赖，无论产品类如何变化，调用者都不需要关心，只需要工厂类能够正确返回对象即可，实现了解耦。</li>
+</ul>
+<p>以上就是工厂模式。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#工厂模式定义"><span class="toc-text">工厂模式定义</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现"><span class="toc-text">实现</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-design-parrents-3-factory/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-design-parrents-2-singleton/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-design-parrents-4-abstract-factory/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

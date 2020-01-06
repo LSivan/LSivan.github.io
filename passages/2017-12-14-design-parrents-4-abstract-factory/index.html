@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>设计模式（四）——抽象工厂模式 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,Java," />
+  
+
+  
+  <meta name="description" content="不知道看上一篇的时候，有没有看到一个问题，如果只是简单的工厂，为什么要一个抽象工厂类？那个抽象类完全没必要啊，直接用一个工厂类，传入class参数，不就行了吗？这里就来了，抽象工厂模式。不过说实话，抽象得我快抽风了。。看了几篇博客了，最后发现百度百科很强。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    设计模式（四）——抽象工厂模式
+  </h1>
+  
+  <article class="passage-article">
+    <h3 id="抽象工厂模式"><a href="#抽象工厂模式" class="headerlink" title="抽象工厂模式"></a>抽象工厂模式</h3><ul>
+<li>定义：为创建一组相关或相互依赖的对象提供一个接口，而且无须指定它们的具体类。</li>
+<li>作用：当每个抽象产品都有多于一个的具体子类的时候，工厂角色怎么知道实例化哪一个子类呢？比如每个抽象产品角色都有两个具体产品。抽象工厂模式提供两个具体工厂角色，分别对应于这两个具体产品角色，每一个具体工厂角色只负责某一个产品角色的实例化。每一个具体工厂类只负责创建抽象产品的某一个具体子类的实例。</li>
+<li>是一个创建类模式</li>
+</ul>
+<p>上面的定义和作用分别从书上和百度百科看到的，说实话，我并不是很懂，看了好几篇博客，结合百度百科，我决定这篇写成一篇可能会被人骂的文章。</p>
+<p>首先还是上代码，上看到个人觉得不恰当的例子的代码：<br>大体是模仿工厂制造车吧</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 车接口</span><br><span class="line">public interface CarModel &#123;</span><br><span class="line">	public void alarm();</span><br><span class="line">	public void run();</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 实现CarModel接口的抽象车</span><br><span class="line">public abstract class BenzCar implements CarModel&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void alarm() &#123;</span><br><span class="line">		System.out.println(&quot;这是奔驰车&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 实现CarModel接口的抽象车</span><br><span class="line">public abstract class BmwCar implements CarModel&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void alarm() &#123;</span><br><span class="line">		System.out.println(&quot;这是宝马车&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; A系列的奔驰车</span><br><span class="line">public class ABenzCar extends BenzCar&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void run() &#123;</span><br><span class="line">		System.out.println(&quot;A系列的奔驰车在飞驰&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; A系列的宝马车</span><br><span class="line">public class ABmwCar extends BmwCar&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void run() &#123;</span><br><span class="line">		System.out.println(&quot;A系列的宝马车在飞驰&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 还有B系列的车，是有两个产品等级的，这里就不列出来了</span><br><span class="line">&#x2F;&#x2F; 抽象工厂</span><br><span class="line">public abstract class AbstractCarFactory &#123;</span><br><span class="line">	&#x2F;&#x2F; 为什么不能用泛型约束？</span><br><span class="line">	&#x2F;&#x2F; 因为用了泛型约束，就无法建立这个抽象对象，抽象工厂也就不复存在，为什么会建立不了这个抽象工厂呢？</span><br><span class="line">	&#x2F;&#x2F; 因为建立抽象工厂后，子类继承之后，抽象方法接收的参数并不是某一个具体的产品的class属性，这意味着，只要是符合这个类约束的子类的class属性，都可以传进来，这就没有不同工厂这种概念了，所以抽象工厂也不存在，因为一个工厂就处理完了。</span><br><span class="line">&#x2F;&#x2F;	public abstract &lt;T extends BenzCar&gt; T  getBenzCar(Class&lt;T&gt; c);</span><br><span class="line">&#x2F;&#x2F;	public abstract  &lt;T extends BmwCar&gt; T  getBmwCar(Class&lt;T&gt; c);</span><br><span class="line">	public abstract BenzCar getBenzCar();</span><br><span class="line">	public abstract BmwCar getBmwCar();</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 具体工厂</span><br><span class="line">public class ACarFactory extends AbstractCarFactory &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public BenzCar getBenzCar() &#123;</span><br><span class="line">		ABenzCar car &#x3D; new ABenzCar();</span><br><span class="line">		&#x2F;&#x2F; doSomething</span><br><span class="line">		return car;</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public BmwCar getBmwCar() &#123;</span><br><span class="line">		ABmwCar car &#x3D; new ABmwCar();</span><br><span class="line">		&#x2F;&#x2F; doSomething</span><br><span class="line">		return car;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;*@Override</span><br><span class="line">	public &lt;T extends BenzCar&gt; T getBenzCar(Class&lt;T&gt; c) &#123;</span><br><span class="line">		T car &#x3D; null;</span><br><span class="line">		try &#123;</span><br><span class="line">			car &#x3D; (T) Class.forName(c.getName()).newInstance();</span><br><span class="line">			return car;</span><br><span class="line">		&#125; catch (Exception e) &#123;</span><br><span class="line">		&#125;</span><br><span class="line">		return car;</span><br><span class="line">	&#125;*&#x2F;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		ACarFactory aCarFactory &#x3D; new ACarFactory();</span><br><span class="line">		BenzCar abenzCar &#x3D;  aCarFactory.getBenzCar();</span><br><span class="line">		abenzCar.alarm();</span><br><span class="line">		abenzCar.run();</span><br><span class="line">		System.out.println(&quot;--------------------&quot;);</span><br><span class="line">		BmwCar abmwCar &#x3D; aCarFactory.getBmwCar();</span><br><span class="line">		abmwCar.alarm();</span><br><span class="line">		abmwCar.run();</span><br><span class="line">		System.out.println(&quot;--------------------&quot;);</span><br><span class="line">		BCarFactory bCarFactory &#x3D; new BCarFactory();</span><br><span class="line">		BenzCar bbenzCar &#x3D; bCarFactory.getBenzCar();</span><br><span class="line">		bbenzCar.alarm();</span><br><span class="line">		bbenzCar.run();</span><br><span class="line">		System.out.println(&quot;--------------------&quot;);</span><br><span class="line">		BmwCar bbmwCar &#x3D; bCarFactory.getBmwCar();</span><br><span class="line">		bbmwCar.alarm();</span><br><span class="line">		bbmwCar.run();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">这是奔驰车</span><br><span class="line">A系列的奔驰车在飞驰</span><br><span class="line">\--------------------</span><br><span class="line">这是宝马车</span><br><span class="line">A系列的宝马车在飞驰</span><br><span class="line">\--------------------</span><br><span class="line">这是奔驰车</span><br><span class="line">B系列的奔驰车在飞驰</span><br><span class="line">\--------------------</span><br><span class="line">这是宝马车</span><br><span class="line">B系列的宝马车在飞驰</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>来分析下代码，这段代码我觉得很有问题的地方，就在于抽象出那个AbstractCarFactory有什么用，为什么这么说？在抽象工厂那里的注释，我写上了，如果只是单纯地要划分产品等级，那我直接实现泛型约束，就像我注释掉<br>的代码。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;    public abstract &lt;T extends BenzCar&gt; T  getBenzCar(Class&lt;T&gt; c);</span><br><span class="line">&#x2F;&#x2F;    public abstract  &lt;T extends BmwCar&gt; T  getBmwCar(Class&lt;T&gt; c);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这样的话，再建一个SuperFactory，超级工厂，根据传进来的class属性，就可以生产出相应的对象。可能有人会说，这个SuperFactory不符合单一职责原则啊，一个类做了多种事，好，那退而求次，选择两个类，分别生产A级产品和生产B级产品。然后就会有人说，那就对嘛，而两个生产的方法还是相同的，为了日后好扩展，抽象共同部分出来作为父类，超棒的。但是有没有想过，就像上面的代码，我可以换一种抽象方式，就是BenzCarFactory和BmwCarFactory，然后专门用来生产Benz和Bmw，还可以用泛型约束，方法都省了一个，这样有问题么？<br>就是因为有这样的疑问，所以就不敢乱写这篇东西，看了好几篇博客，结合书上的例子，看了下百度百科（这个真的强，可能就是用大神的博文做的），最后我得到了这样的一个理解：抽象工厂要解决的主要问题，是M个不同的产品族，M个产品族都有N个不同的等级，而每个等级的产品，都有共性！！！就是这个共性，才是使用抽象工厂的根本。</p>
+</blockquote>
+<p>什么意思呢？用上文的代码来讲述，A系列的车和B系列的车，之所以要把它们分开两个工厂去实现，抽取出生产车的抽象方法，是因为A系列的车和B系列的车分别有A系列车的共性和B系列车的共性。就比如说，A系列的车在组装的时候要在方向盘那里铭一个“A”，B系列的车在组装的时候要在方向盘那里铭一个“B”，如果没用抽象工厂模式，用我上面那段话提的方法，要怎么实现呢？分别在BenzCarFactory和BmwCarFactory各自实现组装A字的方法和组装B字的方法。这样有啥不好呢？代码没重用呗，因为这两个方法都是一模一样的。还有一个问题，假设共性不止一个，而是有很多个，想想是不是很可怕。<br>而在抽象工厂怎么实现呢？在ACarFactory直接写A系列车共性的方法，在BCarFactory直接写B系列车共性的方法，这样就很完美了。</p>
+<p>然后看完百度百科有点醍醐灌顶的时候，看到了一句话，在日常的编程中，工厂方法用得比抽象工厂要多！！！！好吧，给了我一记重锤。</p>
+<p>以上，就是我对抽象工厂模式的理解。要打要骂评论区走起。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#抽象工厂模式"><span class="toc-text">抽象工厂模式</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-design-parrents-4-abstract-factory/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-design-parrents-3-factory/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-design-parrents-5-template-method/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

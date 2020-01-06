@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>设计模式（七）——代理模式 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,Java," />
+  
+
+  
+  <meta name="description" content="本文介绍了Java中代理模式的简单实现。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    设计模式（七）——代理模式
+  </h1>
+  
+  <article class="passage-article">
+    <h3 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h3><ul>
+<li>定义：为其他对象提供一种代理以控制对这个对象的访问（原话是：Provide asurrogate or placeholder foranother object to control access to it. ）</li>
+<li>写这篇文章的时候，因为已经把书都看过了，所以有点搞不清代理模式和装饰器模式的区别。但是现在一看定义就很清楚明了了，提供代理，以<strong>控制</strong>对这个对象的访问，看到黑体加粗的控制没，这才是代理模式的精髓。（因为没有这个控制的话，和装饰器模式没太大区别）</li>
+<li>属于行为类模式</li>
+<li>分类：静态代理，动态代理</li>
+</ul>
+<h3 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h3><p>首先要明确一件事，设计模式的提出一定是为了解决某一些共性的，在编码上遇到的问题。重点字是<strong>控制</strong>，所以举一个要访问对象，要被另外的东西来控制的例子。比如我很喜欢彭于晏，我很想让彭于晏帮我签个名，但是我不能直接找到彭于晏，要找他的经纪人（代理）来帮忙，就来模仿这个吧。<strong>没用到代理模式</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 彭于晏</span><br><span class="line">public class Eddie &#123;</span><br><span class="line">	private Eddie() &#123;	&#125;</span><br><span class="line">	&#x2F;&#x2F; 单例，叫彭于晏的有很多，拍Vivo广告的只有一个</span><br><span class="line">	private final static Eddie eddie &#x3D; new Eddie();</span><br><span class="line">	private AgentOfEddie eddieAgent;</span><br><span class="line">	public void sign(AgentOfEddie eddieAgent) &#123;</span><br><span class="line">		if (eddieAgent &#x3D;&#x3D; this.eddieAgent) &#123;</span><br><span class="line">			System.out.println(this.getClass().getSimpleName() + &quot;：VivoX9柔光双摄，照亮你的美&quot;);</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			System.out.println(&quot;这不是我的经纪人，我不签&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F; 提供经纪人的获取途径，毕竟经纪人也是确定的</span><br><span class="line">	public AgentOfEddie getAgentOfEddie() &#123;</span><br><span class="line">		eddieAgent &#x3D; new AgentOfEddie(this);</span><br><span class="line">		return eddieAgent;</span><br><span class="line">	&#125;</span><br><span class="line">	public static Eddie getEddie() &#123;</span><br><span class="line">		return eddie;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 彭于晏的经纪人</span><br><span class="line">public class AgentOfEddie &#123;</span><br><span class="line">	public AgentOfEddie(Eddie eddie)&#123;</span><br><span class="line">		this.eddie &#x3D; eddie;</span><br><span class="line">	&#125;</span><br><span class="line">	private Eddie eddie;</span><br><span class="line">	&#x2F;&#x2F; 让杰伦哥签名</span><br><span class="line">	public void getEddieSign()&#123;</span><br><span class="line">		eddie.sign(this);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类1</span><br><span class="line">public class Cilent &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Eddie eddie &#x3D; Eddie.getEddie();</span><br><span class="line">		AgentOfEddie agentOfEddie &#x3D; eddie.getAgentOfEddie();</span><br><span class="line">		agentOfEddie.getEddieSign();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">Eddie：VivoX9柔光双摄，照亮你的美</span><br><span class="line">&#x2F;&#x2F; 场景类2，直接new一个经纪人来签名</span><br><span class="line">public class Cilent &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Eddie eddie &#x3D; Eddie.getEddie();</span><br><span class="line">		AgentOfEddie agentOfEddie &#x3D; new AgentOfEddie(eddie);</span><br><span class="line">		agentOfEddie.getEddieSign();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">这不是我的经纪人，我不签</span><br><span class="line">&#x2F;&#x2F; 场景类3，直接让彭于晏签名</span><br><span class="line">public class Cilent &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Eddie eddie &#x3D; Eddie.getEddie();</span><br><span class="line">		eddie.sign(new AgentOfEddie(eddie));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">这不是我的经纪人，我不签</span><br></pre></td></tr></table></figure>
+<p>代码的意思就是，只有通过Eddie获取到的经纪人去sign，才可以让彭于晏来签名，除此之外，无论是自己new的经纪人去sign还是直接用eddie执行sign，都不能获取到签名。<br>看起来并无毛病，还完美实现，打出三秒的控制效果。确实，写这个例子的时候我都有点怀疑代理模式是用来干嘛的这种感觉。对嘛，看书上说，<em>比如在现实生活中，打官司找律师，就是为了避免官司的种种是是非非，只需要做好自己的答辩就行了</em>。<br>用上面的代码来讲，就是彭于晏可以不用处理对外的事情，交给经纪人就行了，那也没毛病啊，上面的代码还是可以用的，经纪人那里加控制不就行了吗？而且也符合定义<strong>提供一种代理以控制对这个对象的访问</strong>。（对的，这里的重点针对的是，<strong>为什么代理模式要用接口来实现？这个接口是必要的吗？</strong>看过代理模式的应该会懂的。我上面就没用接口，而且也实现了，所以我就没想明白）<br>让我想清楚的，是Spring 的aop编程，aop是面向切面编程，而这个切面，通俗点来讲就是一个个的方法，那么spring是如何做到可以对每一个方法都实行切面控制的呢（虽说是动态代理）？嘿嘿，是不是有点头绪了。<br>回到上面的代码，假设彭于晏不止要签名，还要拍Vivo的广告，还要拍益达的广告，还要拍湄公河行动，这些都是要和外面商量的，需要经纪人来控制的，这么做会造成什么问题？彭于晏每多一个对外的行动，经纪人都要多一个对外的行动，生活上是这样的，但放在上面的代码，经纪人对着彭于晏的对外行动一个一个添加方法！！！可怕吧。</p>
+<p>用代理模式要怎么做呢？<strong>静态代理例子</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义明星接口</span><br><span class="line">public interface Celebrity &#123;</span><br><span class="line">	&#x2F;&#x2F; 签名</span><br><span class="line">	public void sign(Celebrity celebrity);</span><br><span class="line">	&#x2F;&#x2F; 拍广告</span><br><span class="line">	public void makeAdvertising(Celebrity celebrity);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 实现明星接口的彭于晏</span><br><span class="line">public class Eddie implements Celebrity&#123;</span><br><span class="line">	private Eddie() &#123;	&#125;</span><br><span class="line">	&#x2F;&#x2F; 单例，叫彭于晏的有很多，拍Vivo广告的只有一个</span><br><span class="line">	private final static Eddie eddie &#x3D; new Eddie();</span><br><span class="line">	private AgentOfEddie eddieAgent;</span><br><span class="line">	&#x2F;&#x2F; 提供经纪人的获取途径，毕竟经纪人也是确定的</span><br><span class="line">	public AgentOfEddie getAgentOfEddie() &#123;</span><br><span class="line">		eddieAgent &#x3D; new AgentOfEddie(this);</span><br><span class="line">		return eddieAgent;</span><br><span class="line">	&#125;</span><br><span class="line">	public static Eddie getEddie() &#123;</span><br><span class="line">		return eddie;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F; 签名</span><br><span class="line">	@Override</span><br><span class="line">	public void sign(Celebrity celebrity) &#123;</span><br><span class="line">		if (celebrity &#x3D;&#x3D; this.eddieAgent) &#123;</span><br><span class="line">			System.out.println(this.getClass().getSimpleName() + &quot;：VivoX9柔光双摄，照亮你的美&quot;);</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			System.out.println(&quot;这不是我的经纪人，我不签&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F; 拍广告</span><br><span class="line">	@Override</span><br><span class="line">	public void makeAdvertising(Celebrity celebrity) &#123;</span><br><span class="line">		if (celebrity &#x3D;&#x3D; this.eddieAgent) &#123;</span><br><span class="line">			System.out.println(this.getClass().getSimpleName() + &quot;在拍广告：VivoX9柔光双摄，照亮你的美&quot;);</span><br><span class="line">		&#125; else &#123;</span><br><span class="line">			System.out.println(&quot;这不是我的经纪人，我不拍&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 实现明星接口的彭于晏的经纪人</span><br><span class="line">public class AgentOfEddie implements Celebrity&#123;</span><br><span class="line">	public AgentOfEddie(Eddie eddie)&#123;</span><br><span class="line">		this.eddie &#x3D; eddie;</span><br><span class="line">	&#125;</span><br><span class="line">	private Eddie eddie;</span><br><span class="line">	&#x2F;&#x2F; 让彭于晏签名</span><br><span class="line">	@Override</span><br><span class="line">	public void sign(Celebrity celebrity) &#123;</span><br><span class="line">		&#x2F;&#x2F; TODO Auto-generated method stub</span><br><span class="line">		eddie.sign(celebrity);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public void makeAdvertising(Celebrity celebrity) &#123;</span><br><span class="line">		eddie.makeAdvertising(celebrity);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类1</span><br><span class="line">public class Cilent &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Eddie eddie &#x3D; Eddie.getEddie();</span><br><span class="line">		AgentOfEddie agentOfEddie &#x3D; eddie.getAgentOfEddie();</span><br><span class="line">		agentOfEddie.sign(agentOfEddie);</span><br><span class="line">		agentOfEddie.makeAdvertising(agentOfEddie);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">Eddie：VivoX9柔光双摄，照亮你的美</span><br><span class="line">Eddie在拍广告：VivoX9柔光双摄，照亮你的美</span><br><span class="line">&#x2F;&#x2F; 场景类2，直接new一个经纪人来执行签名这件事</span><br><span class="line">public class Cilent &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Eddie eddie &#x3D; Eddie.getEddie();</span><br><span class="line">		AgentOfEddie agentOfEddie &#x3D; new AgentOfEddie(eddie);</span><br><span class="line">		agentOfEddie.sign(agentOfEddie);</span><br><span class="line">		agentOfEddie.makeAdvertising(agentOfEddie);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">这不是我的经纪人，我不签</span><br><span class="line">这不是我的经纪人，我不拍</span><br><span class="line">&#x2F;&#x2F; 场景类3，直接让彭于晏签名</span><br><span class="line">public class Cilent &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Eddie eddie &#x3D; Eddie.getEddie();</span><br><span class="line">		eddie.sign(new AgentOfEddie(eddie));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">这不是我的经纪人，我不签</span><br><span class="line">这不是我的经纪人，我不拍</span><br></pre></td></tr></table></figure>
+<p>分析下代码，首先规定了一个接口<code>Celebrity</code>,用来规定明星应该具有的行为，接着，<code>Eddie</code>类实现该接口，<code>AgentOfEddie</code>类也实现该接口，同时，在<code>AgentOfEddie</code>中声明了<code>Eddie</code>，接口的方法实现就用<code>Eddie</code>的方法来实现。规定接口方法的一个好处是，确保代理类（<code>AgentOfEddie</code>）的方法和被代理类（<code>Eddie</code>）的主体方法是一致的，场景类也执行无误。而上面的这种代理模式，具体一点又叫做强制代理（如果有看其他博客，应该知道还有普通代理等很多具体的代理方法的，还有JDK动态代理，cglib动态代理，这里就不举例子了，因为还没那个实力╮(╯▽╰)╭）。</p>
+<p>代理模式最常用的地方，就是实现对另一个对象的<strong>控制</strong>，比如说我们J2EE的拦截器，就是代理模式活生生的应用，在被拦截对象的方法的执行前后进行事务控制。当然还有很多应用地方的，慢慢探讨吧。</p>
+<h5 id="水平有限，难免有错，还请评论区指责下"><a href="#水平有限，难免有错，还请评论区指责下" class="headerlink" title="水平有限，难免有错，还请评论区指责下"></a>水平有限，难免有错，还请评论区指责下</h5>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#代理模式"><span class="toc-text">代理模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#举个例子"><span class="toc-text">举个例子</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#水平有限，难免有错，还请评论区指责下"><span class="toc-text">水平有限，难免有错，还请评论区指责下</span></a></li></ol></li></ol></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-design-parrents-7-proxy/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-design-parrents-7-proxy-plus/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-design-patterns-8-strategy/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

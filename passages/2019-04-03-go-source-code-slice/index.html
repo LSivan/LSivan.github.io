@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>Go slice扩容深度分析(附gdb分析) | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,golang,源码," />
+  
+
+  
+  <meta name="description" content="本文主要是对go slice的扩容机制进行了一些分析，分析过程中借助了gdb这个工具。环境，64位centos的docker镜像+go1.12.1。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2019-04-03
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    Go slice扩容深度分析(附gdb分析)
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="常规操作"><a href="#常规操作" class="headerlink" title="常规操作"></a>常规操作</h2><p>扩容会发生在slice append的时候，当slice的cap不足以容纳新元素，就会进行growSlice</p>
+<p>比如对于下方的代码</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">slice1 := <span class="built_in">make</span>([]<span class="keyword">int</span>,<span class="number">1</span>,)</span><br><span class="line">fmt.Println(<span class="string">"cap of slice1"</span>,<span class="built_in">cap</span>(slice1))</span><br><span class="line">slice1 = <span class="built_in">append</span>(slice1,<span class="number">1</span>)</span><br><span class="line">fmt.Println(<span class="string">"cap of slice1"</span>,<span class="built_in">cap</span>(slice1))</span><br><span class="line">slice1 = <span class="built_in">append</span>(slice1,<span class="number">2</span>)</span><br><span class="line">fmt.Println(<span class="string">"cap of slice1"</span>,<span class="built_in">cap</span>(slice1))</span><br><span class="line"></span><br><span class="line">fmt.Println()</span><br><span class="line"></span><br><span class="line">slice1024 := <span class="built_in">make</span>([]<span class="keyword">int</span>,<span class="number">1024</span>)</span><br><span class="line">fmt.Println(<span class="string">"cap of slice1024"</span>,<span class="built_in">cap</span>(slice1024))</span><br><span class="line">slice1024 = <span class="built_in">append</span>(slice1024,<span class="number">1</span>)</span><br><span class="line">fmt.Println(<span class="string">"cap of slice1024"</span>,<span class="built_in">cap</span>(slice1024))</span><br><span class="line">slice1024 = <span class="built_in">append</span>(slice1024,<span class="number">2</span>)</span><br><span class="line">fmt.Println(<span class="string">"cap of slice1024"</span>,<span class="built_in">cap</span>(slice1024))</span><br></pre></td></tr></table></figure>
+<p>输出</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cap</span> of slice1 1</span><br><span class="line"><span class="built_in">cap</span> of slice1 2</span><br><span class="line"><span class="built_in">cap</span> of slice1 4</span><br><span class="line"></span><br><span class="line"><span class="built_in">cap</span> of slice1024 1024</span><br><span class="line"><span class="built_in">cap</span> of slice1024 1280</span><br><span class="line"><span class="built_in">cap</span> of slice1024 1280</span><br></pre></td></tr></table></figure>
+
+<p>网上很多博客也有提到，slice扩容，cap不够1024的，直接翻倍；cap超过1024的，新cap变为老cap的1.25倍。</p>
+<p>这个说法的相关部分源码如下, 具体的代码在<code>$GOROOT/src/runtime/slice.go</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">growslice</span><span class="params">(et *_type, old slice, <span class="built_in">cap</span> <span class="keyword">int</span>)</span> <span class="title">slice</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">	<span class="comment">// 省略一些判断...</span></span><br><span class="line"></span><br><span class="line">    newcap := old.<span class="built_in">cap</span></span><br><span class="line">    doublecap := newcap + newcap</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">cap</span> &gt; doublecap &#123;</span><br><span class="line">        newcap = <span class="built_in">cap</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> old.<span class="built_in">len</span> &lt; <span class="number">1024</span> &#123;</span><br><span class="line">            newcap = doublecap</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// Check 0 &lt; newcap to detect overflow</span></span><br><span class="line">            <span class="comment">// and prevent an infinite loop.</span></span><br><span class="line">            <span class="keyword">for</span> <span class="number">0</span> &lt; newcap &amp;&amp; newcap &lt; <span class="built_in">cap</span> &#123;</span><br><span class="line">                newcap += newcap / <span class="number">4</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// Set newcap to the requested cap when</span></span><br><span class="line">            <span class="comment">// the newcap calculation overflowed.</span></span><br><span class="line">            <span class="keyword">if</span> newcap &lt;= <span class="number">0</span> &#123;</span><br><span class="line">                newcap = <span class="built_in">cap</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 省略一些后续...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>眼尖的朋友可能看到了问题，上文说的扩容机制其实对应的是源码中的一个分支，换句话说，其实扩容机制不一定是这样的，那到底是怎样的呢？带着疑问进入下一节</p>
+<h2 id="非常规操作"><a href="#非常规操作" class="headerlink" title="非常规操作"></a>非常规操作</h2><p>上面的操作是每次append一个元素，考虑另一种情形，一次性append很多元素，会发生什么呢？比如下面的代码，容量各自是多少呢？</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := []<span class="keyword">byte</span>&#123;<span class="number">1</span>, <span class="number">0</span>&#125;</span><br><span class="line">    a = <span class="built_in">append</span>(a, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    fmt.Println(<span class="string">"cap of a is "</span>,<span class="built_in">cap</span>(a))</span><br><span class="line">    </span><br><span class="line">    b := []<span class="keyword">int</span>&#123;<span class="number">23</span>, <span class="number">51</span>&#125;</span><br><span class="line">    b = <span class="built_in">append</span>(b, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line">    fmt.Println(<span class="string">"cap of b is "</span>,<span class="built_in">cap</span>(b))</span><br><span class="line">    </span><br><span class="line">    c := []<span class="keyword">int32</span>&#123;<span class="number">1</span>, <span class="number">23</span>&#125;</span><br><span class="line">    c = <span class="built_in">append</span>(c, <span class="number">2</span>, <span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line">    fmt.Println(<span class="string">"cap of c is "</span>,<span class="built_in">cap</span>(c))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">type</span> D <span class="keyword">struct</span>&#123;</span><br><span class="line">        age <span class="keyword">byte</span></span><br><span class="line">        name <span class="keyword">string</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    d := []D&#123;</span><br><span class="line">        &#123;<span class="number">1</span>,<span class="string">"123"</span>&#125;,</span><br><span class="line">        &#123;<span class="number">2</span>,<span class="string">"234"</span>&#125;,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    d = <span class="built_in">append</span>(d,D&#123;<span class="number">4</span>,<span class="string">"456"</span>&#125;,D&#123;<span class="number">5</span>,<span class="string">"567"</span>&#125;,D&#123;<span class="number">6</span>,<span class="string">"678"</span>&#125;)</span><br><span class="line">    fmt.Println(<span class="string">"cap of d is "</span>,<span class="built_in">cap</span>(d))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>应该是4个8？基于翻倍的思路，cap从2-&gt;4-&gt;8。</p>
+<p>或者4个5？给4个5的猜测基于以下推测：如果在append多个元素的时候，一次扩容不足以满足元素的放置，如果我是设计者，我会先预估好需要多少容量才可以放置元素，然后再进行一次扩容，好处就是，不需要频繁申请新的底层数组，以及不需要频繁的数据copy。</p>
+<p>但是结果有点出人意料。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cap</span> of a is  8</span><br><span class="line"><span class="built_in">cap</span> of b is  6</span><br><span class="line"><span class="built_in">cap</span> of c is  8</span><br><span class="line"><span class="built_in">cap</span> of d is  5</span><br></pre></td></tr></table></figure>
+
+<p>是否感觉一头雾水？”不，我知道是这样。” 独秀同志，你可以关闭这篇文章了。</p>
+<p>为什么会出现这么奇怪的现象呢？上正文</p>
+<h2 id="gdb分析"><a href="#gdb分析" class="headerlink" title="gdb分析"></a>gdb分析</h2><p>光看源码已经没太大的进展了,只能借助一些辅助工具来看下运行情况，从而更好地分析下源码，恰好，GDB就是适合这样做的工具。</p>
+<p>依旧是上面的代码，我们编译下，然后load进gdb</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@a385d77a9056 jack]<span class="comment"># go build -o jack</span></span><br><span class="line">[root@a385d77a9056 jack]<span class="comment"># ls</span></span><br><span class="line">jack  main.go</span><br><span class="line">[root@a385d77a9056 jack]<span class="comment"># gdb jack</span></span><br><span class="line">GNU gdb (GDB) Red Hat Enterprise Linux 7.6.1-114.el7</span><br><span class="line">Copyright (C) 2013 Free Software Foundation, Inc.</span><br><span class="line">License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></span><br><span class="line">and <span class="string">"show warranty"</span> <span class="keyword">for</span> details.</span><br><span class="line">This GDB was configured as <span class="string">"x86_64-redhat-linux-gnu"</span>.</span><br><span class="line">For bug reporting instructions, please see:</span><br><span class="line">&lt;http://www.gnu.org/software/gdb/bugs/&gt;...</span><br><span class="line">Reading symbols from /home/goblog/src/jack/jack...done.</span><br><span class="line">Loading Go Runtime support.</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>在发生append那一行代码打上断点，然后开始运行程序，为了比较好的说明情况，断点打到扩容后容量为6的<code>[]int</code>型切片<code>b</code>的append上</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">gdb) l 10</span><br><span class="line">5	)</span><br><span class="line">6</span><br><span class="line">7	func <span class="function"><span class="title">main</span></span>() &#123;</span><br><span class="line">8</span><br><span class="line">9		a := []byte&#123;1, 0&#125;</span><br><span class="line">10		a = append(a, 1, 1, 1)</span><br><span class="line">11		fmt.Println(<span class="string">"cap of a is "</span>, <span class="built_in">cap</span>(a))</span><br><span class="line">12</span><br><span class="line">13		b := []int&#123;23, 51&#125;</span><br><span class="line">14		b = append(b, 4, 5, 6)</span><br><span class="line">(gdb) b 14</span><br><span class="line">Breakpoint 2 at 0x4872d5: file /home/goblog/src/jack/main.go, line 14.</span><br><span class="line">(gdb) r</span><br><span class="line">Starting program: /home/goblog/src/jack/jack</span><br><span class="line"><span class="built_in">cap</span> of a is  8</span><br><span class="line"></span><br><span class="line">Breakpoint 2, main.main () at /home/goblog/src/jack/main.go:14</span><br><span class="line">14		b = append(b, 4, 5, 6)</span><br></pre></td></tr></table></figure>
+
+<p>跳进去断点，看下执行情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(gdb) s</span><br><span class="line">runtime.growslice (et=0x497dc0, old=..., <span class="built_in">cap</span>=5, ~r3=...) at /usr/<span class="built_in">local</span>/src/go/src/runtime/slice.go:76</span><br><span class="line">76	func growslice(et *_type, old slice, <span class="built_in">cap</span> int) slice &#123;</span><br><span class="line">(gdb) p *et</span><br><span class="line"><span class="variable">$1</span> = &#123;size = 8, ptrdata = 0, <span class="built_in">hash</span> = 4149441018, tflag = 7 <span class="string">'\a'</span>, align = 8 <span class="string">'\b'</span>, fieldalign = 8 <span class="string">'\b'</span>, kind = 130 <span class="string">'\202'</span>, alg = 0x555df0 &lt;runtime.algarray+80&gt;,</span><br><span class="line">  gcdata = 0x4ce4f8 <span class="string">"\001\002\003\004\005\006\a\b\t\n\v\f\r\016\017\020\022\024\025\026\027\030\031\033\036\037\"%&amp;,2568&lt;BQUX\216\231\330\335\345\377"</span>, str = 987, ptrToThis = 45312&#125;</span><br><span class="line">(gdb) p old</span><br><span class="line"><span class="variable">$2</span> = &#123;array = 0xc000074ec8, len = 2, <span class="built_in">cap</span> = 2&#125;</span><br></pre></td></tr></table></figure>
+<p>比较复杂，一开始的时候唯一能看懂就是</p>
+<p>一、传进来的cap是5，也就是上文提及到的思路目前来看是正确的，当append多个元素的时候，先预估好容量再进行扩容。<br>二、slice是一个struct，而struct是值类型。</p>
+<p>直到后面大概了解了流程之后才知道，et是slice中元素的类型的一种元数据信息，就分析slice，et中只需要知道size就足够了，size代表的是，元素在计算机所占的字节大小。笔者用的是64位centos的docker镜像，int也就是int64，也就是大小为8个字节。</p>
+<p>继续往下走，这一部分的分析涉及到了另外一部分的代码，先贴上</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> &#123;</span><br><span class="line"><span class="keyword">case</span> et.size == <span class="number">1</span>:</span><br><span class="line">    lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>)</span><br><span class="line">    newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>)</span><br><span class="line">    capmem = roundupsize(<span class="keyword">uintptr</span>(newcap))</span><br><span class="line">    overflow = <span class="keyword">uintptr</span>(newcap) &gt; maxAlloc</span><br><span class="line">    newcap = <span class="keyword">int</span>(capmem)</span><br><span class="line"><span class="keyword">case</span> et.size == sys.PtrSize:</span><br><span class="line">    lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * sys.PtrSize</span><br><span class="line">    newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * sys.PtrSize</span><br><span class="line">    capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) * sys.PtrSize)</span><br><span class="line">    overflow = <span class="keyword">uintptr</span>(newcap) &gt; maxAlloc/sys.PtrSize</span><br><span class="line">    newcap = <span class="keyword">int</span>(capmem / sys.PtrSize)</span><br><span class="line"><span class="keyword">case</span> isPowerOfTwo(et.size):</span><br><span class="line">    <span class="keyword">var</span> shift <span class="keyword">uintptr</span></span><br><span class="line">    <span class="keyword">if</span> sys.PtrSize == <span class="number">8</span> &#123;</span><br><span class="line">        <span class="comment">// Mask shift for better code generation.</span></span><br><span class="line">        shift = <span class="keyword">uintptr</span>(sys.Ctz64(<span class="keyword">uint64</span>(et.size))) &amp; <span class="number">63</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        shift = <span class="keyword">uintptr</span>(sys.Ctz32(<span class="keyword">uint32</span>(et.size))) &amp; <span class="number">31</span></span><br><span class="line">    &#125;</span><br><span class="line">    lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) &lt;&lt; shift</span><br><span class="line">    newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) &lt;&lt; shift</span><br><span class="line">    capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) &lt;&lt; shift)</span><br><span class="line">    overflow = <span class="keyword">uintptr</span>(newcap) &gt; (maxAlloc &gt;&gt; shift)</span><br><span class="line">    newcap = <span class="keyword">int</span>(capmem &gt;&gt; shift)</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * et.size</span><br><span class="line">    newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * et.size</span><br><span class="line">    capmem, overflow = math.MulUintptr(et.size, <span class="keyword">uintptr</span>(newcap))</span><br><span class="line">    capmem = roundupsize(capmem)</span><br><span class="line">    newcap = <span class="keyword">int</span>(capmem / et.size)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>贴上gdb分析的情况，省略一些细枝末节，只摘取了部分较重要的流程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">(gdb) n</span><br><span class="line">96		doublecap := newcap + newcap // 结合常规操作列出的源码分析，newcap初始化为old.cap，即为2，doublecap为4</span><br><span class="line">(gdb) n</span><br><span class="line">97		<span class="keyword">if</span> <span class="built_in">cap</span> &gt; doublecap &#123; // <span class="built_in">cap</span>是传进来的参数，值为5，比翻倍后的doublecap=4要大</span><br><span class="line">(gdb) n</span><br><span class="line">98			newcap = <span class="built_in">cap</span> // 因而newcap赋值为计算后的容量5，而len&lt;1024的分支则没走进去</span><br><span class="line">(gdb) n</span><br><span class="line">123		<span class="keyword">case</span> et.size == 1:</span><br><span class="line">(gdb) disp newcap   // 打印newcap的值</span><br><span class="line">3: newcap = 5</span><br><span class="line">(gdb) n</span><br><span class="line">129		<span class="keyword">case</span> et.size == sys.PtrSize: // et.size即类型的字节数为8，刚好等于64位系统的指针大小</span><br><span class="line">3: newcap = 5</span><br><span class="line">(gdb) n</span><br><span class="line">132			capmem = roundupsize(uintptr(newcap) * sys.PtrSize) // 得到的capmem是该容量所需的内存，核心步骤，下面重点分析，</span><br><span class="line">3: newcap = 5</span><br><span class="line">(gdb) disp capmem  // 打印capmem，结合下面可以看到是48</span><br><span class="line">4: capmem = &lt;optimized out&gt;</span><br><span class="line">(gdb) n</span><br><span class="line">134			newcap = int(capmem / sys.PtrSize) // 得到新的容量</span><br><span class="line">4: capmem = 48</span><br><span class="line">3: newcap = 5</span><br><span class="line">(gdb) n</span><br><span class="line">122		switch &#123;</span><br><span class="line">4: capmem = &lt;optimized out&gt;</span><br><span class="line">3: newcap = 5</span><br><span class="line">(gdb) n</span><br><span class="line">169		<span class="keyword">if</span> overflow || capmem &gt; maxAlloc &#123; // 这是跳出switch代码块之后的代码，不重要，但是我们已经看到想要的结果了，newcap容量刚好是6，也就是上文中得到的<span class="built_in">cap</span>(b)</span><br><span class="line">4: capmem = 48</span><br><span class="line">3: newcap = 6</span><br></pre></td></tr></table></figure>
+
+<p>后面的代码就是用capmem进行内存分配，然后将newcap作为新的slice的cap，我们来分析这一步<code>capmem = roundupsize(uintptr(newcap) * sys.PtrSize)</code>。</p>
+<p><strong>round-up，向上取整，<code>roundupsize</code>，向上取一个size。<code>(uintptr(newcap) * sys.PtrSize)</code>的乘积应该为5*8=40，经过向上取整之后得到了新的所需内存<code>capmem=48</code>，接着所需内存/类型大小<code>int(capmem / sys.PtrSize)</code>，得到了新的容量，也就是6.</strong></p>
+<p>要明白<code>roundupsize</code>为什么会将40变为48，这里需要简单的引进go的内存管理。可以跟踪进<code>roundupsize</code>方法，然后再跟踪进<code>sizeclasses.go</code>文件，在这个文件的开头，给出了golang对象大小表，大体如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// class  bytes/obj  bytes/span  objects  tail waste  max waste</span></span><br><span class="line"><span class="comment">//     1          8        8192     1024           0     87.50%</span></span><br><span class="line"><span class="comment">//     2         16        8192      512           0     43.75%</span></span><br><span class="line"><span class="comment">//     3         32        8192      256           0     46.88%</span></span><br><span class="line"><span class="comment">//     4         48        8192      170          32     31.52%</span></span><br><span class="line"><span class="comment">//     5         64        8192      128           0     23.44%</span></span><br><span class="line"><span class="comment">//     6         80        8192      102          32     19.07%</span></span><br><span class="line"><span class="comment">//     7         96        8192       85          32     15.95%</span></span><br><span class="line"><span class="comment">//     8        112        8192       73          16     13.56%</span></span><br><span class="line"><span class="comment">//     9        128        8192       64           0     11.72%</span></span><br><span class="line"><span class="comment">//    10        144        8192       56         128     11.82%</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//    ...</span></span><br><span class="line"><span class="comment">//    65      28672       57344        2           0      4.91%</span></span><br><span class="line"><span class="comment">//    66      32768       32768        1           0     12.50%</span></span><br></pre></td></tr></table></figure>
+
+<p>其他的暂时不关心，我们先看<code>bytes/obj</code>的这一列，这一列就是go中预定义的对象大小，最小是8b，最大是32K，还有一类就是超出32K的，共67类（超出32K没列在这个文件的，66+1=67）。<strong>可以看到，并没有size为40的类型</strong>，<strong>于是40向上取整</strong>，<strong>取到了48，这就是发生在<code>roundupsize</code>的真相</strong>。这里有一个比较专业的名词，<strong>内存对齐</strong>。具体为什么需要这样设计？有兴趣的读者，可以细看golang的内存管理，这里篇幅有限，就不展开了。</p>
+<p><a href="#非常规操作">非常规操作</a>中还有其他类型的append，这里就不贴gdb的分析了，一样都有<code>roundupsize</code>的操作，大同小异，有兴趣的朋友可以自行玩一下。</p>
+<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><p>在append时，<code>roundupsize</code>并不是一个特殊分支才有的操作，我感觉不可能一直都是双倍扩容和1.25倍扩容啊，怀疑网上挺多博客说的有问题。</p>
+<p>于是又测试了下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">e := []<span class="keyword">int32</span>&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;</span><br><span class="line">fmt.Println(<span class="string">"cap of e before:"</span>,<span class="built_in">cap</span>(e))</span><br><span class="line">e = <span class="built_in">append</span>(e,<span class="number">4</span>)</span><br><span class="line">fmt.Println(<span class="string">"cap of e after:"</span>,<span class="built_in">cap</span>(e))</span><br><span class="line"></span><br><span class="line">f := []<span class="keyword">int</span>&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;</span><br><span class="line">fmt.Println(<span class="string">"cap of f before:"</span>,<span class="built_in">cap</span>(f))</span><br><span class="line">f = <span class="built_in">append</span>(f,<span class="number">4</span>)</span><br><span class="line">fmt.Println(<span class="string">"cap of f after:"</span>,<span class="built_in">cap</span>(f))</span><br><span class="line"></span><br><span class="line"><span class="built_in">cap</span> of e before: <span class="number">3</span></span><br><span class="line"><span class="built_in">cap</span> of e after: <span class="number">8</span></span><br><span class="line"><span class="built_in">cap</span> of f before: <span class="number">3</span></span><br><span class="line"><span class="built_in">cap</span> of f after: <span class="number">6</span></span><br></pre></td></tr></table></figure>
+
+<p>哎，果不其然。扩容后的slice容量，还和类型有关呢。</p>
+<h2 id="summary"><a href="#summary" class="headerlink" title="summary"></a>summary</h2><p>内容跳的有点乱，总结一下</p>
+<p>append的时候发生扩容的动作</p>
+<ul>
+<li><p>append单个元素，或者append少量的多个元素，这里的少量指double之后的容量能容纳，这样就会走以下扩容流程，不足1024，双倍扩容，超过1024的，1.25倍扩容。</p>
+</li>
+<li><p>若是append多个元素，且double后的容量不能容纳，直接使用预估的容量。</p>
+</li>
+</ul>
+<p><strong>敲重点！！！！此外，以上两个分支得到新容量后，均需要根据slice的类型size，算出新的容量所需的内存情况<code>capmem</code>，然后再进行<code>capmem</code>向上取整，得到新的所需内存，除上类型size，得到真正的最终容量,作为新的slice的容量。</strong></p>
+<p>以上，全剧终，欢迎讨论~</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#常规操作"><span class="toc-text">常规操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#非常规操作"><span class="toc-text">非常规操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gdb分析"><span class="toc-text">gdb分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#疑问"><span class="toc-text">疑问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#summary"><span class="toc-text">summary</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2019-04-03-go-source-code-slice/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+     
+      <a href="/tags/%E6%BA%90%E7%A0%81/"><i class="fa fa-tags"></i>源码</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2019-04-20-go-enums/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2019-04-02-func-dependency-injection-go/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

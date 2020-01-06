@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>设计模式（一）——面向对象六大原则 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,Java," />
+  
+
+  
+  <meta name="description" content="这个《设计模式》系列的文章，想了很久才决定写的，一是还是本人的原则，只有通过自己表达出来的东西，才是真正属于你的东西，所以即使写的不好，有什么理解不到位的，被人指出来也挺好的，证明属于我的东西还是有缺漏嘛。二是设计模式这个东西有点虚，特别这篇原则，总觉得还欠缺很多理解。三是看了好几篇设计模式，下面的讨论基本分两种，要么就是一堆Mark，要么就是一堆FXXk，也是有点担心会被骂吧，不过错了被指正也是很正常。不说废话了，上正文。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    设计模式（一）——面向对象六大原则
+  </h1>
+  
+  <article class="passage-article">
+    <h1 id="一-单一职责原则"><a href="#一-单一职责原则" class="headerlink" title="一. 单一职责原则"></a>一. 单一职责原则</h1><ul>
+<li>定义：不要存在多于一个导致类变更的原因。简单说，就是一个类只负责一项职责。 </li>
+<li>为什么要这个原则：试想，一个类T，用来实现两个职责t1和t2，在需求变更的情况下需要修改t1，可能导致原本正常工作的t2职责出错。</li>
+</ul>
+<p>但是这个原则，其实看到的话，很多人应该都会觉得没啥好看的吧，因为太简单了，而且在写代码的时候，应该都不希望因为修改了一个功能导致其他的功能发生故障。<br>但是翻了好几篇博客，还有看到的书的作者也是说到，其实并没有很多类设计能完全遵守到单一职责原则，因为这个原则受太多因素制约了，比如下面这个例子：</p>
+<p>我们要造车，然后要车跑起来</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Car &#123;</span><br><span class="line">	public void run(String carType)&#123;</span><br><span class="line">		System.out.println(&quot;启动&quot;+carType+&quot;引擎跑起来了&quot;);</span><br><span class="line">	&#125;	</span><br><span class="line">&#125;</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Car c &#x3D; new Car();</span><br><span class="line">		c.run(&quot;BMW&quot;);</span><br><span class="line">		c.run(&quot;Benz&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">  启动BMW引擎跑起来了</span><br><span class="line">  启动Benz引擎跑起来了</span><br></pre></td></tr></table></figure>
+
+<p>后面发现还有类似上世纪的小包车这种需要拉才能跑起来的车，我们怎么办呢？<br>首先按照单一职责原则，我们来另起一个类，来实现这个功能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class Trolley &#123;</span><br><span class="line">	public void run(String carType)&#123;</span><br><span class="line">		System.out.println(&quot;拉着&quot;+carType+&quot;跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Car c &#x3D; new Car();</span><br><span class="line">		c.run(&quot;BMW&quot;);</span><br><span class="line">		c.run(&quot;Benz&quot;);</span><br><span class="line">		Trolley trolley &#x3D; new Trolley();</span><br><span class="line">		trolley.run(&quot;上世纪的小包车&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动BMW引擎跑起来了</span><br><span class="line">启动Benz引擎跑起来了</span><br><span class="line">拉着上世纪的小包车跑起来了</span><br></pre></td></tr></table></figure>
+<p>但是这里就有一个问题了，如果后期还有斗车这种要推的车，还有自行车这种要骑的车，还有几十种其他的车，那我们难道要一个类一个类的写吗？这样会造成类膨胀的。而且修改了类，还得大幅度修改客户端<br>所以在这里，再引入这个原则的同时，就得违背下这个原则了，如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class Car &#123;</span><br><span class="line">	public void run(String carType)&#123;</span><br><span class="line">		System.out.println(&quot;启动&quot;+carType+&quot;引擎跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public void run2(String carType)&#123;</span><br><span class="line">		System.out.println(&quot;拉着&quot;+carType+&quot;跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Car c &#x3D; new Car();</span><br><span class="line">		c.run(&quot;BMW&quot;);</span><br><span class="line">		c.run(&quot;Benz&quot;);</span><br><span class="line">		c.run2(&quot;上世纪的小包车&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动BMW引擎跑起来了</span><br><span class="line">启动Benz引擎跑起来了</span><br><span class="line">拉着上世纪的小包车跑起来了</span><br></pre></td></tr></table></figure>
+<p>这样做的一个好处就是方便，直接在类里面新添加一个方法，在客户端只需要做小小的改动就可以用。这只是其中一个办法，当然，还有很多种办法，比如在run方法中根据carType判断来选择方式等等，但是这都违背了单一职责原则。所以这个原则怎么用呢？个人理解，很多时候我们在实际的编码过程中并不能完全遵守这个原则，我们只能尽量做到这个原则。不然的话就是死守教规了。</p>
+<h1 id="二-里氏替换原则"><a href="#二-里氏替换原则" class="headerlink" title="二. 里氏替换原则"></a>二. 里氏替换原则</h1><ul>
+<li><p>定义：所有引用父类的地方必须能透明地使用其子类的对象。</p>
+</li>
+<li><p>为什么要用这个原则：试想一下，在一个类P1中，实现了方法m1，然后现在需要扩展m1方法，新的方法m2由P1的子类来完成，在完成m2的同时，有可能会将m1的方法破坏掉，使得m1不能正常工作。</p>
+</li>
+</ul>
+<p>上代码,还是用上文的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class Car &#123;</span><br><span class="line">	public void run(String carType)&#123;</span><br><span class="line">		System.out.println(&quot;启动&quot;+carType+&quot;引擎跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Car c &#x3D; new Car();</span><br><span class="line">		c.run(&quot;BMW&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动BMW引擎跑起来了</span><br></pre></td></tr></table></figure>
+
+<p>现在需要加一个功能，就是对行车的速度进行汇报，怎么做？首先想到的是不是直接修改Car的run方法，但是要注意，这个不是一个好的方法，修改了这个run方法，可能会导致本来在使用这个方法的其他对象产生错误的结果，所以不能这样，我们使用继承，然后重写run方法，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public class AdvancedCar extends Car&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void run(String carType) &#123;</span><br><span class="line">		super.run(carType);</span><br><span class="line">		System.out.println(&quot;车的速度是80KM&#x2F;h&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		AdvancedCar car &#x3D; new AdvancedCar();</span><br><span class="line">		car.run(&quot;BMW&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动BMW引擎跑起来了</span><br><span class="line">车的速度是80KM&#x2F;h</span><br></pre></td></tr></table></figure>
+<p>然后这里的确实现了功能，而且代码还很整洁，只是一个继承然后加多一句就好了，但是问题就来了，假设再来需求，上班高峰期的时候塞车，不需要汇报速度，下班加班赶回家才需求汇报速度（保平安嘛），那咋办？在这个AdvancedCar中，run方法一经调用，就会汇报速度的喔。用里氏替换原则来看，Car出现的地方，AdvancedCar就不能用了，我们来用里氏替换原则修改下代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class AdvancedCar extends Car&#123;</span><br><span class="line">	public void showSpeed()&#123;</span><br><span class="line">		System.out.println(&quot;车的速度是80KM&#x2F;h&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		AdvancedCar car &#x3D; new AdvancedCar();</span><br><span class="line">		car.run(&quot;BMW&quot;);</span><br><span class="line">		car.showSpeed();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动BMW引擎跑起来了</span><br><span class="line">车的速度是80KM&#x2F;h</span><br></pre></td></tr></table></figure>
+<p>这样修改之后，Car出现的地方，AdvancedCar也能直接使用，因为run方法的原有功能并没有被破坏，而且要满足上一段需求的话，只需要直接在Client这里加判断就好。<br>所以我自己的粗略理解就是：子类可以扩展父类的方法，但不应该复写父类的方法。</p>
+<h1 id="三-依赖倒置原则"><a href="#三-依赖倒置原则" class="headerlink" title="三. 依赖倒置原则"></a>三. 依赖倒置原则</h1><ul>
+<li><p>定义：高层模块不应该依赖低层模块，二者都应该依赖其抽象；抽象不应该依赖细节；细节应该依赖抽象。</p>
+</li>
+<li><p>为什么要用这个原则：假设一个类P组合了一个类A，然后用A实现了相关的功能，然后现在要将A实现的功能改成B类来实现，这里的修改方法是只能去修改P的代码，而这种直接修改代码是会带来不必要的风险的。</p>
+</li>
+</ul>
+<p>上例子,还是用车的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class Car &#123;</span><br><span class="line">    &#x2F;&#x2F; 给汽车加油</span><br><span class="line">	public void refuel(Gasoline90 gasoline)&#123;</span><br><span class="line">		System.out.println(&quot;加了型号为&quot;+gasoline.getClass().getSimpleName()+&quot;的汽油&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class Gasoline90 &#123; &#125;</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Car car &#x3D; new Car();</span><br><span class="line">		car.refuel(new Gasoline90());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">加了型号为Gasoline90的汽油</span><br></pre></td></tr></table></figure>
+<p>现在问题来了，加油站没有90汽油了，只有93和97，而汽车没油了，难道但是加油refuel(Gasoline90 gasoline)只能加90汽油，咋办,难不成直接修改car的代码，给它多加两个方法，分别可以加93和97汽油？很明显不科学嘛，一点代码复用都没有，更别谈设计模式了，所以在这里，就要改了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义一个接口Gasoline</span><br><span class="line">public interface Gasoline &#123; &#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;在Car类的refuel方法中传入Gasoline参数</span><br><span class="line">public class Car &#123;</span><br><span class="line">	public void refuel(Gasoline gasoline)&#123;</span><br><span class="line">	System.out.println(&quot;加了型号为&quot;+gasoline.getClass().getSimpleName()+&quot;的汽油&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 写90和97两个汽油的类</span><br><span class="line">public class Gasoline90 implements Gasoline&#123; &#125;</span><br><span class="line">public class Gasoline97 implements Gasoline&#123; &#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 场景</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">	Car car &#x3D; new Car();</span><br><span class="line"> &#x2F;&#x2F;car.refuel(new Gasoline90());</span><br><span class="line">	System.out.println(&quot;----汽车站没有90汽油了-----&quot;);</span><br><span class="line">	car.refuel(new Gasoline97());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">结果：</span><br><span class="line">----汽车站没有90汽油了-----</span><br><span class="line">加了型号为Gasoline97的汽油</span><br></pre></td></tr></table></figure>
+<p>在上面的例子，传参的时候传入了一个Gasoline类型，只要汽车要加的汽油，全都实现这个借口，就可以让汽车自由加油，管它什么93,97,1997都好，而且还不用修改Car的代码，只需要实现Gasoline接口就好。</p>
+<h1 id="四-接口隔离原则"><a href="#四-接口隔离原则" class="headerlink" title="四. 接口隔离原则"></a>四. 接口隔离原则</h1><p>咋看一下，我以为像现实生活中那样，隔离病原体是把病原体隔离开来，那接口隔离原则难道是隔离接口？编程界的名词确实不能一般对待。</p>
+<ul>
+<li>定义：客户端不应该依赖它不需要的接口；一个类对另一个类的依赖应该建立在最小的接口上</li>
+<li>为什么需要这个原则：假想我们设计了一个接口I，里面有五个方法，分别是m1,m2,m3,m4,m5，而有两个类A和B，分别需要用m1m2m5,m3,m4,m5方法。那么无论是那一个类，在实现接口I的时候，都要将其本身不需要的类进行实现，很明显，这不是一个好设计。<br>上代码，还是用车的例子：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 接口</span><br><span class="line">public interface ICar &#123;</span><br><span class="line">	public void run(String carType);</span><br><span class="line">	public void showSpeed();</span><br><span class="line">	public void playMusic(String songName);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 实现类</span><br><span class="line">public class Car implements ICar&#123;</span><br><span class="line">    public void run(String carType)&#123;</span><br><span class="line">     System.out.println(&quot;启动&quot;+carType+&quot;引擎跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public void showSpeed() &#123;</span><br><span class="line">     System.out.println(&quot;汽车的速度为80KM&#x2F;h&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public void playMusic(String songName) &#123;</span><br><span class="line">	System.out.println(&quot;放起了动听的&quot;+songName);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 场景</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">	Car car &#x3D; new Car();</span><br><span class="line">	car.run(&quot;BMW&quot;);</span><br><span class="line">	car.showSpeed();</span><br><span class="line">	car.playMusic(&quot;成都&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这里问题就来了，并不是所有的车都有放音乐的功能，也并不是所有的车都有展示速度的功能，但是只有上面代码这个车的话，我们在新建其他车对象的时候，却带上了全部的功能，显然，这是不科学的。改进下，将上面的接口拆分成两个接口专业的车<code>IProfessionalCar</code>和娱乐功能的车<code>IEntertainingCar</code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 接口</span><br><span class="line">public interface IProfessionalCar &#123;</span><br><span class="line">	public void run(String carType);</span><br><span class="line">	public void showSpeed();</span><br><span class="line">&#125;</span><br><span class="line">public interface IEntertainingCar &#123;</span><br><span class="line">	public void run(String carType);</span><br><span class="line">	public void playMusic(String songName);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 实现类</span><br><span class="line">public class ProfessionalCar implements IProfessionalCar &#123;</span><br><span class="line">	public void run(String carType)&#123;</span><br><span class="line">	System.out.println(&quot;启动&quot;+carType+&quot;引擎跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public void showSpeed() &#123;</span><br><span class="line">	System.out.println(&quot;汽车的速度为80KM&#x2F;h&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">public class EntainingCar implements IEntertainingCar &#123;</span><br><span class="line">	public void run(String carType)&#123;</span><br><span class="line">	System.out.println(&quot;启动&quot;+carType+&quot;引擎跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public void playMusic(String songName) &#123;</span><br><span class="line">	System.out.println(&quot;放起了动听的&quot;+songName);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 场景</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">	IProfessionalCar professionalCar &#x3D; new ProfessionalCar();</span><br><span class="line">	professionalCar.run(&quot;F1方程式&quot;);</span><br><span class="line">	professionalCar.showSpeed();</span><br><span class="line">	EntainingCar entainingCar &#x3D; new EntainingCar();</span><br><span class="line">	entainingCar.run(&quot;坏了速度仪表盘的SUV&quot;);</span><br><span class="line">	entainingCar.playMusic(&quot;成都&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动F1方程式引擎跑起来了</span><br><span class="line">汽车的速度为80KM&#x2F;h</span><br><span class="line">启动坏了速度仪表盘的SUV引擎跑起来了</span><br><span class="line">放起了动听的成都</span><br></pre></td></tr></table></figure>
+接口隔离原则的要求我们，建立单一接口，不要建立庞大臃肿的接口，尽量细化接口，接口中的方法尽量少。这通过分散定义多个接口，可以预防外来变更的扩散，提高系统的灵活性和可维护性。</li>
+</ul>
+<h1 id="五-迪米特法则"><a href="#五-迪米特法则" class="headerlink" title="五. 迪米特法则"></a>五. 迪米特法则</h1><ul>
+<li>定义：一个对象应该对其他对象保持最少的了解。</li>
+<li>为什么需要这个原则：原因就是一个对象对另一个对象了解得越多，那么，它们之间的耦合性也就越强，当修改其中一个对象时，对另一个对象造成的影响也就越大。</li>
+</ul>
+<p>上例子，还是用车：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 车</span><br><span class="line">public class Car &#123;</span><br><span class="line">	private String carType;</span><br><span class="line">	public Car(String carType)&#123;</span><br><span class="line">		this.carType &#x3D; carType;</span><br><span class="line">	&#125;</span><br><span class="line">	public void run()&#123;</span><br><span class="line">		System.out.println(&quot;启动&quot;+carType+&quot;引擎跑起来了&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	public void refuel(Gasoline gasoline)&#123;</span><br><span class="line">		System.out.println(&quot;加了型号为&quot;+gasoline.getName()+&quot;汽油&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 汽油</span><br><span class="line">public class Gasoline &#123;</span><br><span class="line">	private String name;</span><br><span class="line">	public Gasoline(String name) &#123;</span><br><span class="line">		this.name &#x3D; name;</span><br><span class="line">	&#125;</span><br><span class="line">	public String getName() &#123;</span><br><span class="line">		return name;</span><br><span class="line">	&#125;</span><br><span class="line">    private boolean quality &#x3D; true;</span><br><span class="line">	public boolean getQuality()&#123;</span><br><span class="line">		return this.quality;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 人</span><br><span class="line">public class Person &#123;</span><br><span class="line">	private Car car;</span><br><span class="line">	public void setCar(Car car) &#123;</span><br><span class="line">		this.car &#x3D; car;</span><br><span class="line">	&#125;</span><br><span class="line">	public void drive()&#123;</span><br><span class="line">		car.run();</span><br><span class="line">	&#125;</span><br><span class="line">	public void refuel(Gasoline gasoline)&#123;</span><br><span class="line">        if(gasoline.getQuality())&#123;</span><br><span class="line">			System.out.println(&quot;油的质量过关，可以放心加&quot;);</span><br><span class="line">			car.refuel(gasoline);</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Person jack &#x3D; new Person();</span><br><span class="line">		jack.setCar(new Car(&quot;Suv&quot;));</span><br><span class="line">		jack.drive();</span><br><span class="line">		System.out.println(&quot;*********开了三百公里，没油了********&quot;);</span><br><span class="line">		jack.refuel(new Gasoline(&quot;90&quot;));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动Suv引擎跑起来了</span><br><span class="line">*********开了三百公里，没油了********</span><br><span class="line">油的质量过关，可以放心加</span><br><span class="line">加了型号为90汽油</span><br></pre></td></tr></table></figure>
+<p>我们可以看到，一个很符合生活的场景，jack开车，然后开太久了，没油了，于是加油，但是问题就来了，在生活中，加油这个动作应该是jack和加油站的工作人员进行交涉，然后由加油站的工作人员来完成，而在上面这里，则是由jack自己完成。而且对油的质量的检验，我们普通人怎么会，肯定不行啊，万一90,93,97的检验方法各不相同，万一以后的油质量越来越不好，检验步骤要变，难道要修改Person类的方法，不对啊。<br>我们来改下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 增加类加油站工人</span><br><span class="line">public class WorkerInPetrolStation &#123;</span><br><span class="line">	public void refuel(Car car, String gasolineName) &#123;</span><br><span class="line">	Gasoline gasoline &#x3D; new Gasoline(gasolineName);</span><br><span class="line">	if (gasoline.getQuality()) &#123;</span><br><span class="line">	System.out.println(&quot;油的质量过关，可以放心加&quot;);</span><br><span class="line">	car.refuel(gasoline);</span><br><span class="line">	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 将Person的refuel方法修改成依赖工人</span><br><span class="line">public class Person &#123;</span><br><span class="line">	private Car car;</span><br><span class="line">	public void setCar(Car car) &#123;</span><br><span class="line">	this.car &#x3D; car;</span><br><span class="line">	&#125;</span><br><span class="line">	public void drive()&#123;</span><br><span class="line">	car.run();</span><br><span class="line">	&#125;</span><br><span class="line">	public void refuel(WorkerInPetrolStation worker, String gasolineName)&#123;</span><br><span class="line">	worker.refuel(this.car, gasolineName);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; Car，Gasoline不变</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">	Person jack &#x3D; new Person();</span><br><span class="line">	jack.setCar(new Car(&quot;Suv&quot;));</span><br><span class="line">	jack.drive();</span><br><span class="line">	System.out.println(&quot;*********开了三百公里，没油了********&quot;);</span><br><span class="line">	jack.refuel(new WorkerInPetrolStation(),&quot;90&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">启动Suv引擎跑起来了</span><br><span class="line">*********开了三百公里，没油了********</span><br><span class="line">油的质量过关，可以放心加</span><br><span class="line">加了型号为90汽油</span><br></pre></td></tr></table></figure>
+<p>现在无论以后油那边怎么变，都和我们Persion无关，交给加油站工人嘛，这是他们的饭碗。<br>迪米特法则的初衷是降低类之间的耦合，由于每个类都减少了不必要的依赖，因此的确可以降低耦合关系。但是凡事都有度，虽然可以避免与非直接的类通信，但是要通信，必然会通过一个“中介”来发生联系。过分的使用迪米特原则，会产生大量这样的中介和传递类，导致系统复杂度变大。</p>
+<h1 id="六-开闭原则"><a href="#六-开闭原则" class="headerlink" title="六. 开闭原则"></a>六. 开闭原则</h1><ul>
+<li>定义：对修改关闭，对扩展开放</li>
+<li>为什么使用这个原则：这不就是代码重用的一个终极目标吗，不实现这个原则，改代码改到怀疑人生啊！而上面的五个原则，其实就是这个原则的体现。<br>但是这个原则，正是因为太高级了，所以太虚了，虚的没什么套路可寻，只能靠经验，领悟来慢慢体会。</li>
+</ul>
+<h1 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h1><p>以上就是我对这六个原则的简单理解，例子也不知道举得恰不恰当，文字的描述也不知道是不是到位，但是这也就是我的理解了，等深入这行有一定时间，或许会对这篇东西觉得很傻，噗嗤一声，完全不屑。但也是以后的事了。<br>欢迎前来责骂。。。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一-单一职责原则"><span class="toc-text">一. 单一职责原则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二-里氏替换原则"><span class="toc-text">二. 里氏替换原则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三-依赖倒置原则"><span class="toc-text">三. 依赖倒置原则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四-接口隔离原则"><span class="toc-text">四. 接口隔离原则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#五-迪米特法则"><span class="toc-text">五. 迪米特法则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#六-开闭原则"><span class="toc-text">六. 开闭原则</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结："><span class="toc-text">总结：</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-design-parrents-1/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2018-06-23-go-func-trick/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-design-parrents-2-singleton/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

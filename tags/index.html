@@ -38,14 +38,14 @@
   // it can be used in every script
   
   window.AD_CONFIG = {
-    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
     welcome: {"enable":false,"interval":30},
-    start_time: "2019-12-28",
+    start_time: "2017-12-14",
     passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
     is_post: false,
     lock: false,
     author: "Sivan",
-    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
     mathjax: true,
     page_type: "tags",
     root: "/"
@@ -170,7 +170,7 @@
     <i class="fa fa-tags"></i>
     标签云
   </h3>
-  <a href="/tags/golang/" style="font-size: 14px; color: #9e9e9e">golang</a> <a href="/tags/%E7%BF%BB%E8%AF%91/" style="font-size: 14px; color: #9e9e9e">翻译</a>
+  <a href="/tags/Java/" style="font-size: 30.5px; color: #404040">Java</a> <a href="/tags/git/" style="font-size: 14px; color: #9e9e9e">git</a> <a href="/tags/golang/" style="font-size: 36px; color: #212121">golang</a> <a href="/tags/redis/" style="font-size: 14px; color: #9e9e9e">redis</a> <a href="/tags/%E5%90%8E%E7%AB%AF/" style="font-size: 14px; color: #9e9e9e">后端</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 14px; color: #9e9e9e">数据库</a> <a href="/tags/%E6%BA%90%E7%A0%81/" style="font-size: 19.5px; color: #7f7f7f">源码</a> <a href="/tags/%E7%BF%BB%E8%AF%91/" style="font-size: 25px; color: #606060">翻译</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 30.5px; color: #404040">设计模式</a>
 </div>
 
     </main>
@@ -222,6 +222,10 @@
     <div class="site-footer-info">
       <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
     </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
     
     
       <div class="site-footer-info">
@@ -308,14 +312,6 @@
 </div>
     <div id="share-btn">
   
-    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-twitter"></i>
-    </a>
-  
-  
-    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-facebook"></i>
-    </a>
   
   
     <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">

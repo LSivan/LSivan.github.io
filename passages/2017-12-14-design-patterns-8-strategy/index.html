@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>设计模式（八）——策略模式 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,Java," />
+  
+
+  
+  <meta name="description" content="本文基于 Java 对策略模式进行了介绍。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    设计模式（八）——策略模式
+  </h1>
+  
+  <article class="passage-article">
+    <h3 id="策略模式"><a href="#策略模式" class="headerlink" title="策略模式"></a>策略模式</h3><ul>
+<li>设计模式（八）——策略模式定义：定义一系列的算法,把每一个算法封装起来, 并且使它们可相互替换。</li>
+<li>作用：首先是封装的算法，然后可相互替换，可以想象出一个场景，就是有很多种的选择，然后可以选择最合适的一种，如果不用策略模式的话，那就是一个一个自行选择，对的。</li>
+<li>属于行为类模式</li>
+</ul>
+<h3 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h3><p>之前做外包做一个网站，其中有一个模块是支付的，可供选择的方式有支付宝支付，微信支付和支付宝的跳转支付（H5跳转app支付）。当时是蠢的啊，没想到策略模式这种东西，上代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 支付控制器</span><br><span class="line">public class PayController &#123;</span><br><span class="line">	&#x2F;&#x2F; 微信要自己生成二维码,若是在手机端，则必须要微信浏览器才能使用</span><br><span class="line">	public void wechatPay() &#123;</span><br><span class="line">		&#x2F;&#x2F; 模拟request收集到订单号,商品描述,总价钱的参数</span><br><span class="line">		String orderNo &#x3D; System.currentTimeMillis() + &quot;&quot;;</span><br><span class="line">		String body &#x3D; &quot;终极商店—大红苹果&quot;;</span><br><span class="line">		long totalFee &#x3D; 6L;</span><br><span class="line">		&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">		System.out.println(</span><br><span class="line">				&quot;使用订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;调用微信支付工具类，请求下单API,返回支付URL并根据URL生成二维码&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F; 支付宝直接跳转到支付宝收集订单信息的jsp页面来发起网关支付，只能用于PC端</span><br><span class="line">	public void aliPay() &#123;</span><br><span class="line">		&#x2F;&#x2F; 模拟request收集到订单号,商品描述,总价钱的参数</span><br><span class="line">		String orderNo &#x3D; System.currentTimeMillis() + &quot;&quot;;</span><br><span class="line">		String body &#x3D; &quot;终极商店—大红苹果&quot;;</span><br><span class="line">		long totalFee &#x3D; 6L;</span><br><span class="line">		&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">		System.out.println(&quot;将订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;作为参数，访问支付宝收集订单信息的jsp页面来发起网关支付&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F; 移动端使用支付宝支付，跳转到支付宝收银台，支付宝收银台有唤醒支付宝APP的函数，但不能在微信浏览器打开</span><br><span class="line">	public void mobileAliPay() &#123;</span><br><span class="line">		&#x2F;&#x2F; 模拟request收集到订单号,商品描述,总价钱的参数</span><br><span class="line">		String orderNo &#x3D; System.currentTimeMillis() + &quot;&quot;;</span><br><span class="line">		String body &#x3D; &quot;终极商店—大红苹果&quot;;</span><br><span class="line">		long totalFee &#x3D; 6L;</span><br><span class="line">		&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">		System.out.println(&quot;将订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;作为参数，访问支付宝的收银台来发起移动支付&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">		PayController payController &#x3D; new PayController();</span><br><span class="line">		System.out.println(&quot;用户Tom选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在PC端，使用Chrome浏览器操作&quot;);</span><br><span class="line">		payController.aliPay();</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Sivan选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用非微信浏览器操作&quot;);</span><br><span class="line">		payController.mobileAliPay();</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Jack选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了微信支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用微信浏览器操作&quot;);</span><br><span class="line">		payController.wechatPay();</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">用户Tom选择了商品，然后开始下单支付</span><br><span class="line">用户选择了支付宝支付</span><br><span class="line">在PC端，使用Chrome浏览器操作</span><br><span class="line">将订单号:1491293476471，商品描述:终极商店—大红苹果和总价钱:6作为参数，访问支付宝收集订单信息的jsp页面来发起网关支付</span><br><span class="line">\-----------------------------------------</span><br><span class="line">用户Sivan选择了商品，然后开始下单支付</span><br><span class="line">用户选择了支付宝支付</span><br><span class="line">在移动端端，使用非微信浏览器操作</span><br><span class="line">将订单号:1491293476482，商品描述:终极商店—大红苹果和总价钱:6作为参数，访问支付宝的收银台来发起移动支付</span><br><span class="line">\-----------------------------------------</span><br><span class="line">用户Jack选择了商品，然后开始下单支付</span><br><span class="line">用户选择了微信支付</span><br><span class="line">在移动端端，使用微信浏览器操作</span><br><span class="line">使用订单号:1491293476492，商品描述:终极商店—大红苹果和总价钱:6调用微信支付工具类，请求下单API,返回支付URL并根据URL生成二维码</span><br></pre></td></tr></table></figure>
+
+<p>代码就不解释了，注释都说明了，当时就是傻了，没想到扩展性等的问题。试想下，以后如果多一种支付方式，我就要在PayController多加一个方法，修改已有代码，不符合开闭原则喔。其次，上面的每个pay的方法都有相同的代码（requset获取参数）。。一点复用都没有，贼气（这里倒和策略模式无关，只是对自身实力的一种吐槽）。</p>
+<p>用策略模式改造下，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 支付策略接口</span><br><span class="line">public interface PayStrategy &#123;</span><br><span class="line">	public void pay(String orderNo,String body,long totalFee);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;支付宝支付策略，直接跳转到支付宝收集订单信息的jsp页面来发起网关支付，只能用于PC端</span><br><span class="line">public class AliPayStraegy implements PayStrategy &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void pay(String orderNo, String body, long totalFee) &#123;</span><br><span class="line">		&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">		System.out.println(&quot;将&quot;</span><br><span class="line">				\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">						\+ &quot;作为参数，访问支付宝收集订单信息的jsp页面来发起网关支付&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 移动端使用支付宝支付策略，跳转到支付宝收银台，支付宝收银台有唤醒支付宝APP的函数，但不能在微信浏览器打开</span><br><span class="line">public class MobileAlipayStrategy implements PayStrategy&#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void pay(String orderNo,String body,long totalFee)&#123;</span><br><span class="line">		&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">		System.out.println(&quot;将&quot;</span><br><span class="line">				\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">						\+ &quot;作为参数，访问支付宝的收银台来发起移动支付&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;微信支付策略，要自己生成二维码,若是在手机端，则必须要微信浏览器才能使用</span><br><span class="line">public class WechatPayStrategy implements PayStrategy &#123;</span><br><span class="line">	@Override</span><br><span class="line">	public void pay(String orderNo, String body, long totalFee) &#123;</span><br><span class="line">		&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">		System.out.println(&quot;使用&quot;</span><br><span class="line">				\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">						\+ &quot;调用微信支付工具类，请求下单API,返回支付URL并根据URL生成二维码&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 支付控制器</span><br><span class="line">public class PayController &#123;</span><br><span class="line">	private PayStrategy payStrategy;</span><br><span class="line">	public void setPayStrategy(PayStrategy payStrategy) &#123;</span><br><span class="line">		this.payStrategy &#x3D; payStrategy;</span><br><span class="line">	&#125;</span><br><span class="line">	public void pay() &#123;</span><br><span class="line">		&#x2F;&#x2F; 模拟request收集到订单号,商品描述,总价钱的参数</span><br><span class="line">		String orderNo &#x3D; System.currentTimeMillis() + &quot;&quot;;</span><br><span class="line">		String body &#x3D; &quot;终极商店—大红苹果&quot;;</span><br><span class="line">		long totalFee &#x3D; 6L;</span><br><span class="line">		&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">		payStrategy.pay(orderNo, body, totalFee);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">		PayController payController &#x3D; new PayController();</span><br><span class="line">		System.out.println(&quot;用户Tom选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在PC端，使用Chrome浏览器操作&quot;);</span><br><span class="line">		payController.setPayStrategy(new AliPayStraegy());</span><br><span class="line">		payController.pay();</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Sivan选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用非微信浏览器操作&quot;);</span><br><span class="line">		payController.setPayStrategy(new MobileAlipayStrategy());</span><br><span class="line">		payController.pay();</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Jack选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了微信支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用微信浏览器操作&quot;);</span><br><span class="line">		payController.setPayStrategy(new WechatPayStrategy());</span><br><span class="line">		payController.pay();</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们先定义了一个PayStrategy的接口，然后每一个支付的具体方法都实现这个接口，然后在PayController中组合了一个PayStrategy，定义了一个set方法，这个set方法，我把它称作“策略选择器”，高大上，哈哈。</p>
+<p>然后在pay方法中，调用策略来执行pay方法就行了。然后在客户端，每次调用支付的接口的时候，就使用我们的“策略选择器”，使用指定的策略，然后就OK了。PayController在执行pay方法的时候会根据传入的PayStrategy们来选择相应的方法来执行，这就是简单的策略模式。</p>
+<p>有啥好处？第一，以后每多一种支付方式，我只需要实现PayStrategy接口来新建一个类，而不需要修改原有代码，符合开闭原则。第二，假设原有的支付方式发生改变，需要修改，我只需要修改对应的策略类，避免了对其他的策略类造成影响的可能。第三，客户端对Controller的了解变少了，因为只需要了解策略的种类，而不需要了解Controller哪个方法具体是干啥的，也符合迪米特原则。</p>
+<p>延伸下，当时我在外包中是用@Resource将PayStrategy的实现类都放到IOC容器，然后在PayController的payService（对的，并不是像代码那样在Controller直接组装的，啊哈哈），用@AutoWired组装每一个支付策略的，页面会传一个payType参数（对的，上面的代码还是没提到，啊哈哈），根据payType参数来使用相应的策略，来完成下单那个动作。如果有更好的办法的朋友欢迎拍砖，在此先谢谢了。</p>
+<h3 id="延伸"><a href="#延伸" class="headerlink" title="延伸"></a>延伸</h3><p>这个真的是延伸了，首先是看书看到的实现方法，觉得挺有意思的一种实现，叫策略枚举，也是666.<br>代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 策略枚举</span><br><span class="line">public enum Pay &#123;</span><br><span class="line">	&#x2F;&#x2F;支付宝支付策略，直接跳转到支付宝收集订单信息的jsp页面来发起网关支付，只能用于PC端</span><br><span class="line">	AliPay() &#123;</span><br><span class="line">		@Override</span><br><span class="line">		public void pay(String orderNo, String body, long totalFee) &#123;</span><br><span class="line">			&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">			System.out.println(&quot;将&quot;</span><br><span class="line">					\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">							\+ &quot;作为参数，访问支付宝收集订单信息的jsp页面来发起网关支付&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">	&#x2F;&#x2F;微信支付策略，要自己生成二维码,若是在手机端，则必须要微信浏览器才能使用</span><br><span class="line">	WechatPay() &#123;</span><br><span class="line">		@Override</span><br><span class="line">		public void pay(String orderNo, String body, long totalFee) &#123;</span><br><span class="line">			&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">			System.out.println(&quot;使用&quot;</span><br><span class="line">					\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">							\+ &quot;调用微信支付工具类，请求下单API,返回支付URL并根据URL生成二维码&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">	&#x2F;&#x2F; 移动端使用支付宝支付策略，跳转到支付宝收银台，支付宝收银台有唤醒支付宝APP的函数，但不能在微信浏览器打开</span><br><span class="line">	MobileAliPay() &#123;</span><br><span class="line">		@Override</span><br><span class="line">		public void pay(String orderNo,String body,long totalFee)&#123;</span><br><span class="line">			&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">			System.out.println(&quot;将&quot;</span><br><span class="line">					\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">							\+ &quot;作为参数，访问支付宝的收银台来发起移动支付&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;;</span><br><span class="line">	&#x2F;&#x2F; 定义支付的抽象方法,枚举类型每多一个值，都得实现这个抽象方法，就是这个特性才能666</span><br><span class="line">	public abstract void pay(String orderNo, String body, long totalFee);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">		&#x2F;&#x2F; 偷偷懒，直接模拟那些参数了，勿喷</span><br><span class="line">		String orderNo &#x3D; System.currentTimeMillis() + &quot;&quot;;</span><br><span class="line">		String body &#x3D; &quot;终极商店—大红苹果&quot;;</span><br><span class="line">		long totalFee &#x3D; 6L;</span><br><span class="line">		PayController payController &#x3D; new PayController();</span><br><span class="line">		System.out.println(&quot;用户Tom选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在PC端，使用Chrome浏览器操作&quot;);</span><br><span class="line">        &#x2F;&#x2F; 直接使用策略的枚举值</span><br><span class="line">		Pay.AliPay.pay(orderNo, body, totalFee);</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Sivan选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用非微信浏览器操作&quot;);</span><br><span class="line">        &#x2F;&#x2F; 直接使用策略的枚举值</span><br><span class="line">		Pay.MobileAliPay.pay(orderNo, body, totalFee);</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Jack选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了微信支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用微信浏览器操作&quot;);</span><br><span class="line">        &#x2F;&#x2F; 直接使用策略的枚举值</span><br><span class="line">		Pay.WechatPay.pay(orderNo, body, totalFee);</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果：<br><img src="http://upload-images.jianshu.io/upload_images/5176645-06bc2c8487e4639f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="贴图增加说服力，这酸爽，谁用谁知道"></p>
+<p>没错，上面就是策略枚举，当时第一次看到的时候惊了个大呆，枚举还可以这样玩。我在上面的示例偷了偷懒，正确的做法应该是在payController那里选择策略的，具体的代码脑补下吧。。。</p>
+<p>虽然好像和很多看到的策略模式有很大的出入，但不得不说，这个并没有什么毛病，同一样东西的不同表达。看回定义，<strong>把每一个算法封装起来, 并且使它们可相互替换</strong>，而他们的算法实现都是在枚举值中实现的，相互替换也没什么毛病。毕竟扩展接口的方法也需要记住哪个类对应哪个算法，而枚举需要的记住某个枚举值对应某个算法，只不过就是如果需要构造函数做点什么事的话，枚举的方法就很蛋疼了。。懂的自然懂，哈哈。</p>
+<p>上面那个是看书看到，下面这个就是我看Thinking In Java中看到内部类的时候突发奇想联想到的了，可能看到内部类应该已经想到大概怎么实现了吧，哈哈，来看代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 使用内部类的策略模式</span><br><span class="line">public class PayStrategyWithInnerClass &#123;</span><br><span class="line">	&#x2F;&#x2F;支付宝支付策略，直接跳转到支付宝收集订单信息的jsp页面来发起网关支付，只能用于PC端</span><br><span class="line">	public class AliPay implements PayStrategy&#123;</span><br><span class="line">		@Override</span><br><span class="line">		public void pay(String orderNo, String body, long totalFee) &#123;</span><br><span class="line">			&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">			System.out.println(&quot;将&quot;</span><br><span class="line">					\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">							\+ &quot;作为参数，访问支付宝收集订单信息的jsp页面来发起网关支付&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F;微信支付策略，要自己生成二维码,若是在手机端，则必须要微信浏览器才能使用</span><br><span class="line">	public class WechatPay implements PayStrategy&#123;</span><br><span class="line">		@Override</span><br><span class="line">		public void pay(String orderNo, String body, long totalFee) &#123;</span><br><span class="line">			&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">			System.out.println(&quot;使用&quot;</span><br><span class="line">					\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">							\+ &quot;调用微信支付工具类，请求下单API,返回支付URL并根据URL生成二维码&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;&#x2F; 移动端使用支付宝支付策略，跳转到支付宝收银台，支付宝收银台有唤醒支付宝APP的函数，但不能在微信浏览器打开</span><br><span class="line">	public class MobileAliPay implements PayStrategy&#123;</span><br><span class="line">		@Override</span><br><span class="line">		public void pay(String orderNo, String body, long totalFee) &#123;</span><br><span class="line">			&#x2F;&#x2F; 模拟调用支付api的过程</span><br><span class="line">			System.out.println(&quot;将&quot;</span><br><span class="line">					\+ &quot;订单号:&quot; + orderNo + &quot;，商品描述:&quot; + body + &quot;和总价钱:&quot; + totalFee + &quot;&quot;</span><br><span class="line">							\+ &quot;作为参数，访问支付宝的收银台来发起移动支付&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">		PayStrategyWithInnerClass payStrategy &#x3D; new PayStrategyWithInnerClass();</span><br><span class="line">		PayController payController &#x3D; new PayController();</span><br><span class="line">		System.out.println(&quot;用户Tom选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在PC端，使用Chrome浏览器操作&quot;);</span><br><span class="line">        &#x2F;&#x2F; 实现方式有所差别</span><br><span class="line">		payController.setPayStrategy(payStrategy.new AliPay());</span><br><span class="line">		payController.pay();</span><br><span class="line">		&#x2F;&#x2F; 直接使用策略的枚举值</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Sivan选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了支付宝支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用非微信浏览器操作&quot;);</span><br><span class="line">		payController.setPayStrategy(payStrategy.new MobileAliPay());</span><br><span class="line">		payController.pay();</span><br><span class="line">		Thread.sleep(10);</span><br><span class="line">		System.out.println(&quot;-----------------------------------------&quot;);</span><br><span class="line">		System.out.println(&quot;用户Jack选择了商品，然后开始下单支付&quot;);</span><br><span class="line">		System.out.println(&quot;用户选择了微信支付&quot;);</span><br><span class="line">		System.out.println(&quot;在移动端端，使用微信浏览器操作&quot;);</span><br><span class="line">		payController.setPayStrategy(payStrategy.new WechatPay());</span><br><span class="line">		payController.pay();</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br><span class="line">结果：</span><br><span class="line">用户Tom选择了商品，然后开始下单支付</span><br><span class="line">用户选择了支付宝支付</span><br><span class="line">在PC端，使用Chrome浏览器操作</span><br><span class="line">将订单号:1491315431218，商品描述:终极商店—大红苹果和总价钱:6作为参数，访问支付宝收集订单信息的jsp页面来发起网关支付</span><br><span class="line">\-----------------------------------------</span><br><span class="line">用户Sivan选择了商品，然后开始下单支付</span><br><span class="line">用户选择了支付宝支付</span><br><span class="line">在移动端端，使用非微信浏览器操作</span><br><span class="line">将订单号:1491315431230，商品描述:终极商店—大红苹果和总价钱:6作为参数，访问支付宝的收银台来发起移动支付</span><br><span class="line">\-----------------------------------------</span><br><span class="line">用户Jack选择了商品，然后开始下单支付</span><br><span class="line">用户选择了微信支付</span><br><span class="line">在移动端端，使用微信浏览器操作</span><br><span class="line">使用订单号:1491315431241，商品描述:终极商店—大红苹果和总价钱:6调用微信支付工具类，请求下单API,返回支付URL并根据URL生成二维码</span><br></pre></td></tr></table></figure>
+
+<p>其实也没啥不同，内部类来实现策略PayStrategy接口，然后实现方法，在调用的场景也是实例化一个内部类而已，实现的实质也是策略选择器。。内部类那里的外围类有点像枚举，但是又有点差别。没遇到实际问题也想不出来啥例子，有经验的人士麻烦评论区拍个砖，感激不尽。</p>
+<p><strong>以上就是策略模式，水平有限，难免有错，欢迎评论区指责</strong></p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#策略模式"><span class="toc-text">策略模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#举个例子"><span class="toc-text">举个例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#延伸"><span class="toc-text">延伸</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-design-patterns-8-strategy/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-design-parrents-7-proxy/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-go-design-patterns-proxy/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

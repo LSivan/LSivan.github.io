@@ -38,14 +38,14 @@
   // it can be used in every script
   
   window.AD_CONFIG = {
-    leancloud: {"appid":"Hyq9wkH495DgNHWhDQCOfQSp-gzGzoHsz","appkey":"WaR7nrzhliHj9aVwdQzkdlGd","comment":"flase","count":"flase"},
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
     welcome: {"enable":false,"interval":30},
-    start_time: "2019-12-28",
+    start_time: "2017-12-14",
     passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
     is_post: false,
     lock: false,
     author: "Sivan",
-    share: {"twitter":true,"facebook":true,"weibo":true,"qq":true,"wechat":true},
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
     mathjax: true,
     page_type: "",
     root: "/"
@@ -233,7 +233,13 @@
           </h1>
           <div class="home-article-content passage-article">
             
-              
+              <p>如果你有运行的 HTTP 服务，你可能想记录 HTTP 请求。</p>
+<p>请求日志有助于诊断问题。（哪些请求失败了？我们一天处理多少请求？哪些请求比较慢？）</p>
+<p>这对于分析是必需的。（哪个页面受欢迎？网页的浏览者都来自哪里？）</p>
+<p>这篇文章介绍了在 Go Web 服务器中，记录 HTTP 请求日志相关的全部内容。</p>
+<p>这不是关于可复用的库，而是关于实现你自己的解决方案需要知道的事情，以及关于我日志记录的选择的描述。</p>
+<p>你可以在示例应用上查看详细内容： <a href="https://github.com/essentialbooks/books/tree/master/code/go/logging_http_requests" target="_blank" rel="noopener">https://github.com/essentialbooks/books/tree/master/code/go/logging_http_requests</a></p>
+<p>我在 Web 服务 <a href="https://onepage.nopub.io/" target="_blank" rel="noopener">OnePage</a> 中用到了这个记录系统。</p>
             
           </div>
           <a class="home-article-read" href="/passages/2019-09-15-Logging-HTTP-requests-in-Go/">
@@ -319,7 +325,8 @@
           </h1>
           <div class="home-article-content passage-article">
             
-              
+              <p>在这篇博文中我们看到使用 <code>go generate</code> 和遍历抽象语法树来生成强大的枚举类型。</p>
+<p>博文的结果是一个生成枚举类型的客户端。<a href="https://github.com/steinfletcher/gonum" target="_blank" rel="noopener">全部代码</a> 都可以在 Github 上面找到。</p>
             
           </div>
           <a class="home-article-read" href="/passages/2019-04-20-go-enums/">
@@ -331,6 +338,49 @@
               <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
              
               <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-04-03
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/2019-04-03-go-source-code-slice/">Go slice扩容深度分析(附gdb分析)</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              <p>本文主要是对go slice的扩容机制进行了一些分析，分析过程中借助了gdb这个工具。环境，64位centos的docker镜像+go1.12.1。</p>
+            
+          </div>
+          <a class="home-article-read" href="/passages/2019-04-03-go-source-code-slice/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+             
+              <a href="/tags/%E6%BA%90%E7%A0%81/"><i class="fa fa-tags"></i>源码</a>
             
             </div>
           
@@ -362,7 +412,7 @@
           </h1>
           <div class="home-article-content passage-article">
             
-              
+              <p>你可以找到一个完整的代码示例在<a href="https://github.com/steinfletcher/func-dependency-injection-go" target="_blank" rel="noopener">github.com/steinfletcher/func-dependency-injection-go</a>。例子包含了一个暴露 REST 接口的 http 服务器。</p>
             
           </div>
           <a class="home-article-read" href="/passages/2019-04-02-func-dependency-injection-go/">
@@ -405,7 +455,7 @@
           </h1>
           <div class="home-article-content passage-article">
             
-              
+              <p>在这篇博文里我想要给你们展示下，如何创建一个可以优雅关闭的 Go HTTP Web 服务器。通过这个方法可以让服务器在它真正关闭之前清理某些资源，( 例如 ) 想象下完成数据库事务或者一些其他长时间的操作。我们将会用到在我<a href="https://marcofranssen.nl/concurrency-in-go/" target="_blank" rel="noopener">关于并发的博文</a> 学习到的东西。所以，期待看到 channel 和 Goroutine 作为解决方法的一部分吧。</p>
             
           </div>
           <a class="home-article-read" href="/passages/2019-03-27-go-webserver-with-gracefull-shutdown/">
@@ -417,6 +467,47 @@
               <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
              
               <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2019-03-25
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/2019-03-25-go-genarate-sample/">Golang generate 初窥</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              <p>用protobuf的时候就已经觉得挺好玩的，一个.proto文件，用一个命令加一个language type的参数就能生成相应语言的pb文件，神奇。这阵子闲了一点，调查了下，发现golang原生支持这种东西。核心，go generate。</p>
+            
+          </div>
+          <a class="home-article-read" href="/passages/2019-03-25-go-genarate-sample/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
             
             </div>
           
@@ -448,7 +539,8 @@
           </h1>
           <div class="home-article-content passage-article">
             
-              
+              <p>我最喜欢 Go 的一个特性就是，毫无惊喜。某些程度上可以说有点无聊的感觉。这是编程语言的一个优秀的品质。这样的话，在编码的时候就可以专注于手头上的问题，而不是<a href="https://twitter.com/chordbug/status/1092824183124488192?s=19" target="_blank" rel="noopener">语言做了你不希望它做的事情</a>。</p>
+<p>这篇文章有关 Go 的一个对新人来说最 “惊喜” 的特性 : slice。</p>
             
           </div>
           <a class="home-article-read" href="/passages/2019-03-10-go-slices-gotchas/">
@@ -460,6 +552,51 @@
               <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
              
               <a href="/tags/%E7%BF%BB%E8%AF%91/"><i class="fa fa-tags"></i>翻译</a>
+            
+            </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  
+    <div class="home-article-wrapper clearfix">
+      <div class="home-article" data-cover="false">
+        <div class="home-article-inner" data-cover="false">
+          <div class="passage-meta">
+            <span>
+              <i class="fa fa-calendar"></i>2018-07-18
+            </span>
+            
+              <span>
+                | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+              </span>
+            
+            
+              <span>
+                | <i class="fa fa-unlock-alt"></i>UNLOCK
+              </span>
+            
+          </div>
+          <h1 class="home-article-title">
+            <a href="/passages/2018-07-18-redis-common-sence/">redis常用场景收集</a>
+          </h1>
+          <div class="home-article-content passage-article">
+            
+              <p>收录常见的redis用法，既涨涨见识，也方便遇到相关场景能快速参考。</p>
+            
+          </div>
+          <a class="home-article-read" href="/passages/2018-07-18-redis-common-sence/">
+            READ MORE >>>
+          </a>
+          
+            <div class="passage-tags">
+             
+              <a href="/tags/%E5%90%8E%E7%AB%AF/"><i class="fa fa-tags"></i>后端</a>
+             
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"><i class="fa fa-tags"></i>数据库</a>
+             
+              <a href="/tags/redis/"><i class="fa fa-tags"></i>redis</a>
             
             </div>
           
@@ -519,6 +656,10 @@
       <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
     </div>
     
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
     
       <div class="site-footer-info">
         <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
@@ -576,7 +717,7 @@
     <a href="javascript:void(0);" data-enable="false">
       <i class="fa fa-arrow-left"></i>
     </a>
-    <a href="javascript:void(0);" data-enable="false">
+    <a href="/page/2/" data-enable="true">
       <i class="fa fa-arrow-right"></i>
     </a>
   </div>
@@ -604,14 +745,6 @@
 </div>
     <div id="share-btn">
   
-    <a id="share-btn-twitter" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-twitter"></i>
-    </a>
-  
-  
-    <a id="share-btn-facebook" href="javascript:void(0);" target="_blank">
-      <i class="fa fa-facebook"></i>
-    </a>
   
   
     <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">

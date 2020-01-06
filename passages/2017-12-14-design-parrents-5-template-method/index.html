@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>设计模式（五）——模板方法模式 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,设计模式,Java," />
+  
+
+  
+  <meta name="description" content="介绍了模板方法模式的Java实现。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    设计模式（五）——模板方法模式
+  </h1>
+  
+  <article class="passage-article">
+    <h3 id="模板方法模式"><a href="#模板方法模式" class="headerlink" title="模板方法模式"></a>模板方法模式</h3><ul>
+<li>定义： 定义一个操作中算法的框架，而将一些步骤延迟到子类中。模板方法模式使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。</li>
+<li>作用： 通过使用模板方法模式，可以将一些复杂流程的实现步骤封装在一系列基本方法中，在抽象父类中提供一个称之为模板方法的方法来定义这些基本方法的执行次序，而通过其子类来覆盖某些步骤，从而使得相同的算法框架可以有不同的执行结果。</li>
+<li>是一个行为类模式</li>
+</ul>
+<p>上例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 抽象模板</span><br><span class="line">public abstract class AbstractCarCreater &#123;</span><br><span class="line">	protected void assemblyCar()&#123;</span><br><span class="line">		System.out.println(&quot;先把车的总体框架搭好&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	protected abstract void coloring();</span><br><span class="line">	protected abstract void assemblyLogo( );</span><br><span class="line">	public void createrCar(  )&#123;</span><br><span class="line">		assemblyCar();</span><br><span class="line">		this.coloring();</span><br><span class="line">		this.assemblyLogo();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 奔驰模板</span><br><span class="line">public class BenzCarCreater extends AbstractCarCreater&#123;</span><br><span class="line">	@Override</span><br><span class="line">	protected void coloring( ) &#123;</span><br><span class="line">		System.out.println(&quot;奢华的奔驰得上亮黑色&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	protected void assemblyLogo() &#123;</span><br><span class="line">		System.out.println(&quot;上了一个极致奢华的奔驰Logo&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 宝马模板</span><br><span class="line">public class BmwCarCreater extends AbstractCarCreater&#123;</span><br><span class="line">	@Override</span><br><span class="line">	protected void coloring() &#123;</span><br><span class="line">		System.out.println(&quot;宝马要上酷炫的银白色&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	protected void assemblyLogo() &#123;</span><br><span class="line">		System.out.println(&quot;上了一个显眼的BMW的Logo&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 场景类</span><br><span class="line">public class Client &#123;</span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		BenzCarCreater benzCarCreater &#x3D; new BenzCarCreater();</span><br><span class="line">		benzCarCreater.createrCar();</span><br><span class="line">		System.out.println(&quot;-------------------------------------&quot;);</span><br><span class="line">		BmwCarCreater bmwCarCreater &#x3D; new BmwCarCreater();</span><br><span class="line">		bmwCarCreater.createrCar();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码，在抽象模板中，我们已经定好了一个算法的框架，组装一辆完整的车的算法，然后算法中的方法是抽象的，交由子类来实现，每多一个字类，就有多一个不同的执行结果，这就是模版方法。</p>
+<h1 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h1><blockquote>
+<p>这个扩展，其实并不是什么知识点或者思想层面的扩展，而是，写了这几篇设计模式，在大学团队项目中用到的模式啊！！！！兴奋到爆炸。</p>
+</blockquote>
+<p>做过Java s2sh开发的人其实应该也用到，可能不知道是这种模式而已，下面来简单地上点代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义对数据库的增删改查操作</span><br><span class="line">public interface BaseDao&lt;T&gt; &#123;</span><br><span class="line">	public Serializable add(T t);</span><br><span class="line">	public void update(T t);</span><br><span class="line">	public void delete(T t);</span><br><span class="line">	public int delete(Serializable id); </span><br><span class="line">	public T findDataById(Serializable id);</span><br><span class="line">	public List&lt;T&gt; findAllData();</span><br><span class="line">	public List&lt;T&gt; findDataByPage(int pageNum, int pageCount);</span><br><span class="line">	public List&lt;T&gt; findDataByCondition(String conditionName, String conditionValue,String conditionOperation);</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 将数据库的增删改查操作实现</span><br><span class="line">public abstract class HibernateDao&lt;T&gt; implements BaseDao&lt;T&gt;&#123;</span><br><span class="line">	@Autowired</span><br><span class="line">	private SessionFactory sessionFactory; </span><br><span class="line">	public SessionFactory getSessionFactory() &#123;</span><br><span class="line">		return sessionFactory;</span><br><span class="line">	&#125;</span><br><span class="line">	public void setSessionFactory(SessionFactory sessionFactory) &#123;</span><br><span class="line">		this.sessionFactory &#x3D; sessionFactory;</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public Serializable add(T t) &#123;</span><br><span class="line">		return sessionFactory.getCurrentSession().save(t);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public void update(T t) &#123;</span><br><span class="line">		sessionFactory.getCurrentSession().update(t);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public int delete(Serializable id) &#123;</span><br><span class="line">		String hql &#x3D; &quot;delete from &quot;+this.getEntityClass().getSimpleName()+&quot; en where en.id &#x3D; ?&quot;;</span><br><span class="line">		return sessionFactory.getCurrentSession().createQuery(hql).setParameter(0, id).executeUpdate();</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public void delete(T t) &#123;</span><br><span class="line">		sessionFactory.getCurrentSession().delete(t);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public T findDataById(Serializable id) &#123;</span><br><span class="line">		return (T) sessionFactory.getCurrentSession().get(getEntityClass(), id);</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public List&lt;T&gt; findDataByCondition(String conditionName, String conditionValue, String conditionOperation) &#123;</span><br><span class="line">		String hql &#x3D; &quot;select en from &quot;+getEntityClass().getSimpleName()+&quot; en where en.&quot;+conditionName+&quot; &quot;+conditionOperation+&quot;?&quot;;</span><br><span class="line">		return sessionFactory.getCurrentSession().createQuery(hql).setParameter(0, conditionValue).list();</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public List&lt;T&gt; findDataByPage(int pageNum, int pageCount) &#123;</span><br><span class="line">		String hql &#x3D; &quot;from &quot;+getEntityClass().getSimpleName();</span><br><span class="line">		return sessionFactory.getCurrentSession().createQuery(hql).setFirstResult((pageNum-1)*pageCount).setMaxResults(pageCount).list();</span><br><span class="line">	&#125;</span><br><span class="line">	@Override</span><br><span class="line">	public List&lt;T&gt; findAllData() &#123;</span><br><span class="line">		String hql &#x3D; &quot;from &quot;+getEntityClass().getSimpleName();</span><br><span class="line">		return sessionFactory.getCurrentSession().createQuery(hql).list();</span><br><span class="line">	&#125;</span><br><span class="line">    &#x2F;&#x2F; 终极方法</span><br><span class="line">	protected abstract Class&lt;T&gt; getEntityClass();</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F; 真正的dao</span><br><span class="line">@Repository</span><br><span class="line">public class BookDao extends HibernateDao&lt;Book&gt;&#123;</span><br><span class="line">	@Override</span><br><span class="line">	protected Class&lt;Book&gt; getEntityClass() &#123;</span><br><span class="line">		return Book.class;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码就用到了模版方法模式，BaseDao中，使用了泛型约束Bean的类型，确保实现该接口的Dao都是操作某一个Bean的，然后，它的每个增删改查的方法其实都是相同操作的“算法”，是的，就是算法，唯一的不同点在哪？就是Bean的名字。所以用了一个HibernateDao来继承BaseDao，然后定义了一个终极方法<code>protected abstract Class<T> getEntityClass();</code>,通过这个方法来获取传入的类的class属性，从而获得Bean的名字，从而得到不同的算法结果，这个就是一个活生生的模版方法模式，棒棒哒。</p>
+<p><strong>水平有误，难免有错，还请拍砖</strong></p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#模板方法模式"><span class="toc-text">模板方法模式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#扩展"><span class="toc-text">扩展</span></a>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-design-parrents-5-template-method/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"><i class="fa fa-tags"></i>设计模式</a>
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-design-parrents-4-abstract-factory/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-design-parrents-6-builder/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>

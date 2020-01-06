@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>CopyOnWriteArrayList阅读笔记 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="学习,Java,源码," />
+  
+
+  
+  <meta name="description" content="本文介绍了Java集合类中的CopyOnWriteArrayList, 是一个较于Vector性能更好的并发安全集合类。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2017-12-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/friends/" target="_self">友链</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/friends/" target="_self">
+            友链
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2017-12-14
+    </span>
+    
+      <span>
+        | <a href="/categories/%E5%AD%A6%E4%B9%A0/"><i class="fa fa-bookmark"></i>学习</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    CopyOnWriteArrayList阅读笔记
+  </h1>
+  
+  <article class="passage-article">
+    <h4 id="CopyOnWriteArrayList"><a href="#CopyOnWriteArrayList" class="headerlink" title="CopyOnWriteArrayList"></a>CopyOnWriteArrayList</h4><p>无继承，实现了List，RandomAccess，Cloneable，和Serializable接口，具有List的特性，提供可随机访问，提供自身克隆以及序列化的一个容器类。<br>特点：线程安全；读写分离；数组实现</p>
+<p>CopyOnWriteArrayList这个容器类的名字也很好理解，写时拷贝列表，网上对COW(CopyOnWrite)有一个高大上的名字，叫做读写分离，所以CopyOnWriteArrayList是读写分离列表类，下面描述下它的实现</p>
+<h5 id="成员变量"><a href="#成员变量" class="headerlink" title="成员变量"></a>成员变量</h5><p>相比于ArrayList，CopyOnWriteArrayList的成员变量发生了很多改变，就只有下面几个</p>
+<pre><code>// 序列化ID
+private static final long serialVersionUID = 8673264195747942595L;
+// 锁变量
+final transient ReentrantLock lock = new ReentrantLock();
+// 真正存储数据的数组
+private transient volatile Object[] array;</code></pre><p>甚至是size都没了，而size()函数的实现则变成了下面这样</p>
+<pre><code>public int size() {
+    return getArray().length;
+}</code></pre><h5 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h5><p>首先是对<code>array</code>操作的限制，CopyOnWriteArrayList提供了<code>array</code>的setter和getter方法，在下文会看到，涉及到<code>array</code>的操作，都是通过setter和getter来完成的</p>
+<pre><code>final Object[] getArray() {
+    return array;
+}
+final void setArray(Object[] a) {
+    array = a;
+}</code></pre><p>其次是构造函数，CopyOnWriteArrayList提供了缺省，带集合类和带数组的三个构造函数，在这三个函数里面都能看到<code>setArray()</code>的影子。而其中，缺省的构造函数初始化容器的容量为0</p>
+<pre><code>public CopyOnWriteArrayList() {
+    setArray(new Object[0]);
+}
+public CopyOnWriteArrayList(Collection&lt;? extends E&gt; c) {
+    Object[] elements;
+    if (c.getClass() == CopyOnWriteArrayList.class)
+        elements = ((CopyOnWriteArrayList&lt;?&gt;)c).getArray();
+    else {
+        elements = c.toArray();
+        // c.toArray might (incorrectly) not return Object[] (see 6260652)
+        if (elements.getClass() != Object[].class)
+            elements = Arrays.copyOf(elements, elements.length, Object[].class);
+    }
+    setArray(elements);
+}
+public CopyOnWriteArrayList(E[] toCopyIn) {
+    setArray(Arrays.copyOf(toCopyIn, toCopyIn.length, Object[].class));
+}</code></pre><p>接着看最重头戏的<code>add()</code>方法，</p>
+<pre><code>public boolean add(E e) {
+    final ReentrantLock lock = this.lock;
+    lock.lock();
+    try {
+        Object[] elements = getArray();
+        int len = elements.length;
+        Object[] newElements = Arrays.copyOf(elements, len + 1);
+        newElements[len] = e;
+        setArray(newElements);
+        return true;
+    } finally {
+        lock.unlock();
+    }
+}</code></pre><p>我们可以看到，<code>CopyOnWriteArrayList</code>没有像<code>ArrayList</code>和<code>Vector</code>那样复杂的扩容机制，只通过两句代码即实现了添加数据，又实现了扩容</p>
+<pre><code>Object[] newElements = Arrays.copyOf(elements, len + 1);
+newElements[len] = e;
+setArray(newElements);</code></pre><p>接着，在方法的开始和结束分别是上锁<code>lock.lock();</code>和解锁<code>lock.unlock();</code>，给方法上锁的一个原因是避免多线程环境下，多个线程拷贝出多个副本,然后多个副本操作数据后影响数据的正确性。<br>除了<code>add()</code>方法外，<code>set()</code>,<code>remove()</code>等的操作数据的操作，基本都和<code>add()</code>方法类似，这里就不在赘述了。<br>再接着看获取的方法<code>get()</code></p>
+<pre><code>private E get(Object[] a, int index) {
+    return (E) a[index];
+}
+
+public E get(int index) {
+    return get(getArray(), index);
+}</code></pre><p>可以看到，<code>get()</code>方法是直接在<code>array</code>中进行获取。<br>综合看<code>add()</code>和<code>get()</code>方法，<code>add()</code>方法在进行的时候会先上锁，然后拷贝一份数据的副本进行操作，然后将操作后的副本赋值到<code>array</code>中去，至于<code>get()</code>方法是直接获取<code>array</code>中的值，也正是这样，实现了<strong>读写分离</strong>。但是这也会有一个问题，就是数据的实时不一致性，有可能副本还没赋值到<code>array</code>，而用户通过<code>get()</code>方法获取了旧的<code>array</code>的值。</p>
+<p>来看下<code>CopyOnWriteArrayList</code>的迭代器，因为它没有继承<code>AbstractList</code>因此也没有<code>modCount</code>这个变量，先看下怎么得到它的迭代器</p>
+<pre><code>public ListIterator&lt;E&gt; listIterator(int index) {
+    Object[] elements = getArray();
+    int len = elements.length;
+    if (index &lt; 0 || index &gt; len)
+        throw new IndexOutOfBoundsException(&quot;Index: &quot;+index);
+
+    return new COWIterator&lt;E&gt;(elements, index);
+}
+
+private COWIterator(Object[] elements, int initialCursor) {
+    cursor = initialCursor;
+    snapshot = elements;
+}</code></pre><p>可以看到是直接通过<code>array</code>和初始化的下标来获取到迭代器。至于迭代数据则是直接获取</p>
+<pre><code>@SuppressWarnings(&quot;unchecked&quot;)
+public E next() {
+   if (! hasNext())
+       throw new NoSuchElementException();
+       return (E) snapshot[cursor++];
+}</code></pre><p>因此，这里没有像<code>ArrayList</code>那样，有一个<code>checkForComodification</code>,检查是否迭代数据被修改，因此我又测试了下</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/5176645-550eb7164747141c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="意料之中的毫无错误"><br>在<code>ArrayList</code>中，如果获取到拦截器之后对容器内数据进行操作，就会报<code>ConcurrentModificationExceptio</code>，而在<code>CopyOnWriteArrayList</code>则不存在这个问题。<br>但是也有另外一个问题，如图片所展示那样，获取到迭代器之后修改容器内的数据，拦截器并不会有所更新，要获取到修改后的数据，还得重新获取迭代器。</p>
+<p>剩下的一些方法就不赘述啦，大同小异。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p><code>CopyOnWriteArrayList</code>的核心是在操作数据的时候，通过拷贝原容器数组的副本，在副本上进行操作后，将副本赋值到容器数组，从而实现读写分离。<br><code>CopyOnWriteArrayList</code>适用于<strong>读多写少</strong>的场景，因为写的时候会拷贝数组，很容易产生大量垃圾而触发GC，不利于系统的性能。</p>
+<h5 id="水平有限，难免有错，还请评论区指正。Vector"><a href="#水平有限，难免有错，还请评论区指正。Vector" class="headerlink" title="水平有限，难免有错，还请评论区指正。Vector"></a>水平有限，难免有错，还请评论区指正。Vector</h5><p>继承自AbstractList，实现了List，RandomAccess，Cloneable，和Serializable接口，具有List的特性，提供可随机访问，提供自身克隆以及序列化的一个容器类。<br>特点：线程安全；数组实现</p>
+<p>Vector的实现和ArrayList没什么区别，这里就不列成员变量和一些共有的方法了，有兴趣可以去看<a href="https://juejin.im/post/5a31d5ea5188257dcc2fa144" target="_blank" rel="noopener">走进源码——ArrayList阅读笔记</a>，这篇主要讲Vector和ArrayList的区别</p>
+<ul>
+<li><p>区别一：线程安全<br>在ArrayList中，所有的方法都是线程不安全的，在多线程环境下很容易出问题，而Vector就不一样了，Vector在涉及到操作容器数据的方法上，都加上了<code>synchronized</code>关键字，甚至是迭代器的获取上也加上了这个关键字，我们可以感受下<br><img src="/Users/edz/LSivan/blog/source/_posts/16052e1ef9056656.png" alt="带synchronized关键字的获取迭代器的方法"><br><img src="/Users/edz/LSivan/blog/source/_posts/16052e1efa3f1e6b.png" alt="带synchronized关键字的remove的方法"><br>但是，凡事有利弊，这种线程绝对安全的保证的一个最明显的负面效应就是性能的损耗，特别是很多线程同时操作同一个Vector对象时，那么将会有很多很多线程被阻塞，是很不利于系统性能的。</p>
+</li>
+<li><p>区别二：初始化<br>相对于ArrayList中的初始化，Vector的其中一个初始化函数多了一个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protected int capacityIncrement;</span><br></pre></td></tr></table></figure>
+<p>形参，这个形参如其名，容量增长，取好听点，我们叫容量增长因子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public Vector(int initialCapacity, int capacityIncrement) &#123;</span><br><span class="line">  super();</span><br><span class="line">  if (initialCapacity &lt; 0)</span><br><span class="line">      throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+</span><br><span class="line">                                         initialCapacity);</span><br><span class="line">  this.elementData &#x3D; new Object[initialCapacity];</span><br><span class="line">  this.capacityIncrement &#x3D; capacityIncrement;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>类似于ArrayList的带initialCapacity形参的构造函数，区别就在于初始化自身的capacityIncrement属性而已，其次还有下面两个</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public Vector(int initialCapacity) &#123;</span><br><span class="line">  this(initialCapacity, 0);</span><br><span class="line">&#125;</span><br><span class="line">public Vector() &#123;</span><br><span class="line">  this(10);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里吐槽下<strong><code>this(10);</code></strong>，在ArrayList那里起码还有一个<code>DEFAULT_CAPACITY</code>，在Vector这里直接就是10….是懒了吗…Vector的默认初始化就是容量为10，容量增长因子为0</p>
+</li>
+<li><p>区别三：容量增长<br>在ArrayList中容量是1.5倍增加的，可能Vector的设计者觉得这个1.5太可怕了（特别在数量级达到万之后的单位），所以才在vector里增加这个容量增长因子的东西，下面直接上核心代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private void grow(int minCapacity) &#123;</span><br><span class="line">  &#x2F;&#x2F; overflow-conscious code</span><br><span class="line">  int oldCapacity &#x3D; elementData.length;</span><br><span class="line">  int newCapacity &#x3D; oldCapacity + ((capacityIncrement &gt; 0) ?</span><br><span class="line">                                   capacityIncrement : oldCapacity);</span><br><span class="line">  if (newCapacity - minCapacity &lt; 0)</span><br><span class="line">      newCapacity &#x3D; minCapacity;</span><br><span class="line">  if (newCapacity - MAX_ARRAY_SIZE &gt; 0)</span><br><span class="line">      newCapacity &#x3D; hugeCapacity(minCapacity);</span><br><span class="line">  elementData &#x3D; Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很明显，如果在初始化的时候传入了<code>capacityIncrement</code>,那么，vector的每次容量的增长都是以<code>capacityIncrement</code>为单位进行增长的，所以就没有了ArrayList中直接增大1.5倍的爆炸增长速率</p>
+</li>
+</ul>
+<p>其余的实现和ArrayList都是大同小异，这里就不在撰述了</p>
+<h4 id="水平有限，难免有错，还请评论区指正"><a href="#水平有限，难免有错，还请评论区指正" class="headerlink" title="水平有限，难免有错，还请评论区指正"></a>水平有限，难免有错，还请评论区指正</h4>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#CopyOnWriteArrayList"><span class="toc-text">CopyOnWriteArrayList</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#成员变量"><span class="toc-text">成员变量</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方法"><span class="toc-text">方法</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#水平有限，难免有错，还请评论区指正。Vector"><span class="toc-text">水平有限，难免有错，还请评论区指正。Vector</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#水平有限，难免有错，还请评论区指正"><span class="toc-text">水平有限，难免有错，还请评论区指正</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://yoursite.com/passages/2017-12-14-java-source-code-cow-arraylist/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/Java/"><i class="fa fa-tags"></i>Java</a>
+     
+      <a href="/tags/%E6%BA%90%E7%A0%81/"><i class="fa fa-tags"></i>源码</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">系列教程</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/categories/webpack4%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" target="_blank">webpack4系列教程</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/design-patterns/" target="_blank">设计模式手册</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">抓到我</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/5b91fcf06fb9a05d3c7fd4a5" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://segmentfault.com/" target="_blank">思否</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="/passages/2017-12-14-java-source-code-arraylist/" data-enable="true">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2017-12-14-java-source-code-vector/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>
