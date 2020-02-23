@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="author" content="Sivan" />
+  
+  
+  <title>为服务更简便地配置promethus监控 | sivan&#39;s drawer</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="think,golang,backend," />
+  
+
+  
+  <meta name="description" content="合理的监控对于保证服务质量来说是必不可少的，但让人苦不堪言的是，每次新上线的服务，总得花上不少的时间配置监控，而且来来去去都是那几个监控指标。这篇文章就是为了更好更方便地去做这件事。">
+
+  
+
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.1/dist/av-min.js" async></script>
+  
+
+  
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+  
+
+  
+    <script src="//unpkg.com/valine/dist/Valine.min.js" async></script>
+  
+
+  
+
+  <script>
+  // theme-ad's config script
+  // it can be used in every script
+  
+  window.AD_CONFIG = {
+    leancloud: {"appid":"3P3uryXl6J3iPWjKRoNhj2pv-gzGzoHsz","appkey":"IkUfC8DBV5JDyeQRD1HFUTBR","comment":true,"count":true},
+    welcome: {"enable":false,"interval":30},
+    start_time: "2019-01-14",
+    passwords: ["efe07af7441da2b69c4a41e42e73be4db47f66010a56900788a458354a7373ec", ],
+    is_post: true,
+    lock: false,
+    author: "Sivan",
+    share: {"twitter":"flase","facebook":"flase","weibo":true,"qq":true,"wechat":true},
+    mathjax: true,
+    page_type: "",
+    root: "/"
+  };
+</script>
+
+  
+<script src="/vendor/sha256.min.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/index.js"></script>
+<script src="/vendor/qrcode.min.js"></script>
+
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/styles/components/highlight/highlight.css">
+
+
+  
+<meta name="generator" content="Hexo 4.2.0"></head>
+  <body>
+    <header class="site-header">
+  <div class="site-header-brand">
+    
+      <span class="site-header-brand-title">
+        <a href="/">Sivan's Drawer</a>
+      </span>
+    
+    
+      <span class="site-header-brand-motto"> | 思考，总结，输出 = 更快的成长</span>
+    
+  </div>
+  <div class="site-header-right">
+    <nav class="site-header-navigation">
+      
+        <a href="/" target="_self">首页</a>
+      
+        <a href="/archives/" target="_self">归档</a>
+      
+        <a href="/tags/" target="_self">标签</a>
+      
+        <a href="/categories/" target="_self">分类</a>
+      
+        <a href="/about/" target="_self">关于</a>
+      
+    </nav>
+    <div class="site-header-btn">
+      
+        <a href="https://github.com/LSivan/" target="_blank" id="site-github">
+          <i class="fa fa-github-alt"></i>
+        </a>
+      
+      <a href="javascript:void(0);" id="site-search">
+        <i class="fa fa-search"></i>
+      </a>
+      <a href="javascript:void(0);" id="site-nav-btn">
+        <i class="fa fa-ellipsis-v"></i>
+      </a>
+    </div>
+  </div>
+</header>
+<nav class="table-content" id="site-nav">
+  <div class="table-content-title">
+    <span>导航</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc">
+      
+        <li class="toc-item">
+          <a href="/" target="_self">
+            首页
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/archives/" target="_self">
+            归档
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/tags/" target="_self">
+            标签
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/categories/" target="_self">
+            分类
+          </a>
+        </li>
+      
+        <li class="toc-item">
+          <a href="/about/" target="_self">
+            关于
+          </a>
+        </li>
+      
+    </ol>
+  </div>
+</nav>
+<div id="site-process"></div>
+    <main>
+      
+  <div class="passage">
+  <div class="passage-meta">
+    <span>
+      <i class="fa fa-calendar"></i>2020-02-12
+    </span>
+    
+      <span>
+        | <a href="/categories/think/"><i class="fa fa-bookmark"></i>think</a>
+      </span>
+    
+    
+      <span>
+        | <i class="fa fa-unlock-alt"></i>UNLOCK
+      </span>
+    
+  </div>
+  <h1 class="passage-title">
+    为服务更简便地配置promethus监控
+  </h1>
+  
+  <article class="passage-article">
+    <h2 id="常用监控"><a href="#常用监控" class="headerlink" title="常用监控"></a>常用监控</h2><p>相信对于大部分的服务，常用的监控维度大概是这么两个，QPS、延时。常用的监控指标也大概是接口、db、cache、rpc。每次上线新服务，好了，都得从头来，加接口的QPS和延时，加db的QPS和延时。。。这么重复性的工作，很显然可以用工具来完成。</p>
+<h2 id="Grafana-amp-promethus"><a href="#Grafana-amp-promethus" class="headerlink" title="Grafana &amp; promethus"></a>Grafana &amp; promethus</h2><p>博主这边用的服务监控方案是grafana+promethus，grafana —— 开箱即用“画图”神器；；promethus则是CNCF的成员，golang实现，对于golang的程序有较好的支持，只要在程序中暴露端口，监控打点就能被promethus的server端采集，然后在grafana配置下promethus的数据源，就能用画出服务的监控图了。具体如何配置，这里就不细说了。</p>
+<p>用promethus是怎么画出QPS和延时呢，一般而言是这两个PromQL（promethus 查询语句）: </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">延时：</span><br><span class="line">sum(irate(bucket&#123;label&#x3D;&quot;&#123;LABEL&#125;&quot;&#125;[1m])) by (endpoint)</span><br><span class="line"></span><br><span class="line">QPS：</span><br><span class="line">histogram_quantile(0.99,sum(rate(bucket&#123;label&#x3D;&quot;&#123;LABEL&#125;&quot;&#125;[30s]))by (le,endpoint))</span><br></pre></td></tr></table></figure>
+
+<p>在存在多个监控指标的情况下，往往要做多次copy&amp;paste的操作，而且为了方便数据的查看，还得配置下每个panel的Axes和Display，而刚好，Axes和Display的配置也是相同的。</p>
+<p>为了避免无太大意义的重复性工作，我们分析已经配好的grafana监控表的json文件，是一个怎么样的格式呢？具体路径: dashboard右上角的settings -&gt; JSON model，下面是博主的一个服务的dashboard 及其 json文件</p>
+<p><img src="/Users/edz/LSivan/blog/public/images/2020-02-17-gen-promethus-monitor-01.png" alt="image-20200223130409252"></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"annotations"</span>: &#123;</span><br><span class="line">    <span class="attr">"list"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"builtIn"</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="attr">"datasource"</span>: <span class="string">"-- Grafana --"</span>,</span><br><span class="line">        <span class="attr">"enable"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"hide"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"iconColor"</span>: <span class="string">"rgba(0, 211, 255, 1)"</span>,</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"Annotations &amp; Alerts"</span>,</span><br><span class="line">        <span class="attr">"type"</span>: <span class="string">"dashboard"</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"editable"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"gnetId"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="attr">"graphTooltip"</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"id"</span>: <span class="number">676</span>,</span><br><span class="line">  <span class="attr">"links"</span>: [],</span><br><span class="line">  <span class="attr">"panels"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"aliasColors"</span>: &#123;&#125;,</span><br><span class="line">      <span class="attr">"bars"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"dashLength"</span>: <span class="number">10</span>,</span><br><span class="line">      <span class="attr">"dashes"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"datasource"</span>: <span class="string">"Prometheus"</span>,</span><br><span class="line">      <span class="attr">"fill"</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"gridPos"</span>: &#123;</span><br><span class="line">        <span class="attr">"h"</span>: <span class="number">9</span>,</span><br><span class="line">        <span class="attr">"w"</span>: <span class="number">12</span>,</span><br><span class="line">        <span class="attr">"x"</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="attr">"y"</span>: <span class="number">0</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"id"</span>: <span class="number">22</span>,</span><br><span class="line">      <span class="attr">"legend"</span>: &#123;</span><br><span class="line">        <span class="attr">"avg"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"current"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"max"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"min"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"show"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"total"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"values"</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"lines"</span>: <span class="literal">true</span>,</span><br><span class="line">      <span class="attr">"linewidth"</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"links"</span>: [],</span><br><span class="line">      <span class="attr">"nullPointMode"</span>: <span class="string">"null as zero"</span>,</span><br><span class="line">      <span class="attr">"percentage"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"pointradius"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"points"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"renderer"</span>: <span class="string">"flot"</span>,</span><br><span class="line">      <span class="attr">"seriesOverrides"</span>: [],</span><br><span class="line">      <span class="attr">"spaceLength"</span>: <span class="number">10</span>,</span><br><span class="line">      <span class="attr">"stack"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"steppedLine"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"targets"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"aggregator"</span>: <span class="string">"sum"</span>,</span><br><span class="line">          <span class="attr">"downsampleAggregator"</span>: <span class="string">"avg"</span>,</span><br><span class="line">          <span class="attr">"downsampleFillPolicy"</span>: <span class="string">"none"</span>,</span><br><span class="line">          <span class="attr">"expr"</span>: <span class="string">"sum(irate(base_service_vc_api_latency_bucket&#123;method=\"router\",service=\"vc_api_online\",endpoint!=\"/metrics/\"&#125;[1m])) by (endpoint)"</span>,</span><br><span class="line">          <span class="attr">"format"</span>: <span class="string">"time_series"</span>,</span><br><span class="line">          <span class="attr">"intervalFactor"</span>: <span class="number">1</span>,</span><br><span class="line">          <span class="attr">"legendFormat"</span>: <span class="string">"&#123;&#123;endpoint&#125;&#125;"</span>,</span><br><span class="line">          <span class="attr">"refId"</span>: <span class="string">"A"</span></span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"thresholds"</span>: [],</span><br><span class="line">      <span class="attr">"timeFrom"</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">"timeRegions"</span>: [],</span><br><span class="line">      <span class="attr">"timeShift"</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">"title"</span>: <span class="string">"接口QPS"</span>,</span><br><span class="line">      <span class="attr">"tooltip"</span>: &#123;</span><br><span class="line">        <span class="attr">"shared"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"sort"</span>: <span class="number">2</span>,</span><br><span class="line">        <span class="attr">"value_type"</span>: <span class="string">"individual"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"graph"</span>,</span><br><span class="line">      <span class="attr">"xaxis"</span>: &#123;</span><br><span class="line">        <span class="attr">"buckets"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"mode"</span>: <span class="string">"time"</span>,</span><br><span class="line">        <span class="attr">"name"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"show"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"values"</span>: []</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"yaxes"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"format"</span>: <span class="string">"reqps"</span>,</span><br><span class="line">          <span class="attr">"label"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"logBase"</span>: <span class="number">1</span>,</span><br><span class="line">          <span class="attr">"max"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"min"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"show"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"format"</span>: <span class="string">"short"</span>,</span><br><span class="line">          <span class="attr">"label"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"logBase"</span>: <span class="number">1</span>,</span><br><span class="line">          <span class="attr">"max"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"min"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"show"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"yaxis"</span>: &#123;</span><br><span class="line">        <span class="attr">"align"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"alignLevel"</span>: <span class="literal">null</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"aliasColors"</span>: &#123;&#125;,</span><br><span class="line">      <span class="attr">"bars"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"dashLength"</span>: <span class="number">10</span>,</span><br><span class="line">      <span class="attr">"dashes"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"datasource"</span>: <span class="string">"Prometheus"</span>,</span><br><span class="line">      <span class="attr">"fill"</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"gridPos"</span>: &#123;</span><br><span class="line">        <span class="attr">"h"</span>: <span class="number">9</span>,</span><br><span class="line">        <span class="attr">"w"</span>: <span class="number">12</span>,</span><br><span class="line">        <span class="attr">"x"</span>: <span class="number">12</span>,</span><br><span class="line">        <span class="attr">"y"</span>: <span class="number">0</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"id"</span>: <span class="number">24</span>,</span><br><span class="line">      <span class="attr">"legend"</span>: &#123;</span><br><span class="line">        <span class="attr">"avg"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"current"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"max"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"min"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"show"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"total"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"values"</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"lines"</span>: <span class="literal">true</span>,</span><br><span class="line">      <span class="attr">"linewidth"</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"links"</span>: [],</span><br><span class="line">      <span class="attr">"nullPointMode"</span>: <span class="string">"null as zero"</span>,</span><br><span class="line">      <span class="attr">"percentage"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"pointradius"</span>: <span class="number">5</span>,</span><br><span class="line">      <span class="attr">"points"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"renderer"</span>: <span class="string">"flot"</span>,</span><br><span class="line">      <span class="attr">"seriesOverrides"</span>: [],</span><br><span class="line">      <span class="attr">"spaceLength"</span>: <span class="number">10</span>,</span><br><span class="line">      <span class="attr">"stack"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"steppedLine"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">"targets"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"aggregator"</span>: <span class="string">"sum"</span>,</span><br><span class="line">          <span class="attr">"downsampleAggregator"</span>: <span class="string">"avg"</span>,</span><br><span class="line">          <span class="attr">"downsampleFillPolicy"</span>: <span class="string">"none"</span>,</span><br><span class="line">          <span class="attr">"expr"</span>: <span class="string">"histogram_quantile(0.99,sum(rate(base_service_vc_api_latency_bucket&#123;method=\"router\",service=\"vc_api_online\",endpoint!=\"/metrics/\"&#125;[30s]))by (le,endpoint))"</span>,</span><br><span class="line">          <span class="attr">"format"</span>: <span class="string">"time_series"</span>,</span><br><span class="line">          <span class="attr">"intervalFactor"</span>: <span class="number">1</span>,</span><br><span class="line">          <span class="attr">"legendFormat"</span>: <span class="string">"&#123;&#123;endpoint&#125;&#125;"</span>,</span><br><span class="line">          <span class="attr">"refId"</span>: <span class="string">"A"</span></span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"thresholds"</span>: [],</span><br><span class="line">      <span class="attr">"timeFrom"</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">"timeRegions"</span>: [],</span><br><span class="line">      <span class="attr">"timeShift"</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">"title"</span>: <span class="string">"接口延时"</span>,</span><br><span class="line">      <span class="attr">"tooltip"</span>: &#123;</span><br><span class="line">        <span class="attr">"shared"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"sort"</span>: <span class="number">2</span>,</span><br><span class="line">        <span class="attr">"value_type"</span>: <span class="string">"individual"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"graph"</span>,</span><br><span class="line">      <span class="attr">"xaxis"</span>: &#123;</span><br><span class="line">        <span class="attr">"buckets"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"mode"</span>: <span class="string">"time"</span>,</span><br><span class="line">        <span class="attr">"name"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"show"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"values"</span>: []</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"yaxes"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"format"</span>: <span class="string">"s"</span>,</span><br><span class="line">          <span class="attr">"label"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"logBase"</span>: <span class="number">1</span>,</span><br><span class="line">          <span class="attr">"max"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"min"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"show"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"format"</span>: <span class="string">"short"</span>,</span><br><span class="line">          <span class="attr">"label"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"logBase"</span>: <span class="number">1</span>,</span><br><span class="line">          <span class="attr">"max"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"min"</span>: <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">"show"</span>: <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"yaxis"</span>: &#123;</span><br><span class="line">        <span class="attr">"align"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"alignLevel"</span>: <span class="literal">null</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">/*省略非必要的部分*/</span></span><br><span class="line">  <span class="attr">"timezone"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"title"</span>: <span class="string">"new api 相关"</span>,</span><br><span class="line">  <span class="attr">"uid"</span>: <span class="string">"wwgIf9UZz"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="number">32</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>我们关注下比较核心的两个字段，panels以及title，很显然了，title就是我这个dashboard的名称，而panels则是我dashboard里面配置的panel的集合，我们能在panels看到panel的名字，具体使用的PromQL，一些Axes（接口QPS的<code>reqps</code>，接口延时的<code>s</code>）和Display（null as Zero）的配置项。而在grafana新建dashboard之后，只要Json Model导入json文件后，就会有这样的图表。也就是说，只要我们能生成这么一个Json文件，就能避免重复手动配置监控图的工作了。</p>
+<h2 id="Promethus-Monitor-Gen"><a href="#Promethus-Monitor-Gen" class="headerlink" title="Promethus Monitor Gen"></a>Promethus Monitor Gen</h2><p>博主想到的一个解决方案是go generate（没接触过可以看下<a href="2019-03-25-go-genarate-sample">Golang generate 初窥</a>），具体怎么做呢？在我们服务初始化promethus的地方，定义一个struct，它包含了多个监控维度，而后使用golang的ast，解析这个struct并生成我们需要的json文件，详细的项目可以看 <a href="">promethus_monitor_gen</a>。</p>
+<p>核心的struct定义如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> metricConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">   NameSpace   <span class="keyword">string</span></span><br><span class="line">   ServiceName <span class="keyword">string</span></span><br><span class="line"></span><br><span class="line">   TraceMethodMysql  <span class="keyword">string</span> <span class="string">`trace_tag:"true" val:"mysql"`</span></span><br><span class="line">   TraceMethodRedis  <span class="keyword">string</span> <span class="string">`trace_tag:"true" val:"redis"`</span></span><br><span class="line">   TraceMethodRouter <span class="keyword">string</span> <span class="string">`trace_tag:"true" val:"router"`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到我们定义了三个监控维度，分别是mysql，redis以及http请求，此外这几个字段定义了struct tag，用于ast解析生成json。</p>
+<p>这个解析的过程比较简单，代码就不全贴了。核心的部分就是下面的代码，一个是用<code>reflect.StructTag</code>来处理struct的tag，注意要把tag的`给去掉。。。不然会解析不成功。第二个是panel都是有id的，多个panel用相同ID的话会互相覆盖从而导致只有一个panel。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">for _, field :&#x3D; range val.Fields.List &#123;</span><br><span class="line">	if field.Tag !&#x3D; nil &#123;</span><br><span class="line">		v :&#x3D; strings.TrimRight(field.Tag.Value[1:], &quot;&#96;&quot;) &#x2F;&#x2F; 去掉头尾的&#96;</span><br><span class="line">		tag :&#x3D; reflect.StructTag(v)</span><br><span class="line">		&#x2F;&#x2F;fmt.Println(field.Names[0].Name, v, tag, )</span><br><span class="line">		&#x2F;&#x2F;fmt.Println(tag.Lookup(&quot;trace_val&quot;))</span><br><span class="line">		if dimension, b :&#x3D; tag.Lookup(&quot;trace_val&quot;); b &amp;&amp; dimension !&#x3D; &quot;&quot; &#123;</span><br><span class="line">			panel :&#x3D; panelMeta&#123;</span><br><span class="line">				namespace:   namespace,</span><br><span class="line">				serviceName: serviceName,</span><br><span class="line">				dimension:   dimension,</span><br><span class="line">				endpoint:    &quot;&#123;&#123;endpoint&#125;&#125;&quot;,</span><br><span class="line">			&#125;</span><br><span class="line">			id +&#x3D; 2</span><br><span class="line">			panel.id &#x3D; id</span><br><span class="line">			panels &#x3D; append(panels, panel.Qps())</span><br><span class="line">			id +&#x3D; 2</span><br><span class="line">			panel.id &#x3D; id</span><br><span class="line">			panels &#x3D; append(panels, panel.Duration())</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成panel后，这里用了<code>text/template</code>来渲染，当然也可以用<code>fmt</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">var renderData &#x3D; map[string]string&#123;</span><br><span class="line">	&quot;panels&quot;:         strings.Join(panels, &quot;,&quot;),</span><br><span class="line">	&quot;dashBoardTitle&quot;: dashBoardTitle,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">err &#x3D; tem.Execute(outputFile, renderData)</span><br><span class="line">if err !&#x3D; nil &#123;</span><br><span class="line">	log.Fatalf(&quot;render template error: %s&quot;, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后把生成的json文件导到一个新的dashborad就大功告成啦，效果图如下：</p>
+<p><img src="/Users/edz/LSivan/blog/public/images/2020-02-17-promethus-monitor-02.png" alt="image-20200223161707269"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总体来说这个功能还是很简单的，但个人觉得挺实用，确确实实避免了上线新服务重复的监控配置工作。</p>
+<p>但目前的实现是真的很粗糙。。。还待更好的完善，考虑往这几个方向做优化：</p>
+<p>一、将promethus那部分的代码组件化，抽离成一个库或者package，这样每当有新服务，直接调用就好，不用在新服务中拷贝这部分代码。</p>
+<p>二、生成文件后，尝试省去在grafana new dashboard 然后 import json的操作，将这部操作通过 curl 来实现。（当然这要对grafana抓包，可能没那么好实现）</p>
+<p>三、ast解析文件的部分抽离成组件，并采用注册handler的方式，避免每次需要使用golang generate都需要copy ast解析的部分。</p>
+  </article>
+  <aside class="table-content" id="site-toc">
+  <div class="table-content-title">
+    <i class="fa fa-arrow-right fa-lg" id="site-toc-hide-btn"></i>
+    <span>目录</span>
+  </div>
+  <div class="table-content-main">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#常用监控"><span class="toc-text">常用监控</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Grafana-amp-promethus"><span class="toc-text">Grafana &amp; promethus</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Promethus-Monitor-Gen"><span class="toc-text">Promethus Monitor Gen</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+  </div>
+</aside>
+  
+    <aside class="passage-copyright">
+      <div>本文作者: 梁兴威</div>
+      
+        <div>
+          原文链接: 
+          <a href="" target="_blank">http://sivanboy.xyz/passages/2020-02-17-gen-promethus-monitor-1/</a>
+        </div>
+      
+      <div>
+        版权声明: 本博客所有文章除特别声明外, 均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议. 转载请注明出处!
+      </div>
+    </aside>
+  
+  
+    <div class="passage-tags">
+     
+      <a href="/tags/golang/"><i class="fa fa-tags"></i>golang</a>
+     
+      <a href="/tags/backend/"><i class="fa fa-tags"></i>backend</a>
+    
+    </div>
+  
+</div>
+
+    </main>
+    
+      
+<div class="site-comment-contanier" data-plateform="leancloud">
+  
+    <p id="site-comment-info">
+      <i class="fa fa-spinner fa-spin"></i> 评论加载中
+    </p>
+    <div id="site-comment"></div>
+  
+</div>
+    
+    <div class="site-footer-wrapper">
+  <footer class="site-footer">
+    
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">博客推荐</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://godbmw.com/" target="_blank">GodBMW(主题作者)</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://ruanyifeng.com/" target="_blank">阮一峰的个人网站</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">有趣的东西</h5>
+          
+            <span class="site-footer-item">
+              <a href="http://guozhivip.com/lab/" target="_blank">果汁实验室</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="http://chongbuluo.com/" target="_blank">虫部落</a>
+            </span>
+          
+        </div>
+      
+        <div class="site-footer-col">
+          <h5 class="site-footer-title">社区</h5>
+          
+            <span class="site-footer-item">
+              <a href="https://juejin.im/user/59df548bf265da432d2718aa" target="_blank">掘金</a>
+            </span>
+          
+            <span class="site-footer-item">
+              <a href="https://www.jianshu.com/u/ff2d02481797" target="_blank">简书</a>
+            </span>
+          
+        </div>
+      
+    
+    <div class="site-footer-info">
+      <i class="fa fa-clock-o"></i> 本站已稳定运行<span id="site-time"></span>
+    </div>
+    
+      <div class="site-footer-info">
+        <i class="fa fa-paw"></i> 您是本站第 <span id="site-count"></span> 位访客
+      </div>
+    
+    
+      <div class="site-footer-info">
+        <i class="fa fa-at"></i> Email: l_sivan@foxmail.com
+      </div>
+    
+    <div class="site-footer-info">
+      <i class="fa fa-copyright"></i> 
+      2019 <a href="https://github.com/dongyuanxin/theme-ad/" target="_blank">Theme-AD</a>.
+      Created by <a href="https://godbmw.com/" target="_blank">GodBMW</a>.
+      All rights reserved.
+    </div>
+  </footer>
+</div>
+    <div id="site-layer" style="display:none;">
+  <div class="site-layer-content">
+    <div class="site-layer-header">
+      <span class="site-layer-header-title" id="site-layer-title"></span>
+      <i class="fa fa-close" id="site-layer-close"></i>
+    </div>
+    <div class="site-layer-body" id="site-layer-container">
+      <div class="site-layer-input" id="site-layer-search" style="display: none;">
+        <div class="site-layer-input-choose">
+          <a href="javascript:void(0);" title="Change Search Engine">Google</a>
+        </div>
+        <input type="text">
+        <i class="fa fa-search"></i>
+      </div>
+      
+        <div class="site-layer-reward" id="site-layer-reward" style="display: none;">
+          
+            <div>
+              <img src="/images/wechat.png" alt="WeChat">
+              
+                <p>WeChat</p>
+              
+            </div>
+          
+            <div>
+              <img src="/images/alipay.png" alt="AliPay">
+              
+                <p>AliPay</p>
+              
+            </div>
+          
+        </div>
+      
+      <div id="site-layer-welcome" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+    
+
+<div class="bottom-bar">
+  <div class="bottom-bar-left">
+    <a href="javascript:void(0);" data-enable="false">
+      <i class="fa fa-arrow-left"></i>
+    </a>
+    <a href="/passages/2020-01-22-review-2019/" data-enable="true">
+      <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
+  <div class="bottom-bar-right">
+    <a href="javascript:void(0);" data-enable="true" id="site-toc-show-btn">
+      <i class="fa fa-bars"></i>
+    </a>
+    
+      <a href="#site-comment" data-enable="true">
+        <i class="fa fa-commenting"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="site-toggle-share-btn">
+      <i class="fa fa-share-alt"></i>
+    </a>
+    
+      <a href="javascript:void(0);" id="site-reward">
+        <i class="fa fa-thumbs-up"></i>
+      </a>
+    
+    <a href="javascript:void(0);" id="back-top-btn">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+</div>
+    <div id="share-btn">
+  
+  
+  
+    <a id="share-btn-weibo" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-weibo"></i>
+    </a>
+  
+  
+    <a id="share-btn-qq" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-qq"></i>
+    </a>
+  
+  
+    <a id="share-btn-wechat" href="javascript:void(0);" target="_blank">
+      <i class="fa fa-wechat"></i>
+    </a>
+  
+</div>
+    
+
+
+
+
+
+    
+  </body>
+</html>
